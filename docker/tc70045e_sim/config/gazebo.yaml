@@ -1,0 +1,6 @@
+# Gazebo ROS parameters for the TC70045E simulation.
+# publish_rate: /clock at 200 Hz (default 10 Hz). Nodes using simulated time can only run timers as fast as /clock
+# ticks, so the 10 ms encoder window of wheel_odometry needs a fast clock.
+gazebo:
+  ros__parameters:
+    publish_rate: 200.0

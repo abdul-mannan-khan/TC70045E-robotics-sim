@@ -1,0 +1,264 @@
+<?xml version="1.0"?>
+<!--
+  TC70045E lab robot: a four-wheel mecanum (holonomic) base for Gazebo Classic 11 / ROS 2 Humble.
+
+  Frames (all prefixed with ${prefix}, e.g. "robot1/" in the multi-robot launch):
+    base_footprint -> base_link -> {laser_link, imu_link, camera_link -> camera_color_optical_frame, wheel links}
+
+  Sensors and what they publish (relative names, so a namespace is prepended when one is used):
+    scan                    sensor_msgs/LaserScan   2D LiDAR, 360 deg, 720 rays (0.5 deg), 5.5 Hz, 0.15-12 m
+    imu/data_raw            sensor_msgs/Imu         100 Hz, MEMS-grade noise, turn-on bias and bias instability
+    camera_sim/...          ideal colour + depth from the RGB-D sensor (turned into D455-style topics by stereo_depth)
+    ground_truth/odom       nav_msgs/Odometry       exact pose/twist from the simulator (for evaluation only)
+  Motion: cmd_vel (geometry_msgs/Twist, vx, vy and wz all honoured) through gazebo_ros_planar_move.
+  Wheel encoders, /odom_raw and the odom -> base_footprint transform come from the wheel_odometry node, not from here.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="lab_robot">
+  <xacro:arg name="prefix" default=""/>
+  <xacro:arg name="camera" default="true"/>
+  <xacro:arg name="camera_rate" default="15"/>
+  <xacro:arg name="camera_width" default="848"/>
+  <xacro:arg name="camera_height" default="480"/>
+  <xacro:property name="p" value="$(arg prefix)"/>
+
+  <!-- Geometry used in the lectures: r = 37.5 mm, lx = 95 mm, ly = 85 mm (lx + ly = 0.18 m) -->
+  <xacro:property name="r" value="0.0375"/>
+  <xacro:property name="lx" value="0.095"/>
+  <xacro:property name="ly" value="0.085"/>
+  <xacro:property name="body_l" value="0.30"/>
+  <xacro:property name="body_w" value="0.20"/>
+  <xacro:property name="body_h" value="0.08"/>
+
+  <link name="${p}base_footprint"/>
+
+  <link name="${p}base_link">
+    <visual>
+      <geometry><box size="${body_l} ${body_w} ${body_h}"/></geometry>
+      <material name="body"><color rgba="0.20 0.25 0.35 1"/></material>
+    </visual>
+    <collision>
+      <geometry><box size="${body_l} ${body_w} ${body_h}"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="3.0"/>
+      <inertia ixx="0.0117" ixy="0" ixz="0" iyy="0.0241" iyz="0" izz="0.0325"/>
+    </inertial>
+  </link>
+  <joint name="${p}base_joint" type="fixed">
+    <parent link="${p}base_footprint"/>
+    <child link="${p}base_link"/>
+    <origin xyz="0 0 ${body_h/2 + 0.002}" rpy="0 0 0"/>
+  </joint>
+  <gazebo reference="${p}base_link">
+    <material>Gazebo/DarkGrey</material>
+    <mu1>0.0</mu1>
+    <mu2>0.0</mu2>
+  </gazebo>
+
+  <!-- Wheels are visual only: the planar_move plugin moves the body, so wheel contact cannot fight it -->
+  <xacro:macro name="wheel" params="name x y">
+    <link name="${p}wheel_${name}_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${r}" length="0.035"/></geometry>
+        <material name="wheel"><color rgba="0.05 0.05 0.05 1"/></material>
+      </visual>
+      <inertial>
+        <mass value="0.1"/>
+        <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+      </inertial>
+    </link>
+    <joint name="${p}wheel_${name}_joint" type="fixed">
+      <parent link="${p}base_link"/>
+      <child link="${p}wheel_${name}_link"/>
+      <origin xyz="${x} ${y} ${r - body_h/2 - 0.002}" rpy="0 0 0"/>
+    </joint>
+    <gazebo reference="${p}wheel_${name}_link"><material>Gazebo/Black</material></gazebo>
+  </xacro:macro>
+  <xacro:wheel name="fl" x="${lx}" y="${ly + 0.02}"/>
+  <xacro:wheel name="fr" x="${lx}" y="${-ly - 0.02}"/>
+  <xacro:wheel name="rl" x="${-lx}" y="${ly + 0.02}"/>
+  <xacro:wheel name="rr" x="${-lx}" y="${-ly - 0.02}"/>
+
+  <!-- 2D LiDAR -->
+  <link name="${p}laser_link">
+    <visual>
+      <geometry><cylinder radius="0.035" length="0.04"/></geometry>
+      <material name="lidar"><color rgba="0.1 0.1 0.1 1"/></material>
+    </visual>
+    <collision>
+      <geometry><cylinder radius="0.035" length="0.04"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.17"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+  </link>
+  <joint name="${p}laser_joint" type="fixed">
+    <parent link="${p}base_link"/>
+    <child link="${p}laser_link"/>
+    <origin xyz="0.02 0 ${body_h/2 + 0.06}" rpy="0 0 0"/>
+  </joint>
+  <gazebo reference="${p}laser_link">
+    <material>Gazebo/FlatBlack</material>
+    <sensor type="ray" name="lidar">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>false</visualize>
+      <update_rate>5.5</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>720</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159265</min_angle>
+            <max_angle>3.13322607</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.15</min>
+          <max>12.0</max>
+          <resolution>0.001</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin name="lidar_driver" filename="libgazebo_ros_ray_sensor.so">
+        <ros>
+          <remapping>~/out:=scan</remapping>
+        </ros>
+        <output_type>sensor_msgs/LaserScan</output_type>
+        <frame_name>${p}laser_link</frame_name>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- 9-axis IMU (accelerometer + gyroscope here; the magnetometer is the magnetometer node) -->
+  <link name="${p}imu_link">
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001"/>
+    </inertial>
+  </link>
+  <joint name="${p}imu_joint" type="fixed">
+    <parent link="${p}base_link"/>
+    <child link="${p}imu_link"/>
+    <origin xyz="0 0 0.01" rpy="0 0 0"/>
+  </joint>
+  <!-- Gyro: noise density 0.015 dps/sqrt(Hz) -> 0.00185 rad/s per sample at 100 Hz (BW 50 Hz);
+       turn-on bias sd 0.1 dps; bias instability modelled as a Gauss-Markov process (sd 0.005 dps, tau 300 s).
+       Accel: 230 ug/sqrt(Hz) -> 0.016 m/s^2 per sample; turn-on bias sd 0.05 m/s^2. -->
+  <xacro:macro name="gyro_noise">
+    <noise type="gaussian">
+      <mean>0.0</mean><stddev>0.00185</stddev>
+      <bias_mean>0.0</bias_mean><bias_stddev>0.00175</bias_stddev>
+      <dynamic_bias_stddev>0.0000873</dynamic_bias_stddev>
+      <dynamic_bias_correlation_time>300.0</dynamic_bias_correlation_time>
+    </noise>
+  </xacro:macro>
+  <xacro:macro name="accel_noise">
+    <noise type="gaussian">
+      <mean>0.0</mean><stddev>0.016</stddev>
+      <bias_mean>0.0</bias_mean><bias_stddev>0.05</bias_stddev>
+      <dynamic_bias_stddev>0.002</dynamic_bias_stddev>
+      <dynamic_bias_correlation_time>300.0</dynamic_bias_correlation_time>
+    </noise>
+  </xacro:macro>
+  <gazebo reference="${p}imu_link">
+    <sensor name="imu" type="imu">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <imu>
+        <angular_velocity>
+          <x><xacro:gyro_noise/></x><y><xacro:gyro_noise/></y><z><xacro:gyro_noise/></z>
+        </angular_velocity>
+        <linear_acceleration>
+          <x><xacro:accel_noise/></x><y><xacro:accel_noise/></y><z><xacro:accel_noise/></z>
+        </linear_acceleration>
+      </imu>
+      <plugin name="imu_driver" filename="libgazebo_ros_imu_sensor.so">
+        <ros>
+          <remapping>~/out:=imu/data_raw</remapping>
+        </ros>
+        <frame_name>${p}imu_link</frame_name>
+        <initial_orientation_as_reference>false</initial_orientation_as_reference>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- RGB-D camera with D455-like geometry: 848 x 480, 87 deg horizontal FoV (fx = 447 px).
+       camera_width/camera_height (e.g. 424 x 240, fx = 223 px) render much faster on a laptop without a GPU. -->
+  <link name="${p}camera_link">
+    <visual>
+      <geometry><box size="0.026 0.124 0.029"/></geometry>
+      <material name="cam"><color rgba="0.6 0.6 0.6 1"/></material>
+    </visual>
+    <inertial>
+      <mass value="0.39"/>
+      <inertia ixx="0.0005" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0005"/>
+    </inertial>
+  </link>
+  <joint name="${p}camera_joint" type="fixed">
+    <parent link="${p}base_link"/>
+    <child link="${p}camera_link"/>
+    <origin xyz="0.14 0 ${body_h/2 + 0.05}" rpy="0 0 0"/>
+  </joint>
+  <link name="${p}camera_color_optical_frame"/>
+  <joint name="${p}camera_optical_joint" type="fixed">
+    <parent link="${p}camera_link"/>
+    <child link="${p}camera_color_optical_frame"/>
+    <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+  </joint>
+  <xacro:if value="$(arg camera)">
+    <gazebo reference="${p}camera_link">
+      <material>Gazebo/Grey</material>
+      <sensor name="rgbd" type="depth">
+        <always_on>true</always_on>
+        <update_rate>$(arg camera_rate)</update_rate>
+        <camera>
+          <horizontal_fov>1.5184</horizontal_fov>
+          <image>
+            <width>$(arg camera_width)</width>
+            <height>$(arg camera_height)</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>12.0</far>
+          </clip>
+        </camera>
+        <plugin name="rgbd_driver" filename="libgazebo_ros_camera.so">
+          <ros>
+            <namespace>camera_sim</namespace>
+          </ros>
+          <camera_name>ideal</camera_name>
+          <frame_name>${p}camera_color_optical_frame</frame_name>
+          <hack_baseline>0.095</hack_baseline>
+          <min_depth>0.1</min_depth>
+          <max_depth>12.0</max_depth>
+        </plugin>
+      </sensor>
+    </gazebo>
+  </xacro:if>
+
+  <!-- Holonomic motion: vx, vy and wz from cmd_vel. The simulator's exact odometry is published as
+       ground_truth/odom and is NOT used for control or estimation - it is the reference you evaluate against. -->
+  <gazebo>
+    <plugin name="mecanum_base" filename="libgazebo_ros_planar_move.so">
+      <ros>
+        <remapping>odom:=ground_truth/odom</remapping>
+      </ros>
+      <update_rate>100</update_rate>
+      <publish_rate>50</publish_rate>
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>false</publish_odom_tf>
+      <odometry_frame>${p}world</odometry_frame>
+      <robot_base_frame>${p}base_footprint</robot_base_frame>
+      <covariance_x>0.0</covariance_x>
+      <covariance_y>0.0</covariance_y>
+      <covariance_yaw>0.0</covariance_yaw>
+    </plugin>
+  </gazebo>
+</robot>

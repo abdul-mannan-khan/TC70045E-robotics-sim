@@ -1,0 +1,10 @@
+# Keep Unix line endings on everything that runs inside the Linux container.
+# Without this, a Windows clone gets CRLF and bash fails with "$'\r': command not found".
+* text=auto eol=lf
+*.sh      text eol=lf
+*.py      text eol=lf
+*.yaml    text eol=lf
+*.yml     text eol=lf
+*.md      text eol=lf
+Dockerfile text eol=lf
+*.ps1     text eol=crlf

@@ -1,0 +1,10 @@
+# Configuration of the motor-controller driver, as it arrived with the "board".
+# Week 3 integration clinic: this file contains THREE mistakes. Find them with motion_test.py, fix them here,
+# restart base_driver.py, and test again. (The correct answers are in base_driver_good.yaml - no peeking.)
+base_driver:
+  ros__parameters:
+    wheel_radius: 0.075          # metres
+    lx_plus_ly: 0.18             # metres: half the wheelbase + half the track
+    reversed: ['fr']             # motors wired backwards: any of fl, fr, rl, rr - or ['none']
+    max_wheel_speed: 30.0        # rad/s
+    cmd_timeout_s: 0.0           # seconds without a command before the motors stop; 0 = never

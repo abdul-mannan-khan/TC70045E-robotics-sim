@@ -1,0 +1,16 @@
+# Linux only: pass a physically connected RealSense D455 into the container.
+# Use it as an override, on top of the main file:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.linux-usb.yml up -d ros2
+#
+# Do NOT use this on Windows or macOS: Docker Desktop has no /dev/bus/usb, so the container
+# will refuse to start. On those machines replay the recorded D455 bag in bags/ instead.
+services:
+  ros2:
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    # udev lets librealsense identify the camera by its rules rather than by raw device number
+    volumes:
+      - ./workspace:/home/ubuntu/ws
+      - ./bags:/home/ubuntu/bags
+      - /run/udev:/run/udev:ro

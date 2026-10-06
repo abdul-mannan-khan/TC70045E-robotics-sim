@@ -1,0 +1,26 @@
+# student work and large artefacts stay out of the repository
+docker/workspace/*
+!docker/workspace/.gitkeep
+docker/bags/*
+!docker/bags/.gitkeep
+docker/maps/*
+!docker/maps/.gitkeep
+*.bag
+*.mcap
+*.db3
+*.pcd
+*.bt
+*.pgm
+__pycache__/
+*.pyc
+build/
+install/
+log/
+.DS_Store
+*.csv
+*.png
+!docs/**/*.png
+week*/data/
+docker/ollama/
+*.onnx
+yolo11n.pt

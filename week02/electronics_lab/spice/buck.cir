@@ -1,0 +1,35 @@
+* TC70045E Week 2 - 12 V -> 5 V synchronous buck converter, open loop, steady state
+* Run:   ngspice -b ~/labs/week02/spice/buck.cir
+* Compare the measured ripple with the hand calculation of Section 2.1:
+*   D = 5/12, dI_L = Vout(1-D)/(L fsw) = 0.265 A pk-pk, dV = dI/(8 fsw C) + dI*ESR = 0.66 + 7.95 mV
+.param vin=12 fsw=500k duty={5/12} lval=22u cval=100u esr=30m esl=0 rload=5
+.param tper={1/fsw} ton={duty*tper}
+* start at the expected operating point (switch 10m + winding 20m in series) so the LC network need not settle
+.param v0={vin*duty*rload/(rload+0.03)} i0={v0/rload}
+
+Vin   in   0    {vin}
+* gate drives: high side on for ton, low side on for the rest (ideal, no dead time)
+Vgh   gh   0    PULSE(0 1 0 1n 1n {ton-2n} {tper})
+Vgl   gl   0    PULSE(1 0 0 1n 1n {ton-2n} {tper})
+S1    in   sw   gh 0 swmod
+S2    sw   0    gl 0 swmod
+.model swmod SW(Vt=0.5 Vh=0 Ron=10m Roff=1Meg)
+
+* inductor with 20 mOhm winding resistance; Vsense measures the inductor current
+L1    sw   lx   {lval} IC={i0}
+RL    lx   ly   20m
+Vsense ly  out  0
+* output capacitor: C in series with its ESR and ESL
+C1    out  c1   {cval} IC={v0}
+Resr  c1   c2   {esr}
+Lesl  c2   0    {esl+1e-15}
+Rload out  0    {rload}
+
+.options method=gear reltol=1e-4
+.tran 5n 3m 0 5n uic
+* measure over the last 20 us (10 switching periods at 500 kHz), after 3 ms of settling
+.meas tran vout_avg AVG v(out)    FROM=2.98m TO=3m
+.meas tran vripple  PP  v(out)    FROM=2.98m TO=3m
+.meas tran iripple  PP  i(Vsense) FROM=2.98m TO=3m
+.meas tran iload    AVG i(Vsense) FROM=2.98m TO=3m
+.end

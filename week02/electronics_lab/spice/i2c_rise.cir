@@ -1,0 +1,24 @@
+* TC70045E Week 2 - I2C open-drain bus: rise time against pull-up and bus capacitance
+* Run:   ngspice -b ~/labs/week02/spice/i2c_rise.cir
+* An open-drain driver (switch, 25 ohm on) holds SCL low for 2 us and releases it at t = 2 us.
+* The pull-up Rp charges the bus capacitance Cb; the I2C rise time is measured from 30 % to 70 % of VDD.
+* Theory: t_r = Rp Cb ln(0.7/0.3) = 0.8473 Rp Cb
+.param vdd=3.3 rp=4.7k cb=200p cprobe=0
+
+Vdd   vdd  0    {vdd}
+Rp    vdd  scl  {rp}
+Cb    scl  0    {cb}
+* optional oscilloscope probe: 10 Mohm in parallel with cprobe (use 10p for a 10:1 passive probe)
+Rprb  scl  0    10Meg
+Cprb  scl  0    {cprobe+1e-18}
+* open-drain driver: on (pulls low) while the gate signal is high
+Vg    g    0    PULSE(1 0 2u 1n 1n 20u 40u)
+S1    scl  0    g 0 odmod
+.model odmod SW(Vt=0.5 Vh=0 Ron=25 Roff=100Meg)
+
+.tran 1n 12u
+.meas tran vlow  FIND v(scl) AT=1.9u
+.meas tran t30   WHEN v(scl)={0.3*vdd} RISE=1
+.meas tran t70   WHEN v(scl)={0.7*vdd} RISE=1
+.meas tran trise PARAM='t70-t30'
+.end

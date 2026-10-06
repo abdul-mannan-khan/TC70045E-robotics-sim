@@ -1,0 +1,99 @@
+name: Build and test the lab image
+
+# Builds the student Docker image exactly as a student would, then runs the same checks
+# the module used to verify the lecture code. If this badge is green, the kit works.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 1 * *'        # monthly: upstream apt packages move, and we want to know before the students do
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk space on the runner
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup
+          sudo docker image prune -af
+          df -h /
+
+      - name: Build the image
+        run: docker build -t tc70045e/ros2-lab:humble docker/
+
+      - name: ROS 2 packages the lectures use are installed
+        run: |
+          docker run --rm tc70045e/ros2-lab:humble bash -lc '
+            source /opt/ros/humble/setup.bash
+            source /opt/tc70045e_ws/install/setup.bash
+            fail=0
+            for p in tc70045e_sim gazebo_ros depth_image_proc realsense2_camera rtabmap_ros rtabmap_slam rtabmap_launch \
+                     slam_toolbox cartographer_ros nav2_bringup nav2_simple_commander robot_localization \
+                     imu_filter_madgwick pcl_ros cv_bridge camera_calibration octomap_server \
+                     topic_tools teleop_twist_keyboard joy; do
+              if ros2 pkg prefix $p >/dev/null 2>&1; then echo "OK   pkg $p"; else echo "FAIL pkg $p"; fail=1; fi
+            done
+            exit $fail'
+
+      - name: Launch files and executables resolve
+        run: |
+          docker run --rm tc70045e/ros2-lab:humble bash -lc '
+            source /opt/ros/humble/setup.bash
+            fail=0
+            for spec in "realsense2_camera rs_launch.py" "slam_toolbox online_async_launch.py" \
+                        "nav2_bringup navigation_launch.py" "rtabmap_launch rtabmap.launch.py"; do
+              set -- $spec
+              if timeout 180 ros2 launch $1 $2 --show-args >/dev/null 2>&1; then echo "OK   launch $1/$2"
+              else echo "FAIL launch $1/$2"; fail=1; fi
+            done
+            for spec in "robot_localization:ekf_node" "imu_filter_madgwick:imu_filter_madgwick_node" \
+                        "slam_toolbox:async_slam_toolbox_node" "nav2_map_server:map_saver_cli" \
+                        "octomap_server:octomap_saver_node" "camera_calibration:cameracalibrator"; do
+              p=${spec%%:*}; e=${spec##*:}
+              if ros2 pkg executables $p 2>/dev/null | grep -qw $e; then echo "OK   exec $p/$e"
+              else echo "FAIL exec $p/$e"; fail=1; fi
+            done
+            exit $fail'
+
+      - name: The RealSense launch arguments the lectures pass really exist
+        run: |
+          docker run --rm tc70045e/ros2-lab:humble bash -lc '
+            source /opt/ros/humble/setup.bash
+            ros2 launch realsense2_camera rs_launch.py --show-args > /tmp/a 2>&1
+            fail=0
+            for a in camera_namespace depth_module.depth_profile rgb_camera.color_profile \
+                     align_depth.enable pointcloud.enable enable_gyro enable_accel unite_imu_method; do
+              if grep -q "$a" /tmp/a; then echo "OK   arg $a"; else echo "FAIL arg $a"; fail=1; fi
+            done
+            exit $fail'
+
+      - name: The simulated lab robot runs and the kit self-test passes (headless)
+        run: |
+          # validate.sh always exits 0 (it is a report for students), so fail the job on any FAIL line.
+          docker run --rm --shm-size=2g -v "$PWD:/home/ubuntu/labs" tc70045e/ros2-lab:humble bash -lc '
+            LOG=/tmp/v.log bash /home/ubuntu/labs/tools/validate.sh; ! grep -q "|FAIL" /tmp/v.log'
+
+      - name: Python stack is intact (NumPy stays below 2 or cv_bridge breaks)
+        run: |
+          docker run --rm tc70045e/ros2-lab:humble bash -lc '
+            source /opt/ros/humble/setup.bash
+            python3 -c "import numpy, cv2, scipy, matplotlib, pandas, mavsdk, serial, can; from cv_bridge import CvBridge; from sensor_msgs_py import point_cloud2; assert numpy.__version__ < \"2\", \"NumPy 2 breaks cv_bridge: pin numpy<2\"; print(\"OK   python stack, numpy\", numpy.__version__, \"cv2\", cv2.__version__)"'
+
+      - name: The scripts in this repository all parse
+        run: |
+          docker run --rm -v "$PWD:/repo" tc70045e/ros2-lab:humble bash -lc '
+            cd /repo
+            fail=0
+            for f in $(find . -name "*.py" -not -path "./.git/*"); do
+              python3 -c "import ast,sys;ast.parse(open(sys.argv[1]).read())" "$f" || { echo "FAIL $f"; fail=1; }
+            done
+            for f in $(find . -name "*.sh" -not -path "./.git/*"); do
+              bash -n "$f" || { echo "FAIL $f"; fail=1; }
+            done
+            echo "checked $(find . -name "*.py" -not -path "./.git/*" | wc -l) python and $(find . -name "*.sh" -not -path "./.git/*" | wc -l) shell files"
+            exit $fail'

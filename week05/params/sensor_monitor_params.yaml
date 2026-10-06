@@ -1,0 +1,12 @@
+# Parameters for lab_sensing/sensor_monitor (TC70045E Week 5).
+#   ros2 run lab_sensing sensor_monitor --ros-args --params-file ~/labs/week05/params/sensor_monitor_params.yaml
+# The node name at the top must match the running node's name (sensor_monitor).
+sensor_monitor:
+  ros__parameters:
+    use_sim_time: true           # header stamps and /clock are simulated time
+    imu_topic: /imu/data_raw
+    expected_hz: 100.0           # the simulated IMU's update_rate (URDF)
+    rate_tolerance: 0.10         # +/- 10 %
+    window_s: 2.0                # sliding window
+    report_hz: 2.0               # /sensor_health publication rate
+    battery_min_v: 10.5          # 3S pack: 3.5 V per cell

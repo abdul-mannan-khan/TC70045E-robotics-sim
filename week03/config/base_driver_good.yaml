@@ -1,0 +1,8 @@
+# The corrected driver configuration (Week 3 integration clinic answer).
+base_driver:
+  ros__parameters:
+    wheel_radius: 0.0375         # measured: 75 mm wheel DIAMETER -> 37.5 mm radius (the datasheet gave the diameter)
+    lx_plus_ly: 0.18
+    reversed: ['none']           # the front-right motor was wired correctly after all - the config was wrong
+    max_wheel_speed: 30.0
+    cmd_timeout_s: 0.5           # stop if the computer stops talking to the board
