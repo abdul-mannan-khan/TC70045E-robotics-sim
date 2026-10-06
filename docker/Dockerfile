@@ -1,7 +1,8 @@
 # TC70045E lab image: ROS 2 Humble desktop in a browser + the simulated lab robot + the packages used in this module.
+# Build from the REPOSITORY ROOT (the course code is copied in):  docker build -f docker/Dockerfile -t abdulmannan617/tc70045e-ros2:humble .
 # Base image provides a Linux desktop with ROS 2 Humble reachable at http://localhost:6080 (amd64 and arm64).
 # Every package below was installed and exercised on a clean ROS 2 Humble container (2026-09-19 and 2026-09-21).
-FROM tiryoh/ros2-desktop-vnc:humble
+FROM tiryoh/ros2-desktop-vnc:humble AS core
 
 # One BLAS thread per process: on many-core machines every numpy process otherwise starts dozens of threads
 # (measured: 64 per process on an 80-core server), which starved the simulator and delayed /cmd_vel by seconds.
@@ -59,7 +60,7 @@ RUN pip3 install --no-cache-dir "numpy<2" "setuptools<80" --extra-index-url http
 
 # --- The simulated lab robot (four-wheel mecanum base, 2D LiDAR, IMU, D455-style RGB-D camera, wheel encoders,
 #     battery model, virtual serial microcontroller, motor test bench). Built once into /opt/tc70045e_ws. ---
-COPY tc70045e_sim /opt/tc70045e_ws/src/tc70045e_sim
+COPY docker/tc70045e_sim /opt/tc70045e_ws/src/tc70045e_sim
 RUN source /opt/ros/humble/setup.bash \
  && cd /opt/tc70045e_ws \
  && colcon build --install-base /opt/tc70045e_ws/install \
@@ -79,3 +80,11 @@ RUN mkdir -p /home/ubuntu/ws/src /home/ubuntu/ws/maps /home/ubuntu/bags /home/ub
     } > /etc/profile.d/tc70045e.sh \
  && chmod 0644 /etc/profile.d/tc70045e.sh \
  && cat /etc/profile.d/tc70045e.sh >> /etc/bash.bashrc
+
+# --- The whole course repository is part of the image (self-contained: nothing has to be downloaded or mounted).
+#     It lands in ~/labs. When you run the container from a clone with docker compose, the clone is mounted over
+#     this copy instead, so your edits are kept on your own disk.
+#     'core' (everything above) is also the base of the drone and CARLA images; they copy the course code last too,
+#     so a change in the course code never rebuilds the simulators.
+FROM core
+COPY --chown=1000:1000 . /home/ubuntu/labs

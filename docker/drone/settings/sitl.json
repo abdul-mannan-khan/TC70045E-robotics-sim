@@ -1,0 +1,81 @@
+{
+  "SettingsVersion": 1.2,
+  "SimMode": "Multirotor",
+  "ClockSpeed": 1,
+  "ViewMode": "SpringArmChase",
+  "OriginGeopoint": {
+    "Latitude": 47.641468,
+    "Longitude": -122.140165,
+    "Altitude": 122
+  },
+  "Vehicles": {
+    "Drone0": {
+      "VehicleType": "PX4Multirotor",
+      "UseSerial": false,
+      "LockStep": true,
+      "UseTcp": true,
+      "TcpPort": 4560,
+      "ControlIp": "127.0.0.1",
+      "ControlPortLocal": 14540,
+      "ControlPortRemote": 14580,
+      "LocalHostIp": "127.0.0.1",
+      "QgcHostIp": "127.0.0.1",
+      "QgcPort": 14550,
+      "Sensors": {
+        "Barometer": {
+          "SensorType": 1,
+          "Enabled": true,
+          "PressureFactorSigma": 0.0001825
+        }
+      },
+      "Parameters": {
+        "NAV_RCL_ACT": 0,
+        "NAV_DLL_ACT": 0,
+        "COM_OBL_ACT": 1,
+        "COM_RC_IN_MODE": 1,
+        "LPE_LAT": 47.641468,
+        "LPE_LON": -122.140165
+      },
+      "Cameras": {
+        "front": {
+          "CaptureSettings": [
+            {
+              "ImageType": 0,
+              "Width": 640,
+              "Height": 480,
+              "FOV_Degrees": 90
+            },
+            {
+              "ImageType": 2,
+              "Width": 640,
+              "Height": 480,
+              "FOV_Degrees": 90
+            }
+          ],
+          "X": 0.25,
+          "Y": 0,
+          "Z": -0.1,
+          "Pitch": 0,
+          "Roll": 0,
+          "Yaw": 0
+        },
+        "down": {
+          "CaptureSettings": [
+            {
+              "ImageType": 0,
+              "Width": 640,
+              "Height": 480,
+              "FOV_Degrees": 90
+            }
+          ],
+          "X": 0,
+          "Y": 0,
+          "Z": 0.1,
+          "Pitch": -90,
+          "Roll": 0,
+          "Yaw": 0
+        }
+      }
+    }
+  }
+}

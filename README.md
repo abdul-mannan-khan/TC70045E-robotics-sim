@@ -1,59 +1,64 @@
-# TC70045E — Electronic Systems (Sensors and Actuators): laboratory code
+# TC70045E — Electronic Systems (Sensors and Actuators): robotics simulation course
 
 [![Build and test the lab image](https://github.com/abdul-mannan-khan/TC70045E-robotics-sim/actions/workflows/docker-build.yml/badge.svg)](https://github.com/abdul-mannan-khan/TC70045E-robotics-sim/actions/workflows/docker-build.yml)
 
-*(The badge turns green once this repository is pushed to GitHub: the workflow builds the image from
-scratch, starts the simulated robot and runs the kit self-test, so a broken upstream package is caught before a
-laboratory.)*
+A twelve-week, **simulation-only** ROS 2 course: mobile robots in **Gazebo + RViz**, a self-driving car in
+**CARLA**, drones in **AirSim + PX4**. Everything runs in ready-made containers that already contain the
+simulators, ROS 2 Humble and all the course code - in a browser desktop, on your own computer or on a rented
+GPU computer (Vast.ai). Nothing has to be installed or downloaded besides the container.
 
-Everything you need to do **every laboratory of this module on your own laptop**, in a browser, with no ROS
-installation: a ROS 2 Humble container, a **simulated lab robot** (a four-wheel mecanum base with a 2D LiDAR, a
-9-axis IMU, wheel encoders, a battery model and an Intel RealSense D455-style depth camera), and one folder per
-teaching week with the scripts the lecture uses.
+## Every week has the same five steps
 
-## Start here (once – about 30 minutes, mostly waiting for the download)
+1. **Demo video** (Blackboard) - watch the commands being typed and what happens. You can repeat it at home.
+2. **Lecture** - short, figure-led: the idea and the building blocks.
+3. **Container** - start the simulation in class (below).
+4. **Activity** - one `TODO` in one named file in this week's folder. The week's README says which file,
+   what to do and how you know you are done.
+5. **Solution** - a worked, tested solution in [`solutions/weekNN/`](solutions/). Try first, then compare.
 
-1. Install **Docker Desktop** (Windows/macOS) or Docker Engine (Linux) and start it.
-2. Clone or download this repository.
-3. Build and start the environment:
+## The containers
+
+| Image | Robots | Weeks | Needs |
+|---|---|---|---|
+| `abdulmannan617/tc70045e-ros2:humble` | mobile robot (Gazebo + RViz + ROS 2) | 1-9, 12 | any 64-bit computer, no GPU |
+| `abdulmannan617/tc70045e-carla:latest` | self-driving car (CARLA 0.9.15 + ROS 2 bridge) | 10 | NVIDIA GPU, 8 GB+ |
+| `abdulmannan617/tc70045e-drone:latest` | drone (AirSim 1.8.1 + PX4 1.14 + ROS 2) | 11 | NVIDIA GPU, 6 GB+ |
+
+**Start (own computer):**
 
 ```bash
-cd docker
-docker compose up -d ros2          # first build: 20-40 minutes and about 15 GB of disk
+docker run -d --name tc70045e -p 6080:80 --shm-size 2g --security-opt seccomp=unconfined \
+    -e USER=ubuntu -e RESOLUTION=1600x900 abdulmannan617/tc70045e-ros2:humble
 ```
 
-4. Open **<http://localhost:6080>** in your browser: a Linux desktop with ROS 2 Humble, `rviz2`, `rqt`, Gazebo and
-   a terminal. This repository is at `~/labs` inside it.
-5. Check the kit, then launch the robot:
+Open **<http://localhost:6080>** (password `ubuntu`), open a terminal in the desktop; the course is at `~/labs`.
 
-```bash
-bash ~/labs/tools/validate.sh                                   # every line should end in OK (about 3 minutes)
-ros2 launch tc70045e_sim sim.launch.py                          # the simulated lab robot in the laboratory world
-ros2 launch tc70045e_sim sim.launch.py camera_width:=424 camera_height:=240   # faster camera on a laptop without a GPU
-```
+* Full instructions for your own computer, including the GPU images and `docker compose`:
+  [docs/RUN_LOCALLY.md](docs/RUN_LOCALLY.md)
+* No suitable computer, or you prefer not to run simulations on it: [docs/RUN_ON_VAST.md](docs/RUN_ON_VAST.md)
+  (about $0.10-0.20 an hour)
+* Drone and car, with and without ROS 2: [examples/airsim/](examples/airsim/), [examples/carla/](examples/carla/)
+* Drone hardware in the loop (Jetson Orin Nano Super + Pixhawk 6C): [docs/HIL_JETSON_PIXHAWK.md](docs/HIL_JETSON_PIXHAWK.md)
 
-Windows users can double-click `docker/start_windows.ps1`; macOS and Linux users can run `docker/start_mac_linux.sh`.
-The kit is described in detail in [`docker/README.md`](docker/README.md).
+## The twelve weeks
 
-## What is in each week
+| Week | Topic | Simulator | Activity file → solution |
+|---|---|---|---|
+| [1](week01/) | Your robotics workstation: Linux, Docker, ROS 2 and Claude | container | `fan_controller.py` → PI control |
+| [2](week02/) | ROS 2 as Lego: building robots from bricks | Gazebo + RViz | `my_brick.py` → wall follower |
+| [3](week03/) | Making it move: motors, drivers and speed control | Gazebo + RViz | `motion_test.py` → diagonal + square test |
+| 4 | Robot description: URDF, TF, add a sensor | Gazebo + RViz | `lab_robot.urdf.xacro` → mount a range sensor |
+| 5 | IMU and odometry: noise and drift | Gazebo + RViz | `heading_filter.py` → complementary filter |
+| 6 | Where am I? EKF fusion (**A1 due**) | Gazebo + RViz | `ekf.yaml` → fuse the IMU |
+| 7 | Simulated D455 depth camera and simple perception | Gazebo + RViz | `box_finder.py` → find the box and its distance |
+| 8 | LiDAR and reactive behaviour | Gazebo + RViz | `follow_gap.py` → obstacle avoidance |
+| 9 | SLAM and Nav2: a delivery robot | Gazebo + RViz | `patrol.py` → waypoint patrol |
+| 10 | Self-driving car: CARLA and ROS 2 | CARLA | `cruise_control.py` → speed controller |
+| 11 | Drones: take-off, waypoints, mission | AirSim + PX4 | `mission.py` → square / survey pattern |
+| 12 | Capstone: integrate and test (**A2 due**) | your choice | mission specification → solution per platform |
 
-| Week | Topic | What you run in the container |
-|---|---|---|
-| [1](week01/) | Your robotics workstation: Linux, Docker, ROS 2 and Claude | turtlesim, a three-node sensor-controller-actuator loop, rosbag2, what survives `docker rm` |
-| [2](week02/) | ROS 2 as Lego: building robots from bricks | lego.launch.py (sim, rviz2, slam_toolbox, Nav2), your own safety brick, explorer / delivery robot / own-brick challenge |
-| [3](week03/) | Making it move: integrating motors, drivers and encoders | motor bench bring-up, PID knobs, wheel patterns, integration clinic (fix a driver config), acceptance test |
-| [4](week04/) | Inertial sensing and measurement | IMU noise and Allan deviation, magnetometer calibration, aliasing |
-| [5](week05/) | ROS 2 for sensor and actuator systems | custom-message sensor monitor, QoS experiments, rosbag2 (MCAP) |
-| [6](week06/) | Odometry, IMU fusion and the EKF | odometry calibration, Madgwick, robot_localization against ground truth |
-| [7](week07/) | RealSense D455 depth sensing | depth-accuracy experiment, plane fit, camera bandwidth and latency |
-| [8](week08/) | LiDAR sensing and reactive behaviour | LaserScan probe, avoid/follow/guard, stopping-distance test |
-| [9](week09/) | LiDAR SLAM and navigation | slam_toolbox, Cartographer, AMCL and Nav2, five-run repeatability |
-| [10](week10/) | Visual and RGB-D SLAM | ORB features, point clouds, Octomap, RTAB-Map benchmark |
-| [11](week11/) | Edge AI perception and language-model interfaces | line follower, colour tracker, YOLO11 on CPU (ONNX, INT8), local LLM command layer |
-| [12](week12/) | Multi-robot integration and the UAV outlook | two robots (namespaces, DDS, QoS, clocks), fault isolation, PX4 + MAVSDK |
-
-Each week folder has a `README.md` (what is there and how to run it), `commands.md` (every command and code
-block from the lecture, in order) and `scripts/` or `params/` for the code worth keeping in a file.
+Weeks 1-3 are complete. Weeks 4-12 are being rebuilt in the same style, one week at a time; until a week is
+released its folder still holds the previous edition's material.
 
 ## The simulated robot and the real one
 
@@ -72,7 +77,6 @@ A real RealSense D455 can be passed into the container on **Linux** only (see `d
 | [`tools/validate.sh`](tools/validate.sh) | kit self-test: packages, the simulator's topics and rates, EKF, SLAM and Nav2 start |
 | [`tools/extract_commands.py`](tools/extract_commands.py) | regenerates every `weekNN/commands.md` from the lectures and syntax-checks them |
 | [`tools/cloud_filter.py`](tools/cloud_filter.py), [`tools/fake_cloud.py`](tools/fake_cloud.py) | point-cloud pass-through + voxel filter, and a synthetic cloud to test it (Week 10) |
-| [`tools/px4_square.py`](tools/px4_square.py), [`tools/px4_checks.py`](tools/px4_checks.py) | Week 12: fly a square offboard, and measure telemetry rates |
 
 ## How much of this is actually tested
 

@@ -7,7 +7,7 @@ This is the student repository for TC70045E Electronic Systems (Sensors and Actu
   This repository is mounted in the container at `~/labs` (`/home/ubuntu/labs`).
 - Commands for the student to run start with `ros2`, `python3 ~/labs/...` or `colcon`. Say clearly that they
   are to be run in the container terminal (browser desktop at http://localhost:6080).
-- Weeks 2–12 use the module image built from `docker/` (`docker compose up -d ros2`) with the simulated lab
+- Weeks 2–12 use the course images (`abdulmannan617/tc70045e-ros2:humble`, `-carla`, `-drone`) with the simulated lab
   robot `tc70045e_sim`. Week 1 uses the base image `tiryoh/ros2-desktop-vnc:humble`.
 
 ## How to help

@@ -4,9 +4,18 @@ A robot is a box of ROS 2 bricks. This week you snap ready-made bricks together 
 slam_toolbox, Nav2), write one of your own, and build a robot of your choice. Everything runs in the module
 container on the simulated lab robot:
 
+**Run this week** - in the mobile-robot container (Gazebo + RViz, no GPU needed):
+
 ```bash
-cd ../docker && docker compose up -d ros2      # then open http://localhost:6080 and a terminal there
+docker run -d --name tc70045e -p 6080:80 --shm-size 2g --security-opt seccomp=unconfined \
+    -e USER=ubuntu -e RESOLUTION=1600x900 abdulmannan617/tc70045e-ros2:humble
 ```
+
+then open <http://localhost:6080> (password `ubuntu`) and a terminal there. No Docker on your computer, or you
+prefer not to run it there: rent one on Vast.ai with the same image ([docs/RUN_ON_VAST.md](../docs/RUN_ON_VAST.md)).
+With a clone of this repository: `cd docker && docker compose up -d ros2` ([docs/RUN_LOCALLY.md](../docs/RUN_LOCALLY.md)).
+
+**Watch the demo video first** (`TC70045E_Week02_demo.mp4` on Blackboard) - it shows every step below.
 
 ## The files
 
@@ -56,3 +65,19 @@ python3 ~/labs/week02/scripts/my_brick.py                                       
 
 `commands.md` lists the lecture's commands in order. The previous Week 2 lab (buck ripple, I²C, UART bridge, CAN,
 SBUS) is kept in [`electronics_lab/`](electronics_lab/) as an optional extra.
+
+## Your activity (the TODO)
+
+| | |
+|---|---|
+| File you edit | [`scripts/my_brick.py`](scripts/my_brick.py) (a copy of it) - look for `TODO (Week 2, Activity 5 option C)` |
+| Task | turn the brick into a **right-hand wall follower** that drives through the safety brick (`/cmd_vel_in`) |
+| Run | `ros2 launch ~/labs/week02/launch/lego.launch.py slam:=true safety:=true`, then your brick |
+| Done when | the robot follows the walls of both rooms and `/safety/blocked` never turns true |
+
+## Solution
+
+[`../solutions/week02/wall_follower.py`](../solutions/week02/wall_follower.py). Verified 6 Oct 2026 (120 s, safety
+brick on): **23.7 m** driven along the walls, closest laser range **0.48 m**, **0** safety stops; Ctrl+C stops the
+robot (last command 0.0 m/s). It looks at the wall on the right *and* diagonally ahead-right, because the LiDAR
+updates only 5.5 times a second - a corner must be seen before the robot reaches it.

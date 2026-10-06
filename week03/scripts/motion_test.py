@@ -76,6 +76,10 @@ def main():
     n = MotionTest()
     n.wait_ready()
     rows = []
+    # TODO (Week 3, Activity 5): write your own acceptance test - copy this file (or import MotionTest from it)
+    #   and add a DIAGONAL move (vx = vy) and a 1 m SQUARE without turning, each with an expected result and a
+    #   PASS/FAIL against ground truth. Done when both pass with base_driver_good.yaml.
+    #   Worked solution: ~/labs/solutions/week03/
     tests = [('forward', (0.2, 0.0, 0.0), 5.0, (1.0, 0.0, 0.0)),
              ('left', (0.0, 0.2, 0.0), 5.0, (0.0, 1.0, 0.0)),
              ('rotate', (0.0, 0.0, 0.5), math.pi, (0.0, 0.0, 90.0))]

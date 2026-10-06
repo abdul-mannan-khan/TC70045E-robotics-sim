@@ -24,7 +24,7 @@ jobs:
           df -h /
 
       - name: Build the image
-        run: docker build -t tc70045e/ros2-lab:humble docker/
+        run: docker build -f docker/Dockerfile -t tc70045e/ros2-lab:humble .
 
       - name: ROS 2 packages the lectures use are installed
         run: |

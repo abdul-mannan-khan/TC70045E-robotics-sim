@@ -4,9 +4,16 @@ Integrate a drive system the way you would with bought parts: bring up one motor
 check the wheel patterns, then fix a motor driver whose configuration file has three mistakes.
 **Watch the demo video first** (`TC70045E_Week03_demo.mp4` on Blackboard) – it shows every command below.
 
+**Run this week** - in the mobile-robot container (Gazebo + RViz, no GPU needed):
+
 ```bash
-cd ../docker && docker compose up -d ros2      # then http://localhost:6080, open terminals there
+docker run -d --name tc70045e -p 6080:80 --shm-size 2g --security-opt seccomp=unconfined \
+    -e USER=ubuntu -e RESOLUTION=1600x900 abdulmannan617/tc70045e-ros2:humble
 ```
+
+then open <http://localhost:6080> (password `ubuntu`) and a terminal there. No Docker on your computer, or you
+prefer not to run it there: rent one on Vast.ai with the same image ([docs/RUN_ON_VAST.md](../docs/RUN_ON_VAST.md)).
+With a clone of this repository: `cd docker && docker compose up -d ros2` ([docs/RUN_LOCALLY.md](../docs/RUN_LOCALLY.md)).
 
 ## The files
 
@@ -55,3 +62,18 @@ python3 ~/labs/week03/scripts/motion_test.py
 | A4 after the three fixes | 4 of 4: forward 1.00 m, left 1.00 m, turn 90.2°, 0.00 m moved in 1.5 s of silence |
 
 `previous_edition/` holds the earlier Week 3 notes (motor identification, PID derivation, KiCad layout).
+
+## Your activity (the TODO)
+
+| | |
+|---|---|
+| File you edit | a copy of [`scripts/motion_test.py`](scripts/motion_test.py) - look for `TODO (Week 3, Activity 5)` |
+| Task | add your own acceptance tests: a **diagonal** move (vx = vy) and a 1 m **square** without turning |
+| Run | robot + `base_driver.py` with `base_driver_good.yaml` (as in A3), `ros2 service call /reset_world std_srvs/srv/Empty`, then your test |
+| Done when | both tests print PASS against ground truth |
+
+## Solution
+
+[`../solutions/week03/diagonal_test.py`](../solutions/week03/diagonal_test.py). Verified 6 Oct 2026:
+**square** PASS (ended 0.00 m from the start, turn 0°), **diagonal** PASS (0.70 m ahead, 0.70 m left).
+The square runs first, from the start pose, on a route clear of the crate and the pillar.

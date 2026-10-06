@@ -1,53 +1,74 @@
-# TC70045E lab environment.  Start with:  docker compose up -d ros2      (add px4 for the Week 12 drone simulation)
-# Then open http://localhost:6080 in your browser. The simulated lab robot starts with:
-#   ros2 launch tc70045e_sim sim.launch.py
+# TC70045E simulation environment - three self-contained images, one per kind of robot.
+#
+#   docker compose up -d ros2                    mobile robot: Gazebo + RViz + ROS 2 (Weeks 1-9, 12). No GPU needed.
+#   docker compose --profile gpu up -d drone     drone: AirSim + PX4 + ROS 2 (Week 11). NVIDIA GPU.
+#   docker compose --profile gpu up -d carla     self-driving car: CARLA + ROS 2 (Week 10). NVIDIA GPU, 8 GB or more.
+#
+# Then open the browser desktop:  ros2 http://localhost:6080   drone http://localhost:6081   carla http://localhost:6082
+# (desktop password: ubuntu). The course code is inside every image at ~/labs; when you start the containers from
+# a clone of this repository, your clone is mounted there instead, so your edits stay on your own disk.
+# Stop:  docker compose --profile gpu down
+#
+# The images are on Docker Hub, so nothing is built on your laptop. To build them yourself instead:
+#   docker compose build ros2   (and --profile gpu build drone carla)
 services:
   ros2:
-    build: .
-    image: tc70045e/ros2-lab:humble
+    image: abdulmannan617/tc70045e-ros2:humble
+    build: {context: .., dockerfile: docker/Dockerfile}
     container_name: tc70045e_ros2
     ports:
-      - "6080:80"        # browser desktop (noVNC)
-      - "5901:5900"      # optional: connect with a VNC client instead
-      - "14550:14550/udp"  # PX4 -> QGroundControl on your laptop (the px4 service shares this network)
-      - "14540:14540/udp"  # PX4 -> MAVSDK
+      - "6080:80"          # browser desktop (noVNC)
     environment:
       - ROS_DOMAIN_ID=7
       - RESOLUTION=1600x900
+      - USER=ubuntu
     volumes:
-      - ..:/home/ubuntu/labs                 # this repository: every week's scripts are at ~/labs/weekNN/scripts
+      - ..:/home/ubuntu/labs                 # this repository: every week's scripts are at ~/labs/weekNN
       - ./workspace:/home/ubuntu/ws          # your own packages, launch files and maps
       - ./bags:/home/ubuntu/bags             # your recordings (rosbag2)
     shm_size: "2gb"                          # Gazebo and point clouds need shared memory
+    security_opt: [seccomp=unconfined]
     # NOTE: USB pass-through for a real RealSense D455 is NOT here on purpose. A `devices:` entry for
     # /dev/bus/usb makes `docker compose up` FAIL on Windows and macOS, where that path does not exist.
     # On Linux with a camera plugged in, add the override file instead:
     #   docker compose -f docker-compose.yml -f docker-compose.linux-usb.yml up -d ros2
     restart: unless-stopped
 
-  px4:
-    # PX4 SITL + Gazebo, headless. Week 12 drone simulation; MAVLink on UDP 14550 (ground station)
-    # and 14540 (MAVSDK and other API clients).
-    image: jonasvautherin/px4-gazebo-headless:1.17.0
-    container_name: tc70045e_px4
-    # Share the ros2 container's network namespace, so PX4's MAVLink arrives on 127.0.0.1 inside the
-    # desktop and `udpin://0.0.0.0:14540` just works. It also avoids guessing container IP addresses.
-    # (The UDP ports are published by the ros2 service below because of this; QGroundControl on the
-    #  host still reaches the vehicle on 14550.)
-    network_mode: "service:ros2"
-    depends_on:
-      - ros2
-    restart: unless-stopped
-
-  ollama:
-    # Week 11 local language model. Shares the ros2 network namespace, so the model is at http://localhost:11434
-    # inside the desktop. Start it with:  docker compose up -d ollama
-    # Pull the models once (they are kept in docker/ollama/):  docker compose exec ollama ollama pull qwen2.5:0.5b
-    image: ollama/ollama
-    container_name: tc70045e_ollama
-    network_mode: "service:ros2"
+  drone:
+    profiles: [gpu]
+    image: abdulmannan617/tc70045e-drone:latest
+    build: {context: .., dockerfile: docker/drone/Dockerfile}
+    container_name: tc70045e_drone
+    ports:
+      - "6081:80"          # browser desktop
+      - "41451:41451"      # AirSim API (only needed when the Jetson reads camera images over the network)
+      - "4570:4570"        # hardware-in-the-loop relay from the Jetson (drone-sim start --mode hil)
+      - "14550:14550/udp"  # QGroundControl on this computer
+    environment:
+      - ROS_DOMAIN_ID=11
+      - RESOLUTION=1600x900
+      - USER=ubuntu
     volumes:
-      - ./ollama:/root/.ollama
-    depends_on:
-      - ros2
-    restart: unless-stopped
+      - ..:/home/ubuntu/labs
+    shm_size: "4gb"
+    security_opt: [seccomp=unconfined]
+    gpus: all
+    restart: "no"
+
+  carla:
+    profiles: [gpu]
+    image: abdulmannan617/tc70045e-carla:latest
+    build: {context: .., dockerfile: docker/carla/Dockerfile}
+    container_name: tc70045e_carla
+    ports:
+      - "6082:80"          # browser desktop
+    environment:
+      - ROS_DOMAIN_ID=10
+      - RESOLUTION=1600x900
+      - USER=ubuntu
+    volumes:
+      - ..:/home/ubuntu/labs
+    shm_size: "4gb"
+    security_opt: [seccomp=unconfined]
+    gpus: all
+    restart: "no"

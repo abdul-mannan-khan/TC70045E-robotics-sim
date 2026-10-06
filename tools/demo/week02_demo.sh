@@ -26,8 +26,9 @@ keys T3 i; sleep 3; keys T3 k           # 0.9 m, clear of the pillar
 keys T3 l; sleep 1.6; keys T3 k         # quarter turn right
 cap "Step 4 (T2): see the graph of bricks with rqt_graph" 2 "Step four. r q t graph shows how the bricks are connected: the keyboard drives the robot, and the laser feeds the mapping brick."
 run T2 "rqt_graph" 10
-place rqt_graph 0 90 955 900
-sleep 9
+place rqt_graph 0 90 955 900; sleep 1.5; place rqt_graph 0 90 955 900   # rqt resizes itself once after it opens
+sleep 1.5; place rqt_graph 0 90 955 900
+sleep 6
 wmctrl -c rqt_graph; sleep 2
 cap "Step 5: add YOUR brick. Restart with safety:=true, and plug the keyboard into /cmd_vel_in with a remap" 3 "Step five. We add our own brick, the safety stop. We restart with safety set to true, and plug the keyboard into cmd vel in with a remap."
 ctrlc T3 1

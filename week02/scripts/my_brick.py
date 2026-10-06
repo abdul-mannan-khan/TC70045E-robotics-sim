@@ -35,6 +35,11 @@ class MyBrick(Node):
 
     def on_scan(self, scan):
         # 3. The brick's job: turn the input into the output
+        # TODO (Week 2, Activity 5 option C): turn this brick into a right-hand WALL FOLLOWER. Add a Twist
+        #   publisher on /cmd_vel_in (so the safety brick still guards it), measure the distance to the wall on
+        #   the right (scan angles around -90 deg) and set  wz = k x (0.5 - right_distance),  vx = 0.2 m/s.
+        #   Turn left on the spot when something is close straight ahead. Done when the robot follows the
+        #   walls of both rooms without the safety brick having to stop it. Worked solution: ~/labs/solutions/week02/
         best_r, best_a = float('inf'), 0.0
         for i, r in enumerate(scan.ranges):
             if scan.range_min < r < scan.range_max and r < best_r:

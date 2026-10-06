@@ -1,0 +1,20 @@
+#!/bin/bash
+# hil-relay - carry the Pixhawk's USB link (PX4 in HIL mode) to AirSim over the network, and keep it up.
+#
+#   hil-relay SIM_HOST [SIM_PORT] [SERIAL]
+#     SIM_HOST  address of the computer running the drone container (lab PC on the LAN, or the Vast.ai IP)
+#     SIM_PORT  port that reaches the container's port 4570 (4570 on a lab PC; on Vast.ai the mapped port,
+#               see docs/HIL_JETSON_PIXHAWK.md)                                                   default 4570
+#     SERIAL    the Pixhawk 6C USB port on the Jetson                                     default /dev/ttyACM0
+#
+# In the drone container the other end is started by:  drone-sim start --mode hil
+set -u
+HOST=${1:?usage: hil-relay SIM_HOST [SIM_PORT] [SERIAL]}
+PORT=${2:-4570}
+DEV=${3:-/dev/ttyACM0}
+[ -e "$DEV" ] || { echo "$DEV not found - is the Pixhawk plugged in by USB, and passed with --device $DEV ?"; exit 1; }
+echo "relaying $DEV <-> $HOST:$PORT  (Ctrl+C to stop)"
+while true; do
+    socat -d "$DEV",raw,echo=0,b115200 TCP:"$HOST":"$PORT",nodelay
+    echo "link dropped - reconnecting in 2 s"; sleep 2
+done

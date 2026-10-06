@@ -21,6 +21,7 @@ cat > /tmp/demo_rc <<'EOF'
 source /opt/ros/humble/setup.bash
 [ -f /opt/tc70045e_ws/install/setup.bash ] && source /opt/tc70045e_ws/install/setup.bash
 export PS1='\[\e[1;32m\]$\[\e[0m\] '
+export XDG_RUNTIME_DIR=/tmp/runtime-$USER; mkdir -p -m 700 $XDG_RUNTIME_DIR
 cd ~
 EOF
 mkdir -p ~/.config/terminator

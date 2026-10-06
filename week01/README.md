@@ -41,3 +41,17 @@ echo hello > /tmp/note.txt; echo hello > ~/labs/week01/my_note.txt        # Acti
 
 `commands.md` lists every command of the lecture in order. The previous Week 1 lab (power budget, latency, graph
 audit of the simulated lab robot) is kept in [`architecture_lab/`](architecture_lab/) as an optional extra.
+
+## Your activity (the TODO)
+
+| | |
+|---|---|
+| File you edit | [`scripts/fan_controller.py`](scripts/fan_controller.py) - look for `TODO (Week 1 activity)` |
+| Task | The P controller leaves the room about 1.6 °C too warm. Add **integral action** (PI) so it reaches the setpoint. |
+| Run | three terminals: `room_sensor.py`, `fan_driver.py`, your `fan_controller.py` (or the launch file) |
+| Done when | the log shows `T = …` within 0.1 °C of the setpoint, and stays there after `ros2 param set /fan_controller setpoint 24.0` |
+
+## Solution
+
+[`../solutions/week01/fan_controller_pi.py`](../solutions/week01/fan_controller_pi.py) - run it instead of
+`fan_controller.py`. Verified 6 Oct 2026: the room settles at **26.04 °C for a 26.0 °C setpoint** (P only: 27.6 °C).

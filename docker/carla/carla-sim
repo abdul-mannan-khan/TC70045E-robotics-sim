@@ -1,0 +1,48 @@
+#!/bin/bash
+# carla-sim - start/stop the CARLA simulator inside the CARLA container.
+#
+#   carla-sim start [--town Town03] [--quality Low|Epic]   start the server (no window; you look through a client)
+#   carla-sim status                                       server running? port 2000 answering? GPU visible?
+#   carla-sim stop
+#
+# CARLA has no window of its own here: it renders on the GPU off-screen, and you SEE it through a client -
+# a Python/pygame window (no ROS) or RViz (ROS 2 bridge). Ports: 2000-2001 (CARLA clients).
+set -u
+TOWN=Town03; QUALITY=Low; LOG=/tmp/carla-sim; mkdir -p "$LOG"
+SIM_USER=$(id -nu 1000 2>/dev/null || echo ubuntu)
+port_open() { (exec 3<>/dev/tcp/127.0.0.1/"$1") 2>/dev/null; }
+as_user() { if [ "$(id -u)" = 1000 ]; then bash -c "$1"; else su - "$SIM_USER" -c "$1"; fi; }
+
+stop() { pkill -f CarlaUE4-Linux-Shipping 2>/dev/null; pkill -f CarlaUE4.sh 2>/dev/null; sleep 2; echo "CARLA stopped"; }
+status() {
+    pgrep -f CarlaUE4-Linux-Shipping >/dev/null && echo "CARLA server  running" || echo "CARLA server  not running"
+    port_open 2000 && echo "CARLA API     port 2000 answers" || echo "CARLA API     port 2000 closed"
+    nvidia-smi --query-gpu=name,memory.used,memory.total --format=csv,noheader 2>/dev/null | sed 's/^/GPU           /' \
+        || echo "GPU           NOT visible - start the container with --gpus all"
+}
+start() {
+    while [ $# -gt 0 ]; do
+        case "$1" in --town) TOWN=$2; shift ;; --quality) QUALITY=$2; shift ;; *) echo "unknown option $1"; exit 2 ;; esac; shift
+    done
+    nvidia-smi -L >/dev/null 2>&1 || { echo "No NVIDIA GPU in this container. CARLA needs one: docker run --gpus all ..."; exit 1; }
+    stop >/dev/null
+    echo "starting CARLA 0.9.15 (quality $QUALITY) - the first start takes 30-90 s"
+    as_user "cd /opt/carla && nohup ./CarlaUE4.sh -RenderOffScreen -nosound -quality-level=$QUALITY -carla-rpc-port=2000 > $LOG/server.log 2>&1 &"
+    for i in $(seq 1 90); do port_open 2000 && break; sleep 2; done
+    port_open 2000 || { echo "CARLA did not open port 2000 - see $LOG/server.log"; tail -5 "$LOG/server.log"; exit 1; }
+    sleep 5
+    python3 - "$TOWN" <<'PY'
+import sys, carla
+c = carla.Client('127.0.0.1', 2000); c.set_timeout(60)
+w = c.get_world()
+if not w.get_map().name.endswith(sys.argv[1]):
+    w = c.load_world(sys.argv[1])
+print('CARLA is up: server', c.get_server_version(), '- map', w.get_map().name.split('/')[-1])
+PY
+}
+case "${1:-}" in
+    start) shift; start "$@" ;;
+    stop) stop ;;
+    status) status ;;
+    *) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+esac

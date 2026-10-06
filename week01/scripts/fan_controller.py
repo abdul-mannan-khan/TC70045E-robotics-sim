@@ -38,6 +38,10 @@ class FanController(Node):
         while len(self.history) > window:
             self.history.popleft()
         filtered = sum(self.history) / len(self.history)
+        # TODO (Week 1 activity): the room settles about 1.6 C above the setpoint - P control alone cannot remove
+        #   that error. Add INTEGRAL action: declare a parameter 'ki', keep a running sum of (error x dt) and add
+        #   ki x sum to the duty. Stop the sum growing while the duty is stuck at 0 or 100 % (anti-windup).
+        #   Done when the log shows T within 0.1 C of the setpoint. Worked solution: ~/labs/solutions/week01/
         duty = min(max(kp * (filtered - setpoint), 0.0), 100.0)
         self.pub.publish(Float32(data=duty))
         self.count += 1
