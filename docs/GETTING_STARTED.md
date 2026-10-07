@@ -141,13 +141,18 @@ Finished? `docker stop tc70045e` (or ■). Your files stay inside the container.
 
 Open the week's **README** on GitHub (github.com/abdul-mannan-khan/TC70045E-robotics-sim → weekNN) or in the desktop (`~/labs/weekNN/README.md`). Copy each command into the terminal it names (T1, T2, T3).
 
-Split Terminator: **Ctrl+Shift+O** (one above the other) or **Ctrl+Shift+E** (side by side). Stop a program: **Ctrl+C**. Paste into the desktop: **Ctrl+Shift+V**, or use the clipboard in the noVNC side panel.
+Split Terminator: **Ctrl+Shift+O** (one above the other) or **Ctrl+Shift+E** (side by side). Stop a program: **Ctrl+C**.
+
+**Copy a command from your laptop into the desktop:** open the small noVNC tab on the left edge of the browser → **Clipboard** icon → paste the text into the box → click into Terminator → **Ctrl+Shift+V**. (Typing it is fine too.)
 
 ![Each week's README on GitHub has the exact commands. Here: week02.](images/getting_started/gs_github_week02.png)
 *Each week's README on GitHub has the exact commands. Here: week02.*
 
 ![Terminator split into T1, T2, T3 (Ctrl+Shift+O). T1: the Week 2 launch command.](images/getting_started/gs_split_typed.png)
 *Terminator split into T1, T2, T3 (Ctrl+Shift+O). T1: the Week 2 launch command.*
+
+![Pasting from your laptop: noVNC side tab → Clipboard → paste there → Ctrl+Shift+V in Terminator.](images/getting_started/gs_novnc_clipboard.png)
+*Pasting from your laptop: noVNC side tab → Clipboard → paste there → Ctrl+Shift+V in Terminator.*
 
 ![The result: Gazebo (the simulated lab, top left) and RViz (what the robot knows, bottom left).](images/getting_started/gs_week02_running.png)
 *The result: Gazebo (the simulated lab, top left) and RViz (what the robot knows, bottom left).*
@@ -179,7 +184,7 @@ docker run -d --name tc70045e -p 6080:80 --shm-size 2g --security-opt seccomp=un
 
 | Problem | Fix |
 |---|---|
-| No `~/labs`, or no week folders in it | Old or wrong image (for example *tiryoh/ros2-desktop-vnc*, or a container from Week 1 of an earlier version). Copy your work to ~/work, then do *Only if update-labs asks* above. A single week missing: `update-labs`. |
+| No `~/labs`, or no week folders in it | You are in an old container. Called **ros2lab** (Week 1, older instructions)? Copy out anything you saved in it, then `docker rm -f ros2lab` and do Steps 4–5. Called **tc70045e** but old? Do *Only if update-labs asks* above. Only one week missing: `update-labs`. |
 | `docker: command not found` / *not recognized* | Docker Desktop is not installed or not running (Step 2). |
 | *Cannot connect to the Docker daemon* | Start Docker Desktop and wait for *Engine running*. Linux: `sudo systemctl start docker`. |
 | *WSL update required* / *WSL 2 installation is incomplete* | `wsl --update` in PowerShell (admin), restart Docker Desktop. |
@@ -188,7 +193,8 @@ docker run -d --name tc70045e -p 6080:80 --shm-size 2g --security-opt seccomp=un
 | *port is already allocated* (6080) | Another program uses 6080: change `-p 6080:80` to `-p 6081:80` and open localhost:6081. |
 | Blank or grey page at localhost:6080 | Wait 30 s and reload. Is it running? `docker ps`. Log: `docker logs tc70045e`. |
 | *permission denied* (Linux) | `sudo usermod -aG docker $USER`, log out and in. |
-| Very slow, Gazebo freezes | Close other programs; Docker Desktop → Settings → Resources (memory). Or use Vast.ai: docs/RUN_ON_VAST.md. |
+| Very slow, Gazebo freezes | Close other programs (browser tabs too). macOS: Docker Desktop → Settings → Resources → Memory, 8 GB or more. Windows: WSL may use up to half of your memory by default – on an 8 GB laptop close everything else. Or use Vast.ai: docs/RUN_ON_VAST.md. |
+| A launch dies: *process has died … gzserver* | The previous Gazebo is still closing. In Terminator: `pkill -f gzserver`, wait 5 seconds, launch again. Always stop a launch with Ctrl+C and wait for the prompt before the next one. |
 | Disk full | `docker system df`, then `docker image prune` (removes old images you no longer use). |
 
 Rented computer instead of your own: [RUN_ON_VAST.md](RUN_ON_VAST.md). More options (GPU images, docker compose): [RUN_LOCALLY.md](RUN_LOCALLY.md).

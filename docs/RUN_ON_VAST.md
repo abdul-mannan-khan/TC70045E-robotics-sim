@@ -26,6 +26,8 @@ A suitable machine costs about **$0.10-0.20 per hour**; a three-hour lab costs w
    Any RTX 3060 / 3070 / 4060 / 4070 / A4000 class GPU is enough. The mobile robot does not need a GPU, but GPU
    machines are often the cheapest anyway.
 3. **Rent**. The first start downloads the image (15-30 GB): allow 10-30 minutes. Status turns *Running*.
+   Still *Loading* after 30 minutes? Some machines download slowly (measured 7 Oct 2026: two of three hosts were
+   still loading after 25 minutes). Destroy it and rent a different machine.
 4. Click the instance's **IP / ports** button. Find the line `… -> 80/tcp` and open `http://<IP>:<that port>` in
    your browser. Log in with your password: this is the course desktop. The course code is at `~/labs`.
 
