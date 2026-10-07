@@ -31,6 +31,8 @@ Check: `ls ~/labs/week03` lists `launch  maps  rviz  scripts  README.md`.
 | Brick / file | What it does |
 |---|---|
 | [`launch/nav.launch.py`](launch/nav.launch.py) | one launch, five bricks: robot in Gazebo, map server, AMCL, Nav2, RViz. Switches: `gui`, `rviz`, `map` |
+| [`config/nav2_params.yaml`](config/nav2_params.yaml) | the Nav2 settings (costmaps, planner, controller). One change from the module default: sideways motion enabled in the velocity smoother |
+| [`scripts/set_start_pose.py`](scripts/set_start_pose.py) | started by the launch: tells AMCL the start pose and repeats until AMCL confirms it |
 | [`maps/lab_map.yaml`](maps/lab_map.yaml) + `.pgm` | the lab map (two rooms, made with the Week 2 explorer). Its origin (0, 0) is where the robot starts |
 | [`rviz/nav.rviz`](rviz/nav.rviz) | map, laser, AMCL particles, global + local costmap, global plan (green), local plan (orange); tools **2D Pose Estimate**, **2D Goal Pose**, **Publish Point** |
 | [`scripts/go_to.py`](scripts/go_to.py) | send one goal from Python and report SUCCEEDED / FAILED and the time |
@@ -53,7 +55,8 @@ The doorway between the two rooms is at about (4.0, -1.0).
 
 **You should see:** Gazebo (the lab and the robot) and RViz: the grey map, the red laser points lying on the map's
 walls, and a cloud of **blue arrows** around the robot (AMCL's guesses). T2 prints a position close to `x: 0.0, y: 0.0`
-(measured: 0.01, 0.01). The launch file tells AMCL the start pose automatically after about 20 s.
+(measured: 0.02, 0.01). The launch file tells AMCL the start pose automatically and repeats it until AMCL confirms
+(T1 prints `AMCL confirmed the start pose`, about 15 s after the launch).
 **Check – lose the robot on purpose:** in RViz click **2D Pose Estimate** and click-drag a pose in the *other* room.
 The laser points no longer match the walls. Now click **2D Pose Estimate** again on the robot's true position (look
 at Gazebo): the laser lines up again. That is localisation.
@@ -76,11 +79,12 @@ at Gazebo): the laser lines up again. That is localisation.
 | T2 | `python3 ~/labs/week03/scripts/go_to.py 0.0 0.0 180` (back to the start, facing the other way) |
 
 **You should see:** `distance remaining …` lines going down, then `RESULT SUCCEEDED after … s`
-(measured: doorway 14.6 s). Open the script and read it – it is 40 lines; your patrol starts from it.
+(measured: doorway 14-16 s). Open the script and read it – it is 40 lines; your patrol starts from it.
 **Check 1 – a goal outside the map:** `go_to.py 12.0 0.0 0`. No path exists: watch T1 – Nav2 tries its recovery
 behaviours (spin, back up, wait) and then reports `FAILED` (measured: after 21 s; spin twice, back up once, wait once).
 **Check 2 – a goal inside a wall:** `go_to.py 4.0 2.0 0` (the wall between the rooms). Nav2 reports `SUCCEEDED`
-(measured: 17 s) – the planner accepts the nearest free cell within 0.5 m. Where is the robot really (Gazebo)?
+(measured: 18 s) – the planner accepts the nearest free cell within 0.5 m. Where is the robot really (Gazebo)?
+(Measured: map (3.62, 1.74) – 0.43 m short of the goal, on the room-1 side of the wall.)
 Lesson: a result code is not a measurement – check positions yourself.
 
 ## A4 – Something new appears (15 min)
@@ -95,7 +99,7 @@ Lesson: a result code is not a measurement – check positions yourself.
 | T3 | `python3 ~/labs/week03/scripts/drop_box.py --remove` |
 
 **You should see:** the box is *not* on the grey map, but once the laser sees it, it appears in the costmap and the
-green plan bends round it (measured: back at the start in 18.6 s).
+green plan bends round it (measured: back at the start in about 14.5 s).
 **Check:** after removing the box, a "ghost" may stay in the global costmap. Clear it:
 `ros2 service call /global_costmap/clear_entirely_global_costmap nav2_msgs/srv/ClearEntireCostmap`.
 
@@ -111,10 +115,10 @@ green plan bends round it (measured: back at the start in 18.6 s).
 | T3 | `ros2 param set /global_costmap/global_costmap inflation_layer.inflation_radius 0.8`, then `go_to.py 0.0 0.0 0` |
 | T3 | set it back: `… inflation_radius 0.35` |
 
-**You should see:** a small radius lets the green path run close to walls and furniture; a large one keeps it in the
-middle of free space, so routes get longer (measured: doorway in 14.2 s with 0.15 m; back to the start in 23.9 s with
-0.8 m, against about 18 s with 0.35 m). The 2.6 m doorway stays open even at 0.8 m – a narrow corridor would not.
-Write down which value you would choose for a real robot, and why.
+**You should see:** the *shape* of the green path changes – a small radius lets it run close to walls and furniture,
+a large one keeps it in the middle of free space. In this open lab the *time* hardly changes (measured: doorway
+13.8 s with 0.15 m, 14.5 s with 0.8 m; back to the start 18.9 s with 0.35 m, 19.8 s with 0.8 m). The 2.6 m doorway
+stays open even at 0.8 m – a narrow corridor would not. Which value would you choose for a real robot near people?
 
 **Optional:** navigate on *your own* Week 2 map:
 `ros2 launch ~/labs/week03/launch/nav.launch.py gui:=true map:=$HOME/labs/week02/my_map.yaml`.
@@ -133,7 +137,7 @@ waypoint whether it was reached and how long it took, and carries on if one wayp
      room 2, and back to the start. Keep 0.5 m away from walls and furniture. Fill in the `WAYPOINTS` list.
    * **TODO 2 – `visit()`.** Send the goal with `nav.goToPose(...)`, wait until `nav.isTaskComplete()`, give up with
      `nav.cancelTask()` after `TIME_LIMIT` seconds, and return `(reached, seconds)`. `go_to.py` shows each call.
-   * **TODO 3 – the result line**, e.g. `RESULT 5 of 5 waypoints reached, total 117 s, mean 23.5 s per waypoint`.
+   * **TODO 3 – the result line**, e.g. `RESULT 5 of 5 waypoints reached, total 93 s, mean 18.5 s per waypoint`.
 3. **Run it** – T1 running `nav.launch.py gui:=true` (A1), then T2:
    `python3 ~/labs/week03/scripts/my_patrol.py 2` (two laps).
 4. **Done when** – all four are true:
@@ -146,8 +150,8 @@ waypoint whether it was reached and how long it took, and carries on if one wayp
 ### Solution (compare after you have tried)
 
 [`../solutions/week03/patrol.py`](../solutions/week03/patrol.py) – run it with
-`python3 ~/labs/solutions/week03/patrol.py 1`. Measured 7 Oct 2026: **5 of 5 waypoints reached**, total 117 s,
-mean 23.5 s per waypoint (doorway, room 2 upper, room 2 lower, room 1 upper, start). It also calls
+`python3 ~/labs/solutions/week03/patrol.py 1`. Measured 7 Oct 2026 in three cold starts: **5 of 5 waypoints reached** every time, total 91-95 s,
+about 18.5 s per waypoint (doorway, room 2 upper, room 2 lower, room 1 upper, start). It also calls
 `nav.clearAllCostmaps()` before each waypoint, so obstacles that have gone (a removed box) are forgotten.
 
 ### For your report
@@ -162,10 +166,11 @@ simulated.
 
 | Test | Result |
 |---|---|
-| AMCL start pose (automatic) | (0.01, 0.01) m |
-| Goal: start → doorway (4.0, -1.0) | SUCCEEDED in 14.6 s; true position (3.86, -0.91) |
-| Goal: doorway → start with a box at (2.0, -1.0) | SUCCEEDED in 18.6 s, round the box |
-| Patrol (solution), 1 lap, 5 waypoints | 5 of 5 reached, 117 s |
+| AMCL start pose (automatic, confirmed by set_start_pose.py) | (0.02, 0.01) m |
+| Goal: start → doorway (4.0, -1.0) | SUCCEEDED in 14-16 s (three cold starts); true position (3.86, -0.91) |
+| Goal: doorway → start with a box at (2.0, -1.0) | SUCCEEDED in about 14.5 s, round the box |
+| Patrol (solution), 1 lap, 5 waypoints | 5 of 5 reached, 91-95 s (three cold starts) |
+| Cold start with the Gazebo window and screen recording | start pose confirmed 15 s after the launch; 0 Nav2 failures in 3 runs |
 
 ## Troubleshooting
 

@@ -12,7 +12,7 @@ Usage (in the container):
   ros2 launch ~/labs/week03/launch/nav.launch.py gui:=true map:=$HOME/labs/week02/my_map.yaml   # your Week 2 map
 
 The robot starts where the map was started (the map origin), so AMCL is told "you are at (0, 0), facing +x"
-automatically after Nav2 has come up. If it is lost, use "2D Pose Estimate" in RViz.
+automatically (set_start_pose.py repeats it until AMCL confirms). If it is lost, use "2D Pose Estimate" in RViz.
 """
 import os
 
@@ -40,14 +40,10 @@ def bricks(context):
         PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('nav2_bringup'), 'launch',
                                                    'bringup_launch.py')),
         launch_arguments={'map': arg('map'), 'use_sim_time': 'true', 'autostart': 'true',
-                          'params_file': os.path.join(sim_share, 'config', 'nav2_params.yaml')}.items())]))
-    out.append(TimerAction(period=20.0, actions=[ExecuteProcess(       # tell AMCL the start pose: map origin
-        cmd=['ros2', 'topic', 'pub', '--times', '3', '--rate', '1', '/initialpose',
-             'geometry_msgs/msg/PoseWithCovarianceStamped',
-             '{header: {frame_id: map}, pose: {pose: {orientation: {w: 1.0}}, '
-             'covariance: [0.05, 0, 0, 0, 0, 0, 0, 0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '
-             '0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.03]}}'],
-        output='log')]))
+                          'params_file': os.path.join(WEEK, 'config', 'nav2_params.yaml')}.items())]))
+    out.append(TimerAction(period=10.0, actions=[ExecuteProcess(       # tell AMCL the start pose (map origin) and
+        cmd=['python3', os.path.join(WEEK, 'scripts', 'set_start_pose.py')],   # repeat until AMCL confirms it
+        output='screen')]))
     return out
 
 
