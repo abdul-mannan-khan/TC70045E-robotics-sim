@@ -2,7 +2,7 @@
 """Week 4, Lab B - spin the simulated robot on the spot and record the magnetometer for calibration.
 
 Terminal 1:  ros2 launch tc70045e_sim sim.launch.py gui:=false camera:=false
-Terminal 2:  python3 ~/labs/week04/scripts/mag_spin_capture.py --turns 2 --wz 0.3 --out mag_cal.csv
+Terminal 2:  python3 ~/labs/week04/inertial_sensing/scripts/mag_spin_capture.py --turns 2 --wz 0.3 --out mag_cal.csv
 
 Publishes /cmd_vel (wz only) until the robot has turned --turns full turns, then publishes a zero Twist
 (the base has no command timeout). Every /imu/mag message is written with the latest true yaw.

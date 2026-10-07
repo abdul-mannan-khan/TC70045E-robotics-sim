@@ -1,5 +1,5 @@
 * Week 4, Lab C - I2C open-drain rising edge: pull-up Rp against bus capacitance Cb (a "virtual oscilloscope")
-* Run:   ngspice -b ~/labs/week04/scripts/i2c_rise.cir | grep " ns "
+* Run:   ngspice -b ~/labs/week04/inertial_sensing/scripts/i2c_rise.cir | grep " ns "
 * The driver (switch S1, 133 ohm on = the weakest legal driver: 0.4 V at 3 mA) holds SDA low until t = 2 us, then releases it; Rp charges Cb.
 * Measures the 30-70 % rise time (the UM10204 definition) and V_OL for every (Rp, Cb) pair below, and prints
 * the theory value 0.847 Rp Cb next to it. Expected at Rp = 2.2k, Cb = 100p: tr = 186 ns.

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Week 4, Lab B - hard- and soft-iron calibration of the magnetometer, and heading error before/after.
 
-Usage:  python3 ~/labs/week04/scripts/magnetometer_calibration.py mag_cal.csv [--plot mag_cal.png]
+Usage:  python3 ~/labs/week04/inertial_sensing/scripts/magnetometer_calibration.py mag_cal.csv [--plot mag_cal.png]
 Input:  mag_cal.csv from mag_spin_capture.py (t, mx, my, mz [uT], yaw_true [deg], x, y).
 
 A ground robot only turns about z, so only the horizontal components (mx, my) trace a closed curve; mz stays

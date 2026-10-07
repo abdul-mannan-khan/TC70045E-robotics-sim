@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Week 4, Lab C - aliasing of motor vibration when an IMU is decimated to a low report rate.
 
-Usage:  python3 ~/labs/week04/scripts/aliasing_demo.py [--fs 25] [--plot aliasing.png]
+Usage:  python3 ~/labs/week04/inertial_sensing/scripts/aliasing_demo.py [--fs 25] [--plot aliasing.png]
 
 A numerical experiment (no ROS needed). The IMU samples internally at 1125 Hz. The accelerometer sees
   - a real, slow body motion: 0.5 Hz, 0.20 m/s^2 amplitude            (what you want to keep)

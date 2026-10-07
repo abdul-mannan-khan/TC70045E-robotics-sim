@@ -39,8 +39,8 @@ ros2 topic hz /imu/data_raw              # ~100 Hz
 ros2 topic echo /imu/data_raw --once     # rad/s and m/s^2
 
 # 2. 600 s static capture in the background (log in cap.log)
-mkdir -p ~/labs/week04/results && cd ~/labs/week04/results
-nohup python3 ~/labs/week04/scripts/imu_capture_static.py \
+mkdir -p ~/labs/week04/inertial_sensing/results && cd ~/labs/week04/inertial_sensing/results
+nohup python3 ~/labs/week04/inertial_sensing/scripts/imu_capture_static.py \
     --duration 600 --out imu_static.csv > cap.log 2>&1 &
 tail -f cap.log                          # Ctrl+C stops tail, not the capture
 ```
@@ -48,11 +48,11 @@ tail -f cap.log                          # Ctrl+C stops tail, not the capture
 ```bash
 # 3. two hours of static data with KNOWN parameters, then the analysis
 ros2 run tc70045e_sim imu_noise_model --hours 2 --out static_imu.csv
-python3 ~/labs/week04/scripts/allan_deviation.py static_imu.csv \
+python3 ~/labs/week04/inertial_sensing/scripts/allan_deviation.py static_imu.csv \
     --col gz --plot allan_model_gz.png
 
 # 5. your own capture, after cap.log says "wrote 59989 samples ..."
-python3 ~/labs/week04/scripts/allan_deviation.py imu_static.csv \
+python3 ~/labs/week04/inertial_sensing/scripts/allan_deviation.py imu_static.csv \
     --col gz --plot allan_robot_gz.png
 #    ... repeat with --col gx, --col gy and --col az
 ```
@@ -88,9 +88,9 @@ B = min adev/0.664 = 0.01180 deg/s (tau 4.6 s, K 129, +/-6 %) = 42.5 deg/h
 
 ```bash
 ros2 topic hz /imu/mag                    # ~50 Hz
-cd ~/labs/week04/results
-python3 ~/labs/week04/scripts/mag_spin_capture.py --turns 2 --wz 0.3
-python3 ~/labs/week04/scripts/magnetometer_calibration.py mag_cal.csv \
+cd ~/labs/week04/inertial_sensing/results
+python3 ~/labs/week04/inertial_sensing/scripts/mag_spin_capture.py --turns 2 --wz 0.3
+python3 ~/labs/week04/inertial_sensing/scripts/magnetometer_calibration.py mag_cal.csv \
     --plot mag_cal.png
 ```
 
@@ -114,9 +114,9 @@ ellipse              -0.00    0.86     2.87         1.53 %
 ## 7.2 Justifying the I²C pull-up resistor – the calculation for your report
 
 ```bash
-cd ~/labs/week04/results
-python3 ~/labs/week04/scripts/aliasing_demo.py --plot aliasing.png
-ngspice -b ~/labs/week04/scripts/i2c_rise.cir | grep " ns "
+cd ~/labs/week04/inertial_sensing/results
+python3 ~/labs/week04/inertial_sensing/scripts/aliasing_demo.py --plot aliasing.png
+ngspice -b ~/labs/week04/inertial_sensing/scripts/i2c_rise.cir | grep " ns "
 ```
 
 ```text

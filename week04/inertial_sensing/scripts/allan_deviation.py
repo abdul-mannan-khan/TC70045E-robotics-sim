@@ -2,9 +2,9 @@
 """Week 4, Lab A - bias, noise density and Allan deviation of one channel of a static IMU log.
 
 Usage:
-  python3 ~/labs/week04/scripts/allan_deviation.py imu_static.csv --col gz
-  python3 ~/labs/week04/scripts/allan_deviation.py static_imu.csv --col gz --plot allan_gz.png
-  python3 ~/labs/week04/scripts/allan_deviation.py static_imu.csv --col gz --overlap
+  python3 ~/labs/week04/inertial_sensing/scripts/allan_deviation.py imu_static.csv --col gz
+  python3 ~/labs/week04/inertial_sensing/scripts/allan_deviation.py static_imu.csv --col gz --plot allan_gz.png
+  python3 ~/labs/week04/inertial_sensing/scripts/allan_deviation.py static_imu.csv --col gz --overlap
 Input: a CSV with a header line, a time column t [s] and the channel in deg/s (gx, gy, gz) or m/s^2 (ax ...),
 e.g. from imu_capture_static.py or from `ros2 run tc70045e_sim imu_noise_model`.
 

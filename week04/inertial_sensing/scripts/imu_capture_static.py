@@ -2,9 +2,9 @@
 """Week 4, Lab A - record a static IMU log from /imu/data_raw to CSV (the robot must NOT move).
 
 Terminal 1:  ros2 launch tc70045e_sim sim.launch.py gui:=false camera:=false
-Terminal 2:  python3 ~/labs/week04/scripts/imu_capture_static.py --duration 60 --out imu_60s.csv
+Terminal 2:  python3 ~/labs/week04/inertial_sensing/scripts/imu_capture_static.py --duration 60 --out imu_60s.csv
 Long run in the background (keeps going while you do Lab B; progress goes to the log file):
-             nohup python3 ~/labs/week04/scripts/imu_capture_static.py --duration 600 --out imu_static.csv > cap.log 2>&1 &
+             nohup python3 ~/labs/week04/inertial_sensing/scripts/imu_capture_static.py --duration 600 --out imu_static.csv > cap.log 2>&1 &
 
 Time is the message header stamp (simulated time), so a slow laptop gives the same data, only later.
 Columns: t [s], gx gy gz [deg/s], ax ay az [m/s^2] - the same layout as the imu_noise_model output,

@@ -8,6 +8,10 @@
 #   say "spoken text"   narrate without changing the caption (waits until it has been spoken)
 #   rec_start file.mp4 / rec_stop   (rec_stop mixes the narration into file.mp4)
 # Narration: Piper text-to-speech, offline (pip3 install --user piper-tts; voice files in ~/piper/).
+# A fresh container needs (as root) apt-get install -y wmctrl xdotool, and the voice in ~/piper/ from
+#   huggingface.co/rhasspy/piper-voices/resolve/main/en/en_GB/alan/medium/en_GB-alan-medium.onnx (+ .onnx.json).
+# Switch the desktop's screen locker off first (pkill -f mate-screensaver; xset s off): after ~10 idle minutes it
+# locks the VNC desktop and the whole video shows a password box.
 # NARRATE=0 switches it off; VOICE=~/piper/en_GB-jenny_dioco-medium.onnx gives the female voice.
 set -u
 export PATH=$HOME/.local/bin:$PATH

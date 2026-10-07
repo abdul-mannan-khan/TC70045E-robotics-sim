@@ -1,0 +1,40 @@
+# Week 4 - RTAB-Map settings. As given, RTAB-Map uses the LiDAR only (like slam_toolbox in Week 2).
+# YOUR ACTIVITY: add the D455 camera. There are three TODOs below; the README explains each one.
+/**:                                   # (any node that loads this file: the rtabmap node in the launch)
+  ros__parameters:
+    frame_id: base_footprint          # the robot
+    odom_frame_id: ""                 # odometry comes from the /odom_raw topic (wheel odometry)
+    publish_tf: true                  # RTAB-Map publishes map -> odom, like slam_toolbox
+    approx_sync: true                 # camera, LiDAR and odometry arrive at slightly different times
+    sync_queue_size: 30
+    topic_queue_size: 30              # the camera can lag 1-2 s on a slow computer: keep 30 odometry messages
+    wait_for_transform: 0.2
+
+    # --- which sensors feed the map ---
+    subscribe_scan: true              # the 2D LiDAR (/scan)
+    subscribe_rgbd: false             # TODO 1: the D455 colour + depth images (paired by rgbd_sync on /rgbd_image)
+                                      #   colour -> visual loop closures (bag of words), depth -> 3D obstacles
+    subscribe_rgb: false              # (separate colour/depth topics: not used - rgbd_sync pairs them)
+    subscribe_depth: false            #  RTAB-Map's default is true, so say false
+
+    # --- how the robot's pose is corrected (all RTAB-Map parameters are strings) ---
+    Reg/Strategy: "1"                 # 1 = ICP on the LiDAR scan for neighbour and loop-closure links
+    Reg/Force3DoF: "true"             # a ground robot: x, y, yaw only
+    RGBD/NeighborLinkRefining: "true" # correct wheel odometry with the scan between nodes
+    RGBD/ProximityBySpace: "true"     # also close loops when the robot passes a place it has seen
+    RGBD/LinearUpdate: "0.1"          # add a node every 0.1 m ...
+    RGBD/AngularUpdate: "0.1"         # ... or every 0.1 rad
+    Icp/VoxelSize: "0.05"
+    Icp/MaxCorrespondenceDistance: "0.1"
+    Icp/PointToPlane: "false"
+    Mem/NotLinkedNodesKept: "false"
+
+    # --- the occupancy grid (/map) ---
+    Grid/Sensor: "0"                  # TODO 2: 0 = LiDAR only, 1 = depth camera only, 2 = both
+    Grid/3D: "false"                  # a flat 2D map, like slam_toolbox
+    Grid/CellSize: "0.05"
+    Grid/RangeMax: "4.0"              # D455 depth is noisy beyond about 4 m
+    Grid/RayTracing: "true"           # mark free space between the sensor and what it hits
+    Grid/NormalsSegmentation: "false" # simple height test instead of surface normals:
+    Grid/MaxGroundHeight: "0.0"       # TODO 3: points lower than this are floor (0 = off) ...
+    Grid/MaxObstacleHeight: "0.8"     # ... points between 4 cm and 0.8 m (the robot's height + margin) are obstacles
