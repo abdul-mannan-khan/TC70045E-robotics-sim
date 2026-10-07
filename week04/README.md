@@ -166,7 +166,7 @@ Measured 7 Oct 2026 (simulated):
 | slam_toolbox, LiDAR | 0.025 / 0.020 m | MISSED | MISSED | 0 | 10.00 × 8.05 m | 6 %, 48 MB |
 | RTAB-Map, LiDAR | 0.010 / 0.046 m | MISSED | MISSED | 0 | 10.00 × 8.05 m | 51 %, 358 MB |
 | RTAB-Map, LiDAR + D455, both draw (`Grid/Sensor "2"`) | 0.007 / 0.040 m | MISSED | MISSED | 1 | 10.15 × 8.21 m | 53 %, 518 MB |
-| **RTAB-Map, LiDAR + D455, camera draws (`"1"`, solution)** | 0.002 / 0.042 m | **SEEN** | **SEEN** | 23 | 10.15 × 8.20 m | 53 % + 4 % rgbd_sync, 518 MB |
+| **RTAB-Map, LiDAR + D455, camera draws (`"1"`, solution)** | 0.002-0.005 / 0.041-0.045 m | **SEEN** | **SEEN** | 23-42 (two runs) | 10.15 × 8.20 m | 53 % + 4 % rgbd_sync, 518 MB |
 
 CPU is % of one core of the 1-core test instance. What the numbers say: the camera did not make the *pose* better
 (LiDAR SLAM is already within centimetres); it made the *map* better – it is the only sensor that sees the step and
