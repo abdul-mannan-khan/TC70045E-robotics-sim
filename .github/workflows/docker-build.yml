@@ -13,7 +13,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 240      # the full image build takes more than 90 minutes on a GitHub runner
     steps:
       - uses: actions/checkout@v4
 
