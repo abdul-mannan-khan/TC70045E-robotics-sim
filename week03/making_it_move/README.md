@@ -7,8 +7,9 @@ check the wheel patterns, then fix a motor driver whose configuration file has t
 **Run this week** - in the mobile-robot container (Gazebo + RViz, no GPU needed):
 
 ```bash
+docker pull abdulmannan617/tc70045e-ros2:humble          # get the latest image (3.5 GB the first time)
 docker run -d --name tc70045e -p 6080:80 --shm-size 2g --security-opt seccomp=unconfined \
-    -e USER=ubuntu -e RESOLUTION=1600x900 abdulmannan617/tc70045e-ros2:humble
+    -v tc70045e_work:/home/ubuntu/work abdulmannan617/tc70045e-ros2:humble
 ```
 
 then open <http://localhost:6080> (password `ubuntu`) and a terminal there. No Docker on your computer, or you

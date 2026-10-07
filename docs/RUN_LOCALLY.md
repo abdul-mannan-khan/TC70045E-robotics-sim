@@ -26,8 +26,9 @@ you have it.)
 **Simplest (one command, nothing else needed):**
 
 ```bash
+docker pull abdulmannan617/tc70045e-ros2:humble          # get the latest image (3.5 GB the first time)
 docker run -d --name tc70045e -p 6080:80 --shm-size 2g --security-opt seccomp=unconfined \
-    -e USER=ubuntu -e RESOLUTION=1600x900 abdulmannan617/tc70045e-ros2:humble
+    -v tc70045e_work:/home/ubuntu/work abdulmannan617/tc70045e-ros2:humble
 ```
 
 GPU images: add `--gpus all` and change the image name, for example

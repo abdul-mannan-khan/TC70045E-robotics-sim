@@ -3,17 +3,19 @@
 Part A (2 h) installs Linux (WSL 2 on Windows), Docker, the ROS 2 Humble container and Claude Code.
 Part B (1 h) uses them: turtlesim, then a three-node sensor → controller → actuator loop.
 
-## Start the container (from the repository folder on your laptop)
+## Start the container
+
+**New to Docker? Follow the picture-by-picture guide: [docs/GETTING_STARTED.md](../docs/GETTING_STARTED.md)**
+(also on Blackboard as a PDF). In short, in a terminal on your laptop (PowerShell, Terminal), any folder:
 
 ```bash
-docker pull tiryoh/ros2-desktop-vnc:humble          # once; several GB
-# macOS / Linux / WSL:
-docker run -d --name ros2lab -p 6080:80 --shm-size=1g -v "$PWD":/home/ubuntu/labs tiryoh/ros2-desktop-vnc:humble
-# Windows PowerShell:
-docker run -d --name ros2lab -p 6080:80 --shm-size=1g -v "${PWD}:/home/ubuntu/labs" tiryoh/ros2-desktop-vnc:humble
+docker pull abdulmannan617/tc70045e-ros2:humble      # once; 3.5 GB download
+docker run -d --name tc70045e -p 6080:80 --shm-size=2g --security-opt seccomp=unconfined -v tc70045e_work:/home/ubuntu/work abdulmannan617/tc70045e-ros2:humble
 ```
 
-Open http://localhost:6080, click *Connect*, open *Terminator*. This repository is at `~/labs`.
+Open http://localhost:6080, click *Connect*, open *Terminator*. The course is at `~/labs` (`ls ~/labs` lists
+week01 … week12); keep your own files in `~/work`. This is the container for the whole module: next week just
+`docker start tc70045e` and run `update-labs` in the desktop terminal.
 
 ## Scripts
 
@@ -34,9 +36,9 @@ rqt_graph
 ros2 launch ~/labs/week01/scripts/thermal_loop.launch.py      # Activity 2
 ros2 param set /fan_controller setpoint 24.0
 ros2 service call /fan/stop std_srvs/srv/SetBool "{data: true}"
-ros2 bag record -o ~/labs/week01/loop /room/temperature /fan/duty /fan/speed
+ros2 bag record -o ~/work/loop /room/temperature /fan/duty /fan/speed
 
-echo hello > /tmp/note.txt; echo hello > ~/labs/week01/my_note.txt        # Activity 3, then docker rm -f ros2lab
+echo hello > /tmp/note.txt; echo hello > ~/work/my_note.txt        # Activity 3, then docker rm -f tc70045e and run again
 ```
 
 `commands.md` lists every command of the lecture in order. The previous Week 1 lab (power budget, latency, graph

@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+"""update-labs - bring ~/labs up to date with the course repository on GitHub, and keep your own changes.
+
+Run it in a terminal on the container desktop at the start of every session:
+    update-labs
+
+What it does
+  * downloads the latest course files (about 5 MB, not the 3.5 GB image);
+  * adds new files (for example next week's folder) and updates files you have not changed;
+  * never overwrites a file you changed: the course's new version is saved next to it as  <file>.course_new ;
+  * tells you if the simulator software itself changed, so that you also need a new image (docker pull).
+"""
+import filecmp
+import os
+import shutil
+import sys
+import tarfile
+import tempfile
+import urllib.request
+
+URL = 'https://github.com/abdul-mannan-khan/TC70045E-robotics-sim/archive/refs/heads/main.tar.gz'
+HOME = os.path.expanduser('~')
+LABS = os.path.join(HOME, 'labs')
+BASE = os.path.join(HOME, '.cache', 'tc70045e', 'labs_base')     # the course version you last received
+RELEASE = '/opt/tc70045e/labs_release'                             # the course version inside this image
+IMAGE_VERSION = '/opt/tc70045e/IMAGE_VERSION'
+
+
+def files_under(root):
+    for d, _, names in os.walk(root):
+        for n in names:
+            p = os.path.join(d, n)
+            yield os.path.relpath(p, root)
+
+
+def main():
+    if not os.path.isdir(BASE):                                    # first run: the image's version is the base
+        os.makedirs(os.path.dirname(BASE), exist_ok=True)
+        shutil.copytree(RELEASE, BASE, symlinks=True)
+    os.makedirs(LABS, exist_ok=True)
+    print('Downloading the latest course files from GitHub ...')
+    with tempfile.TemporaryDirectory() as tmp:
+        archive = os.path.join(tmp, 'labs.tar.gz')
+        try:
+            urllib.request.urlretrieve(URL, archive)
+        except Exception as e:                                     # no internet, proxy, GitHub down
+            sys.exit('Could not download the course files (%s). Check the internet connection and try again.' % e)
+        with tarfile.open(archive) as t:
+            t.extractall(tmp)
+        new = os.path.join(tmp, [d for d in os.listdir(tmp) if d.startswith('TC70045E')][0])
+
+        added, updated, kept = [], [], []
+        for rel in sorted(files_under(new)):
+            src, dst, base = (os.path.join(r, rel) for r in (new, LABS, BASE))
+            if not os.path.exists(dst):
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                shutil.copy2(src, dst)
+                added.append(rel)
+            elif filecmp.cmp(src, dst, shallow=False):
+                continue                                           # already up to date
+            elif os.path.exists(base) and filecmp.cmp(src, base, shallow=False):
+                continue                                           # the course did not change it: keep yours
+            elif os.path.exists(base) and filecmp.cmp(dst, base, shallow=False):
+                shutil.copy2(src, dst)                             # you did not change it: take the new version
+                updated.append(rel)
+            else:
+                shutil.copy2(src, dst + '.course_new')             # you changed it: keep yours
+                kept.append(rel)
+        shutil.rmtree(BASE)
+        shutil.copytree(new, BASE, symlinks=True)
+
+        vf = os.path.join(new, 'docker', 'IMAGE_VERSION')
+        need = open(vf).read().strip() if os.path.exists(vf) else ''
+        have = open(IMAGE_VERSION).read().strip() if os.path.exists(IMAGE_VERSION) else 'unknown'
+
+    weeks = sorted({r.split(os.sep)[0] for r in added if r.startswith('week')})
+    print('\nDone: %d new files%s, %d updated, %d of your changed files kept.'
+          % (len(added), (' (new: %s)' % ', '.join(weeks)) if weeks else '', len(updated), len(kept)))
+    for rel in kept:
+        print('  kept yours: ~/labs/%s   (course version: ~/labs/%s.course_new)' % (rel, rel))
+    if need > have:
+        print('\n*** This week also needs a newer simulator image (you have %s, the course needs %s). ***' % (have, need))
+        print('    Save your work in ~/work, then on YOUR computer (not in this desktop) run:')
+        print('      docker pull abdulmannan617/tc70045e-ros2:humble')
+        print('      docker rm -f tc70045e')
+        print('    and start the container again with the same docker run command as before.')
+    else:
+        print('Your simulator image is up to date (%s).' % have)
+
+
+if __name__ == '__main__':
+    main()

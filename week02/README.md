@@ -23,11 +23,13 @@ Pick **one** of the three ways. All three give the same Linux desktop in your we
 **A. Your own computer with Docker** (Windows, macOS or Linux – no GPU needed). In a terminal on your computer:
 
 ```bash
+docker pull abdulmannan617/tc70045e-ros2:humble          # get the latest image (3.5 GB the first time)
 docker run -d --name tc70045e -p 6080:80 --shm-size 2g --security-opt seccomp=unconfined \
-    -e USER=ubuntu -e RESOLUTION=1600x900 abdulmannan617/tc70045e-ros2:humble
+    -v tc70045e_work:/home/ubuntu/work abdulmannan617/tc70045e-ros2:humble
 ```
 
 The first time, this downloads 3.5 GB (10-20 minutes). Next time use `docker start tc70045e` instead.
+Never used Docker? Follow the pictures in [docs/GETTING_STARTED.md](../docs/GETTING_STARTED.md).
 
 **B. A rented computer on Vast.ai** (no Docker on your computer): follow [docs/RUN_ON_VAST.md](../docs/RUN_ON_VAST.md)
 with the image `abdulmannan617/tc70045e-ros2:humble`.
@@ -42,7 +44,9 @@ Then:
    click **Connect**. Password: `ubuntu` (or the one you chose on Vast.ai).
 2. Double-click **Terminator** on the desktop. Split it into more terminals with **Ctrl+Shift+O** (one above the
    other) or **Ctrl+Shift+E** (side by side). Below, *T1*, *T2*, *T3* mean terminal 1, 2, 3.
-3. Check that the course is there: `ls ~/labs/week02` must list `launch  rviz  scripts  README.md …`.
+3. Get this week's files: `update-labs` (it keeps your own changes). Then check: `ls ~/labs/week02` must list
+   `launch  rviz  scripts  README.md …`. Nothing there? See *No week folders* in
+   [GETTING_STARTED.md](../docs/GETTING_STARTED.md#troubleshooting).
 
 > With way A or B, files you change live inside the container. `docker stop`/`docker start` keeps them;
 > `docker rm` deletes them (Week 1). Copy your work out (or use way C) before you delete the container.

@@ -87,4 +87,13 @@ RUN mkdir -p /home/ubuntu/ws/src /home/ubuntu/ws/maps /home/ubuntu/bags /home/ub
 #     'core' (everything above) is also the base of the drone and CARLA images; they copy the course code last too,
 #     so a change in the course code never rebuilds the simulators.
 FROM core
+# Default desktop user: without this the base image starts as root (HOME=/root, no ~/labs) whenever the container
+# is started without "-e USER=ubuntu", e.g. from the Run button in Docker Desktop.
+ENV USER=ubuntu RESOLUTION=1600x900
+# ~/work: mount a volume here (-v tc70045e_work:/home/ubuntu/work) - files in it survive docker rm and image updates
+RUN mkdir -p /home/ubuntu/work && chown 1000:1000 /home/ubuntu/work
 COPY --chown=1000:1000 . /home/ubuntu/labs
+# update-labs (run in the desktop): fetch new course files from GitHub without touching the student's changes
+COPY . /opt/tc70045e/labs_release
+RUN install -m 755 /opt/tc70045e/labs_release/docker/update-labs /usr/local/bin/update-labs \
+ && cp /opt/tc70045e/labs_release/docker/IMAGE_VERSION /opt/tc70045e/IMAGE_VERSION

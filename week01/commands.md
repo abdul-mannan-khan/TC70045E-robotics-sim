@@ -1,13 +1,13 @@
 # Week 01 – commands and code from the lecture, in order
 
 Generated from the lecture (Week 1: Your Robotics Workstation – Linux, Docker, ROS 2 and Claude – TC70045E) by `tools/extract_commands.py`. Run the commands in the module's
-Docker container (`~/labs` is this repository). Longer programs are in `scripts/` – the lecture shows
+Docker container (`~/labs` is this repository; keep your own files in `~/work`). Longer programs are in `scripts/` – the lecture shows
 the key parts. Output blocks (what you should see) are included so you can compare.
 
 ## 
 
 ```bash
-docker pull tiryoh/ros2-desktop-vnc:humble
+docker pull abdulmannan617/tc70045e-ros2:humble
 ```
 
 ## Windows 10 / 11: WSL 2
@@ -33,25 +33,27 @@ docker run hello-world          # prints "Hello from Docker!"
 
 ```bash
 # Windows PowerShell
-docker run -d --name ros2lab `
-  -p 6080:80 --shm-size=1g `
-  -v "${PWD}:/home/ubuntu/labs" `
-  tiryoh/ros2-desktop-vnc:humble
+docker run -d --name tc70045e `
+  -p 6080:80 --shm-size=2g `
+  --security-opt seccomp=unconfined `
+  -v tc70045e_work:/home/ubuntu/work `
+  abdulmannan617/tc70045e-ros2:humble
 ```
 
 ```bash
 # macOS / Linux / WSL terminal
-docker run -d --name ros2lab \
-  -p 6080:80 --shm-size=1g \
-  -v "$PWD":/home/ubuntu/labs \
-  tiryoh/ros2-desktop-vnc:humble
+docker run -d --name tc70045e \
+  -p 6080:80 --shm-size=2g \
+  --security-opt seccomp=unconfined \
+  -v tc70045e_work:/home/ubuntu/work \
+  abdulmannan617/tc70045e-ros2:humble
 ```
 
 ```bash
 docker ps                 # is it running?
-docker stop ros2lab       # pause it  (files kept)
-docker start ros2lab      # resume it
-docker rm -f ros2lab      # delete it (only ~/labs survives - see Part B)
+docker stop tc70045e      # pause it  (files kept)
+docker start tc70045e     # resume it - use this every week
+docker rm -f tc70045e     # delete it (only ~/work survives - see Part B)
 ```
 
 ```bash
@@ -110,16 +112,16 @@ ros2 topic hz /room/temperature                                #     5.000 Hz
 ros2 param set /fan_controller setpoint 24.0                   #     change the goal
 ros2 service call /fan/stop std_srvs/srv/SetBool "{data: true}"   # emergency stop
 ros2 service call /fan/stop std_srvs/srv/SetBool "{data: false}"  # release
-ros2 bag record -o ~/labs/week01/loop /room/temperature /fan/duty /fan/speed   # Ctrl+C after 30 s
+ros2 bag record -o ~/work/loop /room/temperature /fan/duty /fan/speed   # Ctrl+C after 30 s
 ```
 
 ```bash
 echo hello > /tmp/note.txt                    # in the container
-echo hello > ~/labs/week01/my_note.txt
+echo hello > ~/work/my_note.txt
 # on the LAPTOP terminal:
-docker rm -f ros2lab                           # then run the docker run command again (3.1)
+docker rm -f tc70045e                          # then run the docker run command again (3.1)
 # in the new container:
-cat /tmp/note.txt ; cat ~/labs/week01/my_note.txt ; ls ~/labs/week01/loop
+cat /tmp/note.txt ; cat ~/work/my_note.txt ; ls ~/work/loop
 ```
 
 ```bash

@@ -24,14 +24,19 @@ GPU computer (Vast.ai). Nothing has to be installed or downloaded besides the co
 | `abdulmannan617/tc70045e-carla:latest` | self-driving car (CARLA 0.9.15 + ROS 2 bridge) | 10 | NVIDIA GPU, 8 GB+ |
 | `abdulmannan617/tc70045e-drone:latest` | drone (AirSim 1.8.1 + PX4 1.14 + ROS 2) | 11 | NVIDIA GPU, 6 GB+ |
 
+**New to Docker? Picture-by-picture guide: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** – install Docker, pull,
+run, open the desktop, run a week's code, update every week.
+
 **Start (own computer):**
 
 ```bash
+docker pull abdulmannan617/tc70045e-ros2:humble          # get the latest image (3.5 GB the first time)
 docker run -d --name tc70045e -p 6080:80 --shm-size 2g --security-opt seccomp=unconfined \
-    -e USER=ubuntu -e RESOLUTION=1600x900 abdulmannan617/tc70045e-ros2:humble
+    -v tc70045e_work:/home/ubuntu/work abdulmannan617/tc70045e-ros2:humble
 ```
 
-Open **<http://localhost:6080>** (password `ubuntu`), open a terminal in the desktop; the course is at `~/labs`.
+Open **<http://localhost:6080>** (password `ubuntu`), open a terminal in the desktop; the course is at `~/labs`,
+your own files go in `~/work`. Every later session: `docker start tc70045e`, then `update-labs` in the desktop terminal.
 
 * Full instructions for your own computer, including the GPU images and `docker compose`:
   [docs/RUN_LOCALLY.md](docs/RUN_LOCALLY.md)
