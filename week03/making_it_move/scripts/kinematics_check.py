@@ -2,7 +2,7 @@
 """Week 3, Lab C - check the mecanum inverse and forward kinematics on the simulated lab robot.
 
 Terminal 1:  ros2 launch tc70045e_sim sim.launch.py gui:=false camera:=false
-Terminal 2:  python3 ~/labs/week03/scripts/kinematics_check.py          (about 35 s of simulated time)
+Terminal 2:  python3 ~/labs/week03/making_it_move/scripts/kinematics_check.py          (about 35 s of simulated time)
 Options:     --speed 0.2 --dist 1.0 --wz 0.5     (the robot needs 1.2 m of free floor ahead and to its left)
 
 Drives three segments from rest, then STOPS the robot with a zero Twist (the base has no command timeout):

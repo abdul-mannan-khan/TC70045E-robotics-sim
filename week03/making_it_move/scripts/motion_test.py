@@ -3,8 +3,8 @@
 
 Purpose  Week 3 integration clinic. Four short tests through /cmd_vel_in (so they pass through base_driver.py),
          measured with the simulator's exact pose /ground_truth/odom (on a real robot: a tape measure).
-Usage    python3 ~/labs/week03/scripts/motion_test.py            # about 25 s; needs ~1.5 m free ahead and to the left
-         python3 ~/labs/week03/scripts/motion_test.py --only forward
+Usage    python3 ~/labs/week03/making_it_move/scripts/motion_test.py            # about 25 s; needs ~1.5 m free ahead and to the left
+         python3 ~/labs/week03/making_it_move/scripts/motion_test.py --only forward
 Tests    forward   0.2 m/s for 5 s        expect 1.00 m ahead, no sideways drift, no turn
          left      0.2 m/s for 5 s        expect 1.00 m to the left (mecanum: sideways)
          rotate    0.5 rad/s for pi s     expect +90 deg on the spot

@@ -1,59 +1,51 @@
 #!/bin/bash
-# Week 3 demo video: the integration clinic, start to finish (about 6 minutes). Tutor tool - run in the container:
-#   DISPLAY=:1 bash ~/labs/tools/demo/week03_demo.sh /tmp/week03_demo.mp4
+# Week 3 demo video: the navigation brick - from a map to autonomous delivery (Nav2). Tutor tool - run in the
+# container desktop (narration is prepared first, see demo_lib.sh):
+#   PREPARE=1 bash ~/labs/tools/demo/week03_demo.sh && DISPLAY=:1 bash ~/labs/tools/demo/week03_demo.sh /tmp/w3.mp4
 source "$(dirname "$0")/demo_lib.sh"
 OUT=${1:-/tmp/week03_demo.mp4}
-pkill -f gzserver; sleep 2
-rm -f ~/labs/week03/config/my_driver.yaml
+S=~/labs/week03/scripts
+pkill -f gzserver; pkill -f gzclient; sleep 2
+rm -f /tmp/w3_*.log
+place_views() {   # Gazebo (the simulated world) top left, RViz (what the robot knows) bottom left
+    for i in 1 2 3; do place Gazebo 0 90 955 495; place RViz 0 590 955 490; sleep 1; done; }
 
 caption_bar
 term T1 960 90 960 300
-term T2 960 400 960 300
-term T3 960 710 960 370
+term T2 960 400 960 330
+term T3 960 740 960 340
 rec_start "$OUT"
 
-cap "Week 3 demo - make the robot move: plug in a motor-controller driver, test it, fix its config" 5 "Week three demo. Making the robot move. We plug in the driver of a motor controller board, test it, and fix its configuration."
-cap "Step 1 (T1): start the simulated robot and RViz - the robot brick from Week 2" 2 "Step one. In terminal one we start the simulated robot and RViz, with the Lego launch file from week two."
-run T1 "ros2 launch ~/labs/week02/launch/lego.launch.py" 25
-place rviz 0 90 955 990
-cap "Step 2 (T2): copy the driver's config file that came with the board, and look at it" 2 "Step two. In terminal two we make our own copy of the configuration file that came with the board, and print it."
-run T2 "cp ~/labs/week03/config/base_driver.yaml ~/labs/week03/config/my_driver.yaml" 1
-run T2 "cat ~/labs/week03/config/my_driver.yaml" 6
-cap "Step 3 (T2): start the driver brick:  /cmd_vel_in  ->  base_driver  ->  /cmd_vel  ->  robot" 2 "Step three. We start the driver brick with that file. It listens on cmd vel in, and drives the robot through cmd vel."
-run T2 "clear; python3 ~/labs/week03/scripts/base_driver.py --ros-args --params-file ~/labs/week03/config/my_driver.yaml" 4
-cap "Step 4 (T3): run the acceptance test - forward 1 m, left 1 m, turn 90 deg, stop when silent" 2 "Step four. In terminal three we run the acceptance test: one metre forward, one metre to the left, a ninety degree turn, and a check that the robot stops when the commands stop."
-run T3 "python3 ~/labs/week03/scripts/motion_test.py" 4
-say "Watch the robot in RViz on the left. The test takes about half a minute and prints a table at the end." 34
-cap "0 of 4 passed. The robot spins instead of driving straight. Look at the four wheel commands..." 6 "Zero of four tests passed. The robot spins instead of driving straight. Let us look at the four wheel commands while we ask for forward motion."
-run T3 "clear; ros2 service call /reset_world std_srvs/srv/Empty > /dev/null" 2
-run T3 "ros2 topic echo --once /driver/wheel_cmd --field velocity & sleep 2; ros2 topic pub --once /cmd_vel_in geometry_msgs/msg/Twist '{linear: {x: 0.1}}' > /dev/null" 5
-run T3 "ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist '{}' > /dev/null" 3
-cap "Forward should be  + + + +  for FL FR RL RR.  FR (the 2nd) is negative: the config claims FR is wired backwards" 7 "For forward motion all four wheels should turn forwards. But the second one, front right, is negative. The configuration claims that the front right motor is wired backwards."
-cap "Fix 1 (T2): stop the driver, edit the config in nano:  reversed: ['none'],  start the driver again" 2 "Fix one. We stop the driver, open the file in nano, and change the reversed list to none. Then we start the driver again and repeat the forward test."
-ctrlc T2 2
-run T2 "clear" 1
-nano_replace T2 ~/labs/week03/config/my_driver.yaml "reversed: ['fr']" "reversed: ['none']"
-run T2 "grep reversed ~/labs/week03/config/my_driver.yaml" 3
-run T2 "python3 ~/labs/week03/scripts/base_driver.py --ros-args --params-file ~/labs/week03/config/my_driver.yaml" 4
-run T3 "clear; ros2 service call /reset_world std_srvs/srv/Empty > /dev/null; python3 ~/labs/week03/scripts/motion_test.py --only forward" 16
-cap "Straight now - but only 0.5 m instead of 1 m. The wheel is 75 mm across: 0.075 is the DIAMETER, the radius is 0.0375" 7 "It drives straight now, but only half a metre instead of one. The wheel is seventy five millimetres across. So zero point zero seven five is the diameter, and the radius is half of that."
-cap "Fix 2 (T2): wheel_radius: 0.0375" 2 "Fix two. We set the wheel radius to zero point zero three seven five, and run all four tests again."
-ctrlc T2 2
-run T2 "clear" 1
-nano_replace T2 ~/labs/week03/config/my_driver.yaml "wheel_radius: 0.075 " "wheel_radius: 0.0375"
-run T2 "grep wheel_radius ~/labs/week03/config/my_driver.yaml" 3
-run T2 "python3 ~/labs/week03/scripts/base_driver.py --ros-args --params-file ~/labs/week03/config/my_driver.yaml" 4
-run T3 "clear; ros2 service call /reset_world std_srvs/srv/Empty > /dev/null; python3 ~/labs/week03/scripts/motion_test.py" 40
-cap "3 of 4. The watchdog fails: if your program crashes, the robot drives on for ever. cmd_timeout_s: 0 means 'never stop'" 7 "Three of four. The watchdog test fails. If your program crashes, this robot would drive on for ever, because a command timeout of zero means never stop."
-cap "Fix 3 (T2): cmd_timeout_s: 0.5  - stop the motors if no command arrives for half a second" 2 "Fix three. We set the command timeout to half a second, so the motors stop when the commands stop."
-ctrlc T2 2
-run T2 "clear" 1
-nano_replace T2 ~/labs/week03/config/my_driver.yaml "cmd_timeout_s: 0.0" "cmd_timeout_s: 0.5"
-run T2 "grep cmd_timeout ~/labs/week03/config/my_driver.yaml" 3
-run T2 "python3 ~/labs/week03/scripts/base_driver.py --ros-args --params-file ~/labs/week03/config/my_driver.yaml" 4
-run T3 "clear; ros2 service call /reset_world std_srvs/srv/Empty > /dev/null; python3 ~/labs/week03/scripts/motion_test.py" 40
-cap "4 of 4 passed: the drive system is integrated. Now read base_driver.py and motion_test.py, then do the exercises." 8 "Four of four passed. The drive system is integrated. Now open base driver dot p y and motion test dot p y, read them, and do the exercises in the lecture."
+cap "Week 3 demo - the navigation brick: from a map to autonomous delivery" 5 "Week three demo. The navigation brick. We give the robot the map from week two, it works out where it is, and then it drives itself to any goal we give it."
+cap "Step 1 (T1): one launch file - robot (Gazebo) + map + AMCL + Nav2 + RViz" 2 "Step one. In terminal one, one launch file starts five bricks: the robot in Gazebo, the saved map, AMCL for localisation, the Nav2 navigation stack, and RViz."
+run T1 "ros2 launch ~/labs/week03/launch/nav.launch.py gui:=true 2>&1 | tee /tmp/w3_nav.log" 30
+place_views
+say "Gazebo, top left, is the real world of the simulation. RViz, below, shows what the robot knows: the saved map, the laser in red, and the blue arrows of AMCL." 3
+cap "Step 2 (T2): where am I? AMCL matches the laser to the map - the blue particle cloud shrinks" 2 "Step two. Where am I? AMCL keeps hundreds of guesses, the blue arrows, and keeps the ones whose laser view matches the map. The launch file told it that the robot starts at the origin."
+run T2 "ros2 topic echo --once /amcl_pose --field pose.pose.position" 5
+cap "Step 3 (T2): send a goal from Python - through the doorway into the other room" 2 "Step three. We send a goal from a Python script: the doorway between the two rooms. Clicking two D goal pose in RViz does exactly the same."
+run T2 "clear; python3 -u $S/go_to.py 4.0 -1.0 0 | tee /tmp/w3_goal1.log" 4
+cap "Green: the global plan on the map. Orange: the local plan the controller is following right now" 6 "The green line is the global plan, computed on the map. The orange line is the local plan the controller follows right now, using the latest laser data."
+wait_for RESULT /tmp/w3_goal1.log 120
+sleep 3
+cap "Step 4 (T3): drop a box on the way back - it is NOT on the map" 2 "Step four. Something new appears: we drop a box on the way back. The map does not know about it."
+run T3 "python3 $S/drop_box.py 2.0 -1.0" 5
+cap "The laser sees the box: it appears in the costmap, and Nav2 plans round it" 2 "The laser sees the box, it appears in the costmap, and Nav2 plans a way round it."
+run T2 "clear; python3 -u $S/go_to.py 0.0 0.0 180 | tee /tmp/w3_goal2.log" 4
+wait_for RESULT /tmp/w3_goal2.log 120
+sleep 3
+run T3 "clear; python3 $S/drop_box.py --remove" 4
+cap "Step 5 (T3): the costmap - walls are grown by the inflation radius so the robot keeps its distance" 2 "Step five. The costmap. Every wall and obstacle is grown by the inflation radius, so the planner keeps the robot away from them."
+run T3 "clear; ros2 param get /global_costmap/global_costmap inflation_layer.inflation_radius" 5
+say "Point three five metres. Make it smaller and the robot cuts closer to the walls. Make it bigger and narrow doorways close." 3
+cap "Your activity: patrol.py - a security patrol through both rooms. As given it does nothing (three TODOs)" 2 "Your activity is a security patrol through both rooms. The patrol script you are given has three to do's, so at first it does nothing."
+run T2 "clear; python3 $S/patrol.py" 12
+cap "The worked solution: five waypoints, each reached or reported, then a RESULT line" 2 "Here is the worked solution: five waypoints through both rooms. Each one is reached, or reported and skipped, and the patrol ends with a result line."
+run T2 "clear; python3 -u ~/labs/solutions/week03/patrol.py 1 | tee /tmp/w3_patrol.log" 4
+cap "Watch the patrol in Gazebo and RViz (real time)" 30 "Watch the patrol in Gazebo and in RViz. This is real time."
+wait_for RESULT /tmp/w3_patrol.log 400
+sleep 4
+cap "Your turn: week03/README.md - activities A1-A5, then patrol.py. Try first, then compare with the solution." 8 "Your turn. Follow the week three read me, activities one to five, then write your patrol. Try first, then compare with the solution."
 rec_stop
-ctrlc T2 1; ctrlc T1 6; pkill -f gzserver
-rm -f ~/labs/week03/config/my_driver.yaml
+ctrlc T1 8; pkill -f gzserver; pkill -f gzclient
 echo "saved $OUT"

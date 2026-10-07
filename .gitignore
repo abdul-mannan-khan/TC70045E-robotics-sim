@@ -11,6 +11,7 @@ docker/maps/*
 *.pcd
 *.bt
 *.pgm
+!week03/maps/*.pgm
 __pycache__/
 *.pyc
 build/

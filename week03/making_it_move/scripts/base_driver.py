@@ -5,7 +5,7 @@ What it stands for  Every real motor-controller board comes with a driver node a
                     radius, wheel spacing, which motors are wired backwards, speed limits, a command timeout.
                     Get one value wrong and the robot drives wrongly. This node behaves like such a driver, so you
                     can practise finding and fixing configuration faults in simulation.
-Usage    python3 ~/labs/week03/scripts/base_driver.py --ros-args --params-file ~/labs/week03/config/base_driver.yaml
+Usage    python3 ~/labs/week03/making_it_move/scripts/base_driver.py --ros-args --params-file ~/labs/week03/making_it_move/config/base_driver.yaml
 Brick    in   /cmd_vel_in          geometry_msgs/msg/Twist     what you want the robot to do
          out  /cmd_vel             geometry_msgs/msg/Twist     what the wheels really make the robot do (to the sim)
          out  /driver/wheel_cmd    sensor_msgs/msg/JointState  wheel speed commands fl, fr, rl, rr [rad/s]

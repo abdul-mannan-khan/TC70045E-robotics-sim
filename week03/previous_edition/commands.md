@@ -38,7 +38,7 @@ ros2 topic pub --once /motor/duty std_msgs/msg/Float32 "{data: 0.0}"
 ```bash
 # terminal 2 - the scripted identification (about 20 s)
 cd ~/labs/week03 && mkdir -p results && cd results
-python3 ~/labs/week03/scripts/step_test.py
+python3 ~/labs/week03/making_it_move/scripts/step_test.py
 #   writes step_test.csv and step_test.png in the current folder
 ```
 
@@ -79,15 +79,15 @@ u = float(np.clip(self.kp * e + self.i_term + self.d_term,
 # each run: a FRESH bench (load step 0.1 m/s at 8 s, stops itself
 # after 16 s) plus pid_speed.py with the parameters you give it
 cd ~/labs/week03/results
-bash ~/labs/week03/scripts/bench_run.sh -p kp:=148.0 -p ki:=1290.0 -p out:=simc
-bash ~/labs/week03/scripts/bench_run.sh -p kp:=238.0 -p ki:=2070.0 -p out:=imc
-bash ~/labs/week03/scripts/bench_run.sh -p kp:=91.0 -p ki:=790.0 -p out:=gentle
-bash ~/labs/week03/scripts/bench_run.sh -p kp:=148.0 -p ki:=0.0 -p out:=p_only
+bash ~/labs/week03/making_it_move/scripts/bench_run.sh -p kp:=148.0 -p ki:=1290.0 -p out:=simc
+bash ~/labs/week03/making_it_move/scripts/bench_run.sh -p kp:=238.0 -p ki:=2070.0 -p out:=imc
+bash ~/labs/week03/making_it_move/scripts/bench_run.sh -p kp:=91.0 -p ki:=790.0 -p out:=gentle
+bash ~/labs/week03/making_it_move/scripts/bench_run.sh -p kp:=148.0 -p ki:=0.0 -p out:=p_only
 ```
 
 ```text
 # wind-up: no load step (LOAD=0.0), 0.9 m/s then 0.3 m/s at t = 4 s
-LOAD=0.0 bash ~/labs/week03/scripts/bench_run.sh -p setpoint:=0.9 \
+LOAD=0.0 bash ~/labs/week03/making_it_move/scripts/bench_run.sh -p setpoint:=0.9 \
     -p setpoint2:=0.3 -p t_step2:=4.0 -p duration:=8.0 \
     -p anti_windup:=false -p out:=aw_off       # then true, out:=aw_on
 ```
@@ -139,7 +139,7 @@ ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist "{}"
 
 # the scripted check (needs about 1.2 m free ahead and to the left)
 cd ~/labs/week03/results
-python3 ~/labs/week03/scripts/kinematics_check.py
+python3 ~/labs/week03/making_it_move/scripts/kinematics_check.py
 ```
 
 ```text

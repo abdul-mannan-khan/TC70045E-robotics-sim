@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Week 3, Lab B - a discrete PI(D) wheel-speed controller for the motor test bench, with logging and metrics.
 
-Easiest: bash ~/labs/week03/scripts/bench_run.sh -p kp:=148.0 -p ki:=1290.0   (starts a fresh bench for you)
+Easiest: bash ~/labs/week03/making_it_move/scripts/bench_run.sh -p kp:=148.0 -p ki:=1290.0   (starts a fresh bench for you)
 Or by hand - terminal 1 (the plant, with a load step 8 s after it starts - for the disturbance test):
     ros2 run tc70045e_sim motor_bench --ros-args -p load_mps:=0.1 -p load_step_s:=8.0
 terminal 2, within 3 s (the controller, gains from your Lab A model):
-    python3 ~/labs/week03/scripts/pid_speed.py --ros-args -p kp:=148.0 -p ki:=1290.0
+    python3 ~/labs/week03/making_it_move/scripts/pid_speed.py --ros-args -p kp:=148.0 -p ki:=1290.0
 Restart the bench before every run, so that the load step always comes at the same moment.
 
 Parameters: kp [% per m/s], ki [% per m/s per s], kd [% s per m/s], setpoint [m/s], t_step [s],

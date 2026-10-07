@@ -3,7 +3,7 @@
 
 Run    (robot + correctly configured base_driver running, as in Activity 3)
        ros2 service call /reset_world std_srvs/srv/Empty
-       python3 ~/labs/solutions/week03/diagonal_test.py
+       python3 ~/labs/solutions/week03/making_it_move/diagonal_test.py
 Tests  square    four 1 m sides, no turning   expect to end within 0.10 m of the start (run it from the start pose:
                  the route is clear of the crate and the pillar)
        diagonal  vx = vy = 0.14 m/s for 5 s   expect 0.70 m ahead and 0.70 m left
@@ -14,7 +14,7 @@ import sys
 
 import rclpy
 
-sys.path.insert(0, os.path.expanduser('~/labs/week03/scripts'))
+sys.path.insert(0, os.path.expanduser('~/labs/week03/making_it_move/scripts'))
 from motion_test import MotionTest  # noqa: E402  (the helper class from the activity file)
 
 

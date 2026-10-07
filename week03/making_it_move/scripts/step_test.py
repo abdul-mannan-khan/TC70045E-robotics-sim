@@ -2,7 +2,7 @@
 """Week 3, Lab A - open-loop system identification of one wheel on the motor test bench.
 
 Terminal 1 (the plant):   ros2 run tc70045e_sim motor_bench
-Terminal 2 (this script): python3 ~/labs/week03/scripts/step_test.py
+Terminal 2 (this script): python3 ~/labs/week03/making_it_move/scripts/step_test.py
 
 What it does (about 20 s):
   1. dead-zone staircase: duty 0, 1, 2 ... 12 % for 0.5 s each -> the first duty that turns the wheel

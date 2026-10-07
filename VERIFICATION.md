@@ -7,6 +7,7 @@
 | `tc70045e-ros2:humble` | `tools/validate.sh` (local build, 6 Oct) | **42 of 42 pass** |
 | `tc70045e-ros2:humble` | Week 2 wall follower (solution), 120 s, safety brick on | 23.7 m along the walls, closest laser range 0.48 m, 0 safety stops; Ctrl+C stops the robot |
 | `tc70045e-ros2:humble` | Week 3 acceptance test (solution) | square PASS (0.00 m from start), diagonal PASS (0.70 m / 0.70 m) |
+| `tc70045e-ros2:humble` | **Week 3 (Nav2, 7 Oct)**: `nav.launch.py` (Gazebo + map + AMCL + Nav2 + RViz), automatic start pose, `go_to.py`, `drop_box.py`, patrol solution; A3 checks and A5 inflation radius | start pose (0.01, 0.01); doorway SUCCEEDED 14.6 s; detour round a dropped box 18.6 s; patrol 5 of 5 in 117 s; goal outside the map FAILED after recoveries (21 s); goal in a wall SUCCEEDED within the 0.5 m planner tolerance; inflation 0.15 / 0.8 m changes paths (0.8 m: 23.9 s), doorway stays open |
 | `tc70045e-drone` | AirSim Blocks, Neighborhood, Mountains start (`drone-sim start`), window in the browser desktop via VirtualGL | all three start; PX4 1.14.3 "Ready for takeoff" |
 | `tc70045e-drone` | **without ROS 2**: AirSim API (state, IMU, GPS, camera); MAVSDK square | square flown and landed in Blocks (5 m), Mountains (30 m) and Neighborhood (15 m) |
 | `tc70045e-drone` | **with ROS 2**: sensor bridge (pose, IMU, GPS, camera about 9 Hz), control bridge (take-off/land services, `/drone/cmd_vel`), square from a ROS 2 node | finished 0.07-0.14 m from the start (Blocks, Neighborhood, Mountains); response to a velocity step 0.6 s |

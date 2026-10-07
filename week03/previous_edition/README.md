@@ -25,7 +25,7 @@ All numbers are from a simulator - label them "simulated" in your report.
 
 ```bash
 ros2 run tc70045e_sim motor_bench                    # terminal 1, leave running
-python3 ~/labs/week03/scripts/step_test.py           # terminal 2, about 20 s
+python3 ~/labs/week03/making_it_move/scripts/step_test.py           # terminal 2, about 20 s
 ```
 Writes `step_test.csv` and `step_test.png`. Expected (measured 21 Sep 2026): speed quantum 0.0096 m/s,
 wheel first turns at 7 % duty, incremental K = 0.0084 (m/s)/% (30 -> 60 %), apparent K = 0.0067 (0 -> 30 %),
@@ -35,8 +35,8 @@ Stop the bench with Ctrl+C before Lab B.
 ## Lab B - closed-loop speed control
 
 ```bash
-bash ~/labs/week03/scripts/bench_run.sh -p kp:=148.0 -p ki:=1290.0 -p out:=simc
-LOAD=0.0 bash ~/labs/week03/scripts/bench_run.sh -p setpoint:=0.9 -p setpoint2:=0.3 \
+bash ~/labs/week03/making_it_move/scripts/bench_run.sh -p kp:=148.0 -p ki:=1290.0 -p out:=simc
+LOAD=0.0 bash ~/labs/week03/making_it_move/scripts/bench_run.sh -p setpoint:=0.9 -p setpoint2:=0.3 \
     -p t_step2:=4.0 -p duration:=8.0 -p anti_windup:=false -p out:=aw_off
 ```
 `bench_run.sh` starts a fresh bench (load step 0.1 m/s at 8 s, stops itself after 16 s) and runs `pid_speed.py`
@@ -49,7 +49,7 @@ anti-windup, 1.13-1.17 s without. Measured 21 Sep 2026 (motor_bench with a 40 ms
 
 ```bash
 ros2 launch tc70045e_sim sim.launch.py gui:=false camera:=false     # terminal 1, wait ~30 s
-python3 ~/labs/week03/scripts/kinematics_check.py                    # terminal 2, ~30 s sim time
+python3 ~/labs/week03/making_it_move/scripts/kinematics_check.py                    # terminal 2, ~30 s sim time
 ```
 Drives 1 m forward, 1 m left and one turn on the spot (needs 1.2 m free ahead and to the left - restart the
 simulator to return to the spawn point) and ALWAYS finishes with a zero Twist - the simulated base has no
