@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """CARLA WITHOUT ROS 2 - step 1: a car, a camera and a window, through the CARLA Python API.
 
-Start the simulator first:   carla-sim start --town Town03
+Start the simulator first:   carla-sim start --town Town04
 Then run:                    python3 ~/labs/examples/carla/01_hello_carla.py [--seconds 60] [--headless]
 
 Spawns a car with a chase camera, lets CARLA's autopilot drive it, and shows the camera in a pygame window
@@ -12,6 +12,8 @@ Pipeline:   your script --(CARLA API, TCP 2000)--> CARLA server (renders on the 
 import argparse
 import math
 import os
+
+os.environ.setdefault('SDL_AUDIODRIVER', 'dummy')   # no sound card in the container: keep pygame quiet
 import queue
 import random
 

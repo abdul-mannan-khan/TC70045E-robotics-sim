@@ -1,5 +1,32 @@
 # What has been tested, and what has not
 
+## AY26-27 simulation course - containers tested on Vast.ai GPU machines, 6-7 October 2026
+
+| Image | Test | Result |
+|---|---|---|
+| `tc70045e-ros2:humble` | `tools/validate.sh` (local build, 6 Oct) | **42 of 42 pass** |
+| `tc70045e-ros2:humble` | Week 2 wall follower (solution), 120 s, safety brick on | 23.7 m along the walls, closest laser range 0.48 m, 0 safety stops; Ctrl+C stops the robot |
+| `tc70045e-ros2:humble` | Week 3 acceptance test (solution) | square PASS (0.00 m from start), diagonal PASS (0.70 m / 0.70 m) |
+| `tc70045e-drone` | AirSim Blocks, Neighborhood, Mountains start (`drone-sim start`), window in the browser desktop via VirtualGL | all three start; PX4 1.14.3 "Ready for takeoff" |
+| `tc70045e-drone` | **without ROS 2**: AirSim API (state, IMU, GPS, camera); MAVSDK square | square flown and landed in Blocks (5 m), Mountains (30 m) and Neighborhood (15 m) |
+| `tc70045e-drone` | **with ROS 2**: sensor bridge (pose, IMU, GPS, camera about 9 Hz), control bridge (take-off/land services, `/drone/cmd_vel`), square from a ROS 2 node | finished 0.07-0.14 m from the start (Blocks, Neighborhood, Mountains); response to a velocity step 0.6 s |
+| `tc70045e-drone` | **HIL path** (`drone-sim start --mode hil`) | relay listens on 4570, AirSim opens `/dev/ttyPX4` and waits for HIL messages; **not tested with a real Pixhawk 6C / Jetson** |
+| `tc70045e-carla` | **without ROS 2**: CARLA 0.9.15 Town04, autopilot + chase camera; cruise control (PI + pure pursuit), 60 s | mean 50.1 km/h, max error 0.1 km/h over the last 10 s |
+| `tc70045e-carla` | **with ROS 2**: official bridge (43 topics; camera, LiDAR, odometry, speedometer about 5 Hz in synchronous mode), cruise control as a ROS 2 node | 40.0 km/h held |
+| `tc70045e-companion` | builds for linux/arm64 and linux/amd64 | builds; **not run on a Jetson yet** |
+
+Problems found and fixed during these tests (all in the images now): AirSim needs write access to its folder; PX4
+1.14 renamed `COM_OBL_ACT`; AirSim aborted when nothing listened on its QGroundControl port; MAVSDK now uses UDP
+14550 (AirSim itself uses 14540); a restarted simulator must wait for TCP 4560 to be released; metric depth pictures
+take about 5 s in AirSim 1.8.1 (so the ROS 2 bridge publishes colour only); speech synthesis during a recording
+disturbed the simulation (narration is now prepared first); PX4 magnetometer strength checks disabled and the
+simulated battery kept full for long demos. CARLA: `localhost` resolves to IPv6 and times out - use 127.0.0.1;
+the bridge needed three fixes for Humble/NumPy 1.26 (town reload, `world.tick()`, `np.bool`); Town03 did not start
+on an RTX 3060 - Town04 is the tested town; the cruise-control example starts in a middle lane (an outer lane
+becomes an exit ramp).
+
+## Previous edition (before the AY26-27 rebuild)
+
 Last full run: **21 September 2026.** The lab image was built with a real `docker build` from `docker/Dockerfile`
 (Docker 29 in WSL 2, Ubuntu 22.04 base, ROS 2 Humble), and every laboratory in the twelve lectures was run
 inside a container from that image, in lecture order, as a student would run it. The measured numbers in the

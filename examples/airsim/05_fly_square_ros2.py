@@ -44,15 +44,19 @@ class Square(Node):
         self.get_logger().info('%s: %s' % (name, fut.result().message))
         return fut.result().success
 
-    def go_to(self, x, y, speed=1.5):
+    def go_to(self, x, y, speed=1.0):
         """Fly to (x, y) in the map frame (ENU) with a simple proportional velocity command."""
+        next_cmd = 0.0
         while rclpy.ok():
-            rclpy.spin_once(self, timeout_sec=0.05)
+            rclpy.spin_once(self, timeout_sec=0.02)
+            if time.time() < next_cmd:                 # command at 10 Hz, read odometry as fast as it comes
+                continue
+            next_cmd = time.time() + 0.1
             ex, ey = x - self.pos[0], y - self.pos[1]
             if math.hypot(ex, ey) < 0.3:
                 break
             # The error is in the map frame; /drone/cmd_vel is in the body frame, so rotate it by -yaw.
-            scale = min(speed, 0.8 * math.hypot(ex, ey)) / math.hypot(ex, ey)
+            scale = min(speed, 0.5 * math.hypot(ex, ey)) / math.hypot(ex, ey)
             c, s = math.cos(self.yaw), math.sin(self.yaw)
             cmd = Twist()
             cmd.linear.x = (c * ex + s * ey) * scale

@@ -3,7 +3,8 @@
 
 Start, in three terminals:
    carla-sim start --town Town04
-   ros2 launch carla_ros_bridge carla_ros_bridge_with_example_ego_vehicle.launch.py town:=Town04 synchronous_mode:=true
+   ros2 launch carla_ros_bridge carla_ros_bridge_with_example_ego_vehicle.launch.py host:=127.0.0.1 timeout:=60 \
+        town:=Town04 synchronous_mode:=true spawn_point_ego_vehicle:="-365.9,-33.6,0.8,0,0,0.4"
    python3 ~/labs/examples/carla/03_cruise_control_ros2.py --ros-args -p target_kmh:=50.0
 Look at it:  rviz2  (the bridge publishes /carla/ego_vehicle/rgb_front/image, lidar, odometry, TF)
 
@@ -12,8 +13,8 @@ Listens:    /carla/ego_vehicle/speedometer           std_msgs/Float32 (m/s)
 Publishes:  /carla/ego_vehicle/vehicle_control_cmd   carla_msgs/CarlaEgoVehicleControl (throttle, brake, steer)
 
 Pipeline:   CARLA <--(CARLA API)--> carla_ros_bridge <--(ROS 2 topics)--> this node
-Steering: this node only does SPEED. Hold the lane with the bridge's manual control window, or leave steer at 0
-on Town04's long straight (spawn point chosen by the bridge).
+Steering: this node only does SPEED. The spawn point above is the start of a 600 m straight in Town04 (middle lane),
+so the car stays in its lane for about 50 s at 40 km/h. host:=127.0.0.1 matters - "localhost" times out.
 """
 import rclpy
 from carla_msgs.msg import CarlaEgoVehicleControl

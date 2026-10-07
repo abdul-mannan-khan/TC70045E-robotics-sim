@@ -6,14 +6,16 @@ Then run:                    python3 ~/labs/examples/airsim/02_fly_square_mavsdk
 
 Arms, takes off, flies a square in offboard mode (position set-points), returns and lands.
 
-Pipeline:   your script --(MAVLink, UDP 14540)--> PX4 autopilot --(HIL sensor/actuator messages)--> AirSim
+Pipeline:   your script --(MAVLink, UDP 14550)--> PX4 autopilot --(HIL sensor/actuator messages)--> AirSim
             The autopilot is in charge of stability; your script only sends set-points. In HIL mode the same
             script talks to the real Pixhawk 6C instead (see docs/HIL_JETSON_PIXHAWK.md) - the code does not change.
 """
 import argparse
 import asyncio
 
-from mavsdk import System
+import warnings
+warnings.filterwarnings('ignore', category=FutureWarning)   # mavsdk<4 announces its rename to mavsdk-grpc
+from mavsdk import System  # noqa: E402
 from mavsdk.offboard import OffboardError, PositionNedYaw
 
 
@@ -25,17 +27,25 @@ async def run(side, alt, url):
         if s.is_connected:
             break
     print('connected - waiting for a GPS/home position fix')
+    t0 = asyncio.get_running_loop().time(); last = t0
     async for h in drone.telemetry.health():
-        if h.is_global_position_ok and h.is_home_position_ok:
+        now = asyncio.get_running_loop().time()
+        if (h.is_global_position_ok and h.is_home_position_ok) or h.is_armable or now - t0 > 90:
             break
+        if now - last > 10:
+            print('  still waiting: global position ok %s, home ok %s, armable %s'
+                  % (h.is_global_position_ok, h.is_home_position_ok, h.is_armable))
+            last = now
 
     await drone.action.set_takeoff_altitude(alt)
     await drone.action.arm()
     await drone.action.takeoff()
     print('taking off to %.1f m' % alt)
-    async for pos in drone.telemetry.position():
-        if pos.relative_altitude_m > alt - 0.5:
+    t0 = asyncio.get_running_loop().time()            # PX4 often settles a little below the requested height,
+    async for pos in drone.telemetry.position():      # so accept 90 % of it (or carry on after 40 s)
+        if pos.relative_altitude_m > 0.9 * alt or asyncio.get_running_loop().time() - t0 > 40:
             break
+    print('airborne at %.1f m' % pos.relative_altitude_m)
 
     # Offboard needs a set-point BEFORE it starts (otherwise OffboardError NO_SETPOINT_SET).
     await drone.offboard.set_position_ned(PositionNedYaw(0.0, 0.0, -alt, 0.0))
@@ -66,6 +76,6 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--side', type=float, default=5.0, help='side of the square in metres')
     ap.add_argument('--alt', type=float, default=5.0, help='flight altitude in metres')
-    ap.add_argument('--url', default='udpin://0.0.0.0:14540', help='MAVLink address of the autopilot')
+    ap.add_argument('--url', default='udpin://0.0.0.0:14550', help='MAVLink address of the autopilot')
     a = ap.parse_args()
     asyncio.run(run(a.side, a.alt, a.url))

@@ -5,9 +5,9 @@ else is installed on your computer.
 
 | Image | For | Needs | Download |
 |---|---|---|---|
-| `abdulmannan617/tc70045e-ros2:humble` | mobile robot: Gazebo, RViz, ROS 2 (Weeks 1-9, 12) | any 64-bit laptop, 8 GB RAM, 25 GB disk | about 5 GB |
-| `abdulmannan617/tc70045e-drone:latest` | drone: AirSim + PX4 + ROS 2 (Week 11) | Linux + NVIDIA GPU (6 GB+), 60 GB disk | about 15 GB |
-| `abdulmannan617/tc70045e-carla:latest` | self-driving car: CARLA + ROS 2 (Week 10) | Linux + NVIDIA GPU (8 GB+), 60 GB disk | about 15 GB |
+| `abdulmannan617/tc70045e-ros2:humble` | mobile robot: Gazebo, RViz, ROS 2 (Weeks 1-9, 12) | any 64-bit laptop, 8 GB RAM, 25 GB disk | 3.5 GB |
+| `abdulmannan617/tc70045e-drone:latest` | drone: AirSim + PX4 + ROS 2 (Week 11) | Linux + NVIDIA GPU (6 GB+), 60 GB disk | 10.7 GB (7 GB if you already have the mobile-robot image) |
+| `abdulmannan617/tc70045e-carla:latest` | self-driving car: CARLA + ROS 2 (Week 10) | Linux + NVIDIA GPU (8 GB+), 80 GB disk | 10.8 GB (7 GB if you already have the mobile-robot image) |
 
 No NVIDIA GPU, or Windows/macOS for the drone and car? Use a rented GPU computer: [RUN_ON_VAST.md](RUN_ON_VAST.md).
 (The drone and car images share their lower layers with the mobile-robot image, so they download faster once

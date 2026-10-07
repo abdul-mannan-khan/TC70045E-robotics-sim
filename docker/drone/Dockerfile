@@ -10,7 +10,8 @@ FROM abdulmannan617/sar-airsim:latest AS airsim_bins
 
 # --- PX4 v1.14.3 software-in-the-loop build (only build/px4_sitl_default is kept) ---
 # empy is pinned to 3.3.4: the setup script installs empy 4, whose API PX4 1.14's code generator cannot use
-# ("module 'em' has no attribute 'RAW_OPT'").
+# ("module 'em' has no attribute 'RAW_OPT'"). The shallow clone has no NuttX version tag, which PX4's version header
+# script needs even for SITL - a local tag (NuttX 11.0.0, the version PX4 1.14 uses) provides it.
 FROM ubuntu:22.04 AS px4build
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends git sudo ca-certificates lsb-release tzdata \
@@ -18,6 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends git sudo ca-cer
  && git clone --depth 1 --branch v1.14.3 --recurse-submodules --shallow-submodules \
       https://github.com/PX4/PX4-Autopilot.git /opt/PX4-Autopilot \
  && cd /opt/PX4-Autopilot \
+ && git -C platforms/nuttx/NuttX/nuttx tag nuttx-11.0.0 \
  && bash Tools/setup/ubuntu.sh --no-nuttx --no-sim-tools \
  && pip3 install --force-reinstall "empy==3.3.4" \
  && DONT_RUN=1 make px4_sitl_default -j"$(nproc)" \
@@ -62,12 +64,14 @@ RUN pip3 install --no-cache-dir msgpack-rpc-python "numpy<2" \
  && rm -rf /tmp/as \
  && python3 -c "import airsim, mavsdk; print('airsim', airsim.__version__)"
 
-# Unreal refuses to run as root, so the simulator runs as the desktop user (uid 1000). The start script and the
+# Unreal refuses to run as root, so the simulator runs as the desktop user (uid 1000), who must own /opt/AirSim
+# (Unreal writes its logs and settings into each environment's Saved/ folder). The start script and the
 # AirSim settings (SITL and HIL variants) are part of the image.
 COPY docker/drone/drone-sim /usr/local/bin/drone-sim
 COPY docker/drone/settings /opt/tc70045e/airsim_settings
 RUN chmod 755 /usr/local/bin/drone-sim \
  && chmod -R a+rX /opt/AirSim /opt/PX4-Autopilot /opt/tc70045e \
+ && chown -R 1000:1000 /opt/AirSim \
  && find /opt/AirSim -name '*.sh' -exec chmod 755 {} +
 
 # The course code (same as in the mobile-robot image) - last, so code changes do not rebuild the simulator layers.

@@ -5,7 +5,7 @@ Container: `abdulmannan617/tc70045e-carla:latest` (NVIDIA GPU with 8 GB or more;
 Open a terminal in its desktop and start the simulator:
 
 ```bash
-carla-sim start --town Town03           # towns: Town01-05, Town10HD (Town04 has long motorways)
+carla-sim start --town Town04           # Town04 (motorways and a small town) is the tested one; others: Town01-05, Town10HD
 carla-sim status
 carla-sim stop
 ```
@@ -30,8 +30,11 @@ WITH ROS 2 - the official CARLA ROS bridge (carla_ros_bridge, built for ROS 2 Hu
 | Step | Run | You should see |
 |---|---|---|
 | 1 | `python3 ~/labs/examples/carla/01_hello_carla.py` | a car driving itself in a chase-camera window, its speed printed |
-| 2 | `carla-sim start --town Town04`, then `python3 ~/labs/examples/carla/02_cruise_control_api.py --target 50` | the car accelerates to 50 km/h and holds it; `RESULT last 10 s: mean …` |
-| 3 | `ros2 launch carla_ros_bridge carla_ros_bridge_with_example_ego_vehicle.launch.py town:=Town04` | the bridge spawns `ego_vehicle`; `ros2 topic list | grep carla` shows its sensors |
-| 4 | with 3 running: `python3 ~/labs/examples/carla/03_cruise_control_ros2.py --ros-args -p target_kmh:=50.0` | `speed … km/h (target 50)` converging; view `/carla/ego_vehicle/rgb_front/image` in RViz |
+| 2 | `carla-sim start --town Town04`, then `python3 ~/labs/examples/carla/02_cruise_control_api.py --target 50 --show` | the car accelerates to 50 km/h and holds it while steering round the motorway (measured: mean 50.1 km/h, max error 0.1 km/h); `RESULT last 10 s: …` |
+| 3 | `ros2 launch carla_ros_bridge carla_ros_bridge_with_example_ego_vehicle.launch.py host:=127.0.0.1 timeout:=60 town:=Town04 synchronous_mode:=true spawn_point_ego_vehicle:="-365.9,-33.6,0.8,0,0,0.4"` | the bridge spawns `ego_vehicle`; `ros2 topic list | grep carla` shows its sensors |
+| 4 | with 3 running: `python3 ~/labs/examples/carla/03_cruise_control_ros2.py --ros-args -p target_kmh:=40.0` and `rviz2 -d ~/labs/examples/carla/carla.rviz` | `speed … km/h (target 40)` converging (measured: 40.0 km/h after 35 s); camera and LiDAR in RViz |
 
-The CARLA Python API and the ROS 2 bridge must match the server version (0.9.15). The image has both.
+The CARLA Python API and the ROS 2 bridge must match the server version (0.9.15). The image has both, with three
+fixes to the bridge for ROS 2 Humble and NumPy 1.26 (see `docker/carla/Dockerfile`). Always connect to `127.0.0.1`,
+never `localhost` (IPv6 first: the client waits until it times out). With the bridge in synchronous mode the
+simulation runs at about a quarter of real time on an RTX 3060 (sensor topics about 5 Hz).

@@ -19,8 +19,7 @@
       "ControlPortLocal": 14540,
       "ControlPortRemote": 14580,
       "LocalHostIp": "127.0.0.1",
-      "QgcHostIp": "127.0.0.1",
-      "QgcPort": 14550,
+      "QgcHostIp": "",
       "Sensors": {
         "Barometer": {
           "SensorType": 1,
@@ -31,10 +30,12 @@
       "Parameters": {
         "NAV_RCL_ACT": 0,
         "NAV_DLL_ACT": 0,
-        "COM_OBL_ACT": 1,
         "COM_RC_IN_MODE": 1,
         "LPE_LAT": 47.641468,
-        "LPE_LON": -122.140165
+        "LPE_LON": -122.140165,
+        "EKF2_MAG_CHECK": 0,
+        "COM_ARM_MAG_STR": 0,
+        "SIM_BAT_MIN_PCT": 100
       },
       "Cameras": {
         "front": {

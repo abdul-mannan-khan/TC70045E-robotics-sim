@@ -1,17 +1,23 @@
 #!/bin/bash
 # carla-sim - start/stop the CARLA simulator inside the CARLA container.
 #
-#   carla-sim start [--town Town03] [--quality Low|Epic]   start the server (no window; you look through a client)
+#   carla-sim start [--town Town04] [--quality Low|Epic]   start the server (no window; you look through a client)
 #   carla-sim status                                       server running? port 2000 answering? GPU visible?
 #   carla-sim stop
+#
+# Connect clients to 127.0.0.1, not "localhost": localhost resolves to the IPv6 address first, where the server does not
+# listen, and the client then waits until it times out. The ROS 2 bridge therefore needs host:=127.0.0.1 (see below).
 #
 # CARLA has no window of its own here: it renders on the GPU off-screen, and you SEE it through a client -
 # a Python/pygame window (no ROS) or RViz (ROS 2 bridge). Ports: 2000-2001 (CARLA clients).
 set -u
-TOWN=Town03; QUALITY=Low; LOG=/tmp/carla-sim; mkdir -p "$LOG"
+TOWN=Town04; QUALITY=Low; LOG=/tmp/carla-sim; mkdir -p "$LOG"; chmod 1777 "$LOG"
 SIM_USER=$(id -nu 1000 2>/dev/null || echo ubuntu)
 port_open() { (exec 3<>/dev/tcp/127.0.0.1/"$1") 2>/dev/null; }
-as_user() { if [ "$(id -u)" = 1000 ]; then bash -c "$1"; else su - "$SIM_USER" -c "$1"; fi; }
+SIM_HOME=$(getent passwd "$SIM_USER" | cut -d: -f6)
+as_user() {   # run a command as the desktop user (Unreal refuses to run as root), with that user's home
+    if [ "$(id -u)" = 1000 ]; then bash -c "$1"
+    else runuser -u "$SIM_USER" -- env HOME="$SIM_HOME" USER="$SIM_USER" bash -c "$1"; fi; }
 
 stop() { pkill -f CarlaUE4-Linux-Shipping 2>/dev/null; pkill -f CarlaUE4.sh 2>/dev/null; sleep 2; echo "CARLA stopped"; }
 status() {
@@ -27,13 +33,15 @@ start() {
     nvidia-smi -L >/dev/null 2>&1 || { echo "No NVIDIA GPU in this container. CARLA needs one: docker run --gpus all ..."; exit 1; }
     stop >/dev/null
     echo "starting CARLA 0.9.15 (quality $QUALITY) - the first start takes 30-90 s"
-    as_user "cd /opt/carla && nohup ./CarlaUE4.sh -RenderOffScreen -nosound -quality-level=$QUALITY -carla-rpc-port=2000 > $LOG/server.log 2>&1 &"
+    # The town is given on the command line (and loaded below if the server still came up in its default town).
+    as_user "cd /opt/carla && nohup ./CarlaUE4.sh /Game/Carla/Maps/$TOWN -RenderOffScreen -nosound -quality-level=$QUALITY -carla-rpc-port=2000 > $LOG/server.log 2>&1 &" \
+        < /dev/null > /dev/null 2>&1
     for i in $(seq 1 90); do port_open 2000 && break; sleep 2; done
     port_open 2000 || { echo "CARLA did not open port 2000 - see $LOG/server.log"; tail -5 "$LOG/server.log"; exit 1; }
     sleep 5
     python3 - "$TOWN" <<'PY'
 import sys, carla
-c = carla.Client('127.0.0.1', 2000); c.set_timeout(60)
+c = carla.Client('127.0.0.1', 2000); c.set_timeout(120)     # the very first start compiles shaders: be patient
 w = c.get_world()
 if not w.get_map().name.endswith(sys.argv[1]):
     w = c.load_world(sys.argv[1])

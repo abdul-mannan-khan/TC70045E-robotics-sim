@@ -7,33 +7,38 @@ Visualization Manager:
     - Class: rviz_default_plugins/Grid
       Name: Grid
       Enabled: true
-      Cell Size: 1
+      Cell Size: 10
       Plane Cell Count: 40
+      Reference Frame: ego_vehicle
       Value: true
-    - Class: rviz_default_plugins/TF
-      Name: TF
+    - Class: rviz_default_plugins/PointCloud2
+      Name: LiDAR (/carla/ego_vehicle/lidar)
       Enabled: true
-      Marker Scale: 2
-      Value: true
-    - Class: rviz_default_plugins/Odometry
-      Name: Drone path (/drone/odom)
-      Enabled: true
-      Keep: 300
-      Shape:
-        Value: Axes
-        Axes Length: 0.5
-        Axes Radius: 0.05
+      Size (m): 0.1
+      Style: Points
+      Color Transformer: Intensity
       Topic:
-        Value: /drone/odom
+        Value: /carla/ego_vehicle/lidar
         Depth: 5
-        Reliability Policy: Reliable
+        Reliability Policy: Best Effort
       Value: true
     - Class: rviz_default_plugins/Image
-      Name: Front camera
+      Name: Front camera (/carla/ego_vehicle/rgb_front/image)
       Enabled: true
       Topic:
-        Value: /drone/front/image_raw
+        Value: /carla/ego_vehicle/rgb_front/image
         Depth: 2
+        Reliability Policy: Best Effort
+      Value: true
+    - Class: rviz_default_plugins/Odometry
+      Name: Path (/carla/ego_vehicle/odometry)
+      Enabled: true
+      Keep: 200
+      Shape:
+        Value: Arrow
+      Topic:
+        Value: /carla/ego_vehicle/odometry
+        Depth: 5
         Reliability Policy: Reliable
       Value: true
   Enabled: true
@@ -49,12 +54,11 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 25
-      Focal Point: {X: 0, Y: 0, Z: 3}
-      Pitch: 0.6
-      Yaw: 3.9
+      Distance: 40
+      Pitch: 0.7
+      Yaw: 3.14
       Name: Current View
-      Target Frame: <Fixed Frame>
+      Target Frame: ego_vehicle
 Window Geometry:
   Height: 900
   Width: 1500

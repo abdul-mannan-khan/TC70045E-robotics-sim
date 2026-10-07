@@ -31,11 +31,20 @@ RUN pip3 install --no-cache-dir "carla==0.9.15" pygame "numpy<2" networkx shapel
  && python3 -c "import carla; print('carla client', carla.__file__)"
 
 # CARLA ROS 2 bridge (official carla-simulator/ros-bridge, built for Humble). Its version check is told that the
-# server is 0.9.15. Installed to /opt/carla_ros_bridge and sourced in every terminal.
+# server is 0.9.15, and it no longer reloads a town that is already loaded ('Carla/Maps/Town04' vs 'Town04' - the
+# needless reload crashed the off-screen server). np.bool / numpy.bool (removed in NumPy 1.24) become bool, and its start-up
+# world.tick() (which blocks in asynchronous mode when no town is loaded) becomes world.wait_for_tick(). Installed to /opt/carla_ros_bridge and sourced in every terminal.
 RUN source /opt/ros/humble/setup.bash \
  && mkdir -p /opt/carla_ros_bridge/src && cd /opt/carla_ros_bridge/src \
  && git clone --depth 1 --recurse-submodules https://github.com/carla-simulator/ros-bridge.git \
  && echo 0.9.15 > ros-bridge/carla_ros_bridge/src/carla_ros_bridge/CARLA_VERSION \
+ && sed -i 's/if carla_world.get_map().name != parameters\["town"\]:/if not carla_world.get_map().name.endswith(parameters["town"]):/' \
+      ros-bridge/carla_ros_bridge/src/carla_ros_bridge/bridge.py \
+ && grep -q 'name.endswith(parameters\["town"\])' ros-bridge/carla_ros_bridge/src/carla_ros_bridge/bridge.py \
+ && sed -i 's/^            carla_world.tick()$/            carla_world.wait_for_tick()/' ros-bridge/carla_ros_bridge/src/carla_ros_bridge/bridge.py \
+ && grep -q '^            carla_world.wait_for_tick()$' ros-bridge/carla_ros_bridge/src/carla_ros_bridge/bridge.py \
+ && grep -rlE '(np|numpy)\.bool([^_]|$)' ros-bridge | xargs -r sed -i -E 's/(np|numpy)\.bool([^_]|$)/bool\2/g' \
+ && ! grep -rqE '(np|numpy)\.bool([^_]|$)' ros-bridge \
  && rm -rf ros-bridge/carla_ad_demo ros-bridge/carla_ad_agent ros-bridge/rviz_carla_plugin ros-bridge/carla_twist_to_control/test \
       ros-bridge/pcl_recorder \
  && cd /opt/carla_ros_bridge \

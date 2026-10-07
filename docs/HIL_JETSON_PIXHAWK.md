@@ -82,7 +82,7 @@ shows the attitude moving when AirSim's drone is moved; (4) only then arm and fl
 
 | Set-up | Autopilot | Mission code runs on | MAVSDK address |
 |---|---|---|---|
-| SITL (default course set-up) | PX4 program in the drone container | the drone container | `udpin://0.0.0.0:14540` |
+| SITL (default course set-up) | PX4 program in the drone container | the drone container | `udpin://0.0.0.0:14550` |
 | HIL | Pixhawk 6C | Jetson (companion container) | `serial:///dev/ttyTHS0:921600` |
 | Real flight (outside this module) | Pixhawk 6C | Jetson | `serial:///dev/ttyTHS0:921600` |
 

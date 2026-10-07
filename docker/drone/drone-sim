@@ -11,12 +11,13 @@
 #                        through the Jetson relay (default: listen on TCP 4570 for the Jetson, see docs/HIL_JETSON_PIXHAWK.md).
 # --headless             no simulator window (camera images still work); use it when nobody watches the desktop.
 #
-# Ports: 41451 AirSim API (Python/ROS 2 bridge) - 14540 MAVSDK (PX4 offboard API) - 14550 QGroundControl
+# Ports: 41451 AirSim API (Python/ROS 2 bridge) - 14550 PX4 ground-station link, used by MAVSDK (and QGroundControl)
+#        14540/14580 are AirSim's own link to PX4 - do not use them.
 set -u
 [ "$(id -u)" = 0 ] || exec sudo -E "$0" "$@"          # needs root for /dev/ttyPX4; the simulator itself runs as uid 1000
 WORLD=blocks; MODE=sitl; HEADLESS=0; SERIAL=""; RELAY_PORT=4570
-LOG=/tmp/drone-sim; mkdir -p "$LOG"
 SIM_USER=$(id -nu 1000 2>/dev/null || echo ubuntu)
+LOG=/tmp/drone-sim; mkdir -p "$LOG"; chmod 1777 "$LOG"     # the simulator writes here as the desktop user
 
 world_cmd() {
     case "$1" in
@@ -27,16 +28,22 @@ world_cmd() {
     esac
 }
 port_open() { (exec 3<>/dev/tcp/127.0.0.1/"$1") 2>/dev/null; }
-as_user() { if [ "$(id -u)" = 1000 ]; then bash -c "$1"; else su - "$SIM_USER" -c "$1"; fi; }
+SIM_HOME=$(getent passwd "$SIM_USER" | cut -d: -f6)
+as_user() {   # run a command as the desktop user (Unreal refuses to run as root), with that user's home
+    if [ "$(id -u)" = 1000 ]; then bash -c "$1"
+    else runuser -u "$SIM_USER" -- env HOME="$SIM_HOME" USER="$SIM_USER" bash -c "$1"; fi; }
 
 stop() {
-    pkill -f 'LinuxNoEditor/.*-Linux-Shipping' 2>/dev/null; pkill -f 'LinuxNoEditor/.*\.sh' 2>/dev/null
+    pkill -f '/opt/AirSim/.*/Binaries/Linux/' 2>/dev/null; pkill -f '/opt/AirSim/.*LinuxNoEditor/.*\.sh' 2>/dev/null
     pkill -x px4 2>/dev/null; pkill -f 'socat.*ttyPX4' 2>/dev/null
-    sleep 2; echo "drone simulation stopped"
+    for i in $(seq 1 15); do                         # wait until they have really gone, then insist
+        pgrep -f '/opt/AirSim/.*/Binaries/Linux/' >/dev/null || pgrep -x px4 >/dev/null || break; sleep 1; done
+    pkill -9 -f '/opt/AirSim/.*/Binaries/Linux/' 2>/dev/null; pkill -9 -x px4 2>/dev/null
+    echo "drone simulation stopped"
 }
 
 status() {
-    pgrep -f -- '-Linux-Shipping' >/dev/null && echo "AirSim        running" || echo "AirSim        not running"
+    pgrep -f '/opt/AirSim/.*/Binaries/Linux/' >/dev/null && echo "AirSim        running" || echo "AirSim        not running"
     pgrep -x px4 >/dev/null && echo "PX4 SITL      running" || echo "PX4 SITL      not running (normal in HIL mode)"
     port_open 41451 && echo "AirSim API    port 41451 answers" || echo "AirSim API    port 41451 closed"
     pgrep -f 'socat.*ttyPX4' >/dev/null && echo "HIL relay     running ($(ls -l /dev/ttyPX4 2>/dev/null | awk '{print $NF}'))"
@@ -59,8 +66,12 @@ start() {
     nvidia-smi -L >/dev/null 2>&1 || { echo "No NVIDIA GPU in this container. AirSim needs one: docker run --gpus all ..."; exit 1; }
     stop >/dev/null
 
+    # A closed connection keeps the AirSim<->PX4 port (4560) busy for up to a minute; AirSim aborts if it starts too soon.
+    for i in $(seq 1 90); do ss -tan 2>/dev/null | grep -q ':4560 ' || break
+        [ "$i" = 1 ] && echo "waiting for the previous simulation to release port 4560 (up to 90 s)..."; sleep 1; done
+
     # 1. settings for the chosen mode
-    local sdir; sdir=$(getent passwd "$SIM_USER" | cut -d: -f6)/Documents/AirSim
+    local sdir=$SIM_HOME/Documents/AirSim
     as_user "mkdir -p $sdir"
     case "$MODE" in
         sitl) cp /opt/tc70045e/airsim_settings/sitl.json "$sdir/settings.json" ;;
@@ -70,7 +81,7 @@ start() {
                   ln -sf "$SERIAL" /dev/ttyPX4; chmod a+rw "$SERIAL"
                   echo "HIL: Pixhawk on $SERIAL"
               else
-                  socat -d -d pty,raw,echo=0,link=/dev/ttyPX4,mode=666 tcp-listen:"$RELAY_PORT",reuseaddr,fork > "$LOG/relay.log" 2>&1 &
+                  socat -d -d pty,raw,echo=0,link=/dev/ttyPX4,mode=666 tcp-listen:"$RELAY_PORT",reuseaddr,fork < /dev/null > "$LOG/relay.log" 2>&1 &
                   sleep 1; echo "HIL: waiting for the Jetson relay on TCP port $RELAY_PORT (see docs/HIL_JETSON_PIXHAWK.md)"
               fi ;;
         *) echo "unknown mode '$MODE' (sitl, hil)"; exit 2 ;;
@@ -83,7 +94,7 @@ start() {
     if [ "$HEADLESS" = 1 ]; then run="$exe -nosound -RenderOffScreen"
     else run="vglrun -d egl $exe $args -opengl4"; fi           # VirtualGL: render on the GPU, show in the desktop
     echo "starting AirSim world '$WORLD' ($MODE) - the first start takes 30-120 s"
-    as_user "export DISPLAY=${DISPLAY:-:1}; nohup $run > $LOG/airsim.log 2>&1 &"
+    as_user "export DISPLAY=${DISPLAY:-:1}; nohup $run > $LOG/airsim.log 2>&1 &" < /dev/null > /dev/null 2>&1
     for i in $(seq 1 120); do port_open 41451 && break; sleep 2; done
     port_open 41451 || { echo "AirSim did not open port 41451 - see $LOG/airsim.log"; tail -5 "$LOG/airsim.log"; exit 1; }
     echo "AirSim is up (API on port 41451)"
@@ -92,9 +103,9 @@ start() {
     if [ "$MODE" = sitl ]; then
         local b=/opt/PX4-Autopilot/build/px4_sitl_default
         as_user "mkdir -p /tmp/px4_0 && cd /tmp/px4_0 && PX4_SYS_AUTOSTART=10016 PX4_SIM_MODEL=none_iris \
-                 nohup $b/bin/px4 -i 0 -d $b/etc > $LOG/px4.log 2>&1 &"
+                 nohup $b/bin/px4 -i 0 -d $b/etc > $LOG/px4.log 2>&1 &" < /dev/null > /dev/null 2>&1
         for i in $(seq 1 60); do grep -q 'Ready for takeoff' "$LOG/px4.log" 2>/dev/null && break; sleep 2; done
-        grep -q 'Ready for takeoff' "$LOG/px4.log" && echo "PX4 SITL is ready for take-off (MAVSDK: udp://:14540)" \
+        grep -q 'Ready for takeoff' "$LOG/px4.log" && echo "PX4 SITL is ready for take-off (MAVSDK: udpin://0.0.0.0:14550)" \
             || echo "PX4 started but is not 'Ready for takeoff' yet - see $LOG/px4.log"
     fi
 }

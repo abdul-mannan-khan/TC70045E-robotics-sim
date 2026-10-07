@@ -3,7 +3,9 @@
 #   DISPLAY=:1 bash ~/labs/tools/demo/week02_demo.sh /tmp/week02_demo.mp4
 source "$(dirname "$0")/demo_lib.sh"
 OUT=${1:-/tmp/week02_demo.mp4}
-pkill -f gzserver; sleep 2
+place_views() {   # Gazebo (the simulated world) top left, RViz (what the robot senses) bottom left
+    for i in 1 2 3; do place Gazebo 0 90 955 495; place rviz 0 590 955 490; sleep 1; done; }
+pkill -f gzserver; pkill -f gzclient; sleep 2
 
 caption_bar
 term T1 960 90 960 300
@@ -12,9 +14,10 @@ term T3 960 710 960 370
 rec_start "$OUT"
 
 cap "Week 2 demo - ROS 2 as Lego: snap bricks together, add your own, build an explorer" 5 "Week two demo. ROS 2 as Lego. We snap ready made bricks together, add a brick of our own, and build a robot that explores by itself."
-cap "Step 1 (T1): the robot brick + the viewer brick + the mapping brick, with one launch file" 2 "Step one. In terminal one, a single launch file starts three bricks: the simulated robot, the RViz viewer, and the mapping brick."
-run T1 "ros2 launch ~/labs/week02/launch/lego.launch.py slam:=true" 28
-place rviz 0 90 955 990
+cap "Step 1 (T1): the robot brick (Gazebo) + the viewer brick (RViz) + the mapping brick, with one launch file" 2 "Step one. In terminal one, a single launch file starts three bricks: the simulated robot in Gazebo, the RViz viewer, and the mapping brick."
+run T1 "ros2 launch ~/labs/week02/launch/lego.launch.py gui:=true slam:=true" 30
+place_views
+say "Gazebo, top left, is the simulated world: the robot, the walls, the crate and the pillar. RViz, below it, shows what the robot senses and the map it builds." 3
 cap "Step 2 (T2): what studs does it offer? Topic names and message types" 2 "Step two. What studs does the robot offer? We list the topic names and their message types."
 run T2 "ros2 topic list -t | grep -E 'scan|cmd_vel|map|odom'" 5
 cap "Step 3 (T3): snap on the keyboard brick and drive - watch the map grow in RViz" 2 "Step three. We snap on the keyboard brick in terminal three and drive. Watch the map grow in RViz."
@@ -32,9 +35,9 @@ sleep 6
 wmctrl -c rqt_graph; sleep 2
 cap "Step 5: add YOUR brick. Restart with safety:=true, and plug the keyboard into /cmd_vel_in with a remap" 3 "Step five. We add our own brick, the safety stop. We restart with safety set to true, and plug the keyboard into cmd vel in with a remap."
 ctrlc T3 1
-ctrlc T1 8; pkill -f gzserver; sleep 2
-run T1 "clear; ros2 launch ~/labs/week02/launch/lego.launch.py slam:=true safety:=true" 28
-place rviz 0 90 955 990
+ctrlc T1 8; pkill -f gzserver; pkill -f gzclient; sleep 2
+run T1 "clear; ros2 launch ~/labs/week02/launch/lego.launch.py gui:=true slam:=true safety:=true" 30
+place_views
 run T3 "clear; ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=cmd_vel_in" 3
 run T2 "clear; ros2 topic echo /safety/blocked" 2
 cap "Drive straight at the wall... the safety brick blocks the motion before the robot hits it" 2 "Now we drive straight at the wall. The safety brick blocks the motion before the robot hits it."
@@ -43,9 +46,9 @@ cap "safety/blocked went true. Turning away (j) is still allowed - only motion t
 keys T3 j; sleep 3; keys T3 k
 cap "Step 6: the EXPLORER - wander + safety + slam. Nobody drives: it maps the lab by itself" 3 "Step six. The explorer. Wander, safety and mapping bricks together. Nobody drives. The robot maps the lab by itself."
 ctrlc T2 1; ctrlc T3 1
-ctrlc T1 8; pkill -f gzserver; sleep 2
-run T1 "clear; ros2 launch ~/labs/week02/launch/lego.launch.py slam:=true wander:=true safety:=true" 25
-place rviz 0 90 955 990
+ctrlc T1 8; pkill -f gzserver; pkill -f gzclient; sleep 2
+run T1 "clear; ros2 launch ~/labs/week02/launch/lego.launch.py gui:=true slam:=true wander:=true safety:=true" 27
+place_views
 cap "Exploring... (real time - nothing sped up)" 50 "Exploring. This is real time, nothing is sped up. The wander brick drives forward and turns away from walls, the safety brick checks every command, and the mapping brick draws the map."
 cap "Step 7 (T2): save the map it drew" 2 "Step seven. We save the map it drew to a file."
 run T2 "clear; ros2 run nav2_map_server map_saver_cli -f ~/explorer_map --ros-args -p use_sim_time:=true" 6

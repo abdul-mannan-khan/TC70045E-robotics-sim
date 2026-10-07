@@ -14,6 +14,7 @@ export PATH=$HOME/.local/bin:$PATH
 VOICE=${VOICE:-$HOME/piper/en_GB-alan-medium.onnx}
 NARRATE=${NARRATE:-1}
 NARR=/tmp/demo_narration; N_SAY=0
+TTS_CACHE=${TTS_CACHE:-$HOME/.cache/demo_tts}; mkdir -p "$TTS_CACHE"
 export DISPLAY=${DISPLAY:-:1}
 CAP=/tmp/demo_caption
 
@@ -47,8 +48,14 @@ rec_start() {
 say() {   # say "text" [minimum seconds] - speak it, and wait at least until it has been spoken
     local min=${2:-0} dur=0
     if [ "$NARRATE" = 1 ]; then
+        # Speech is synthesised BEFORE recording (PREPARE=1 pass) and cached: running the speech engine while
+        # a simulator records disturbs it (measured: PX4 + AirSim take-offs fail with a navigation failure).
+        local key; key=$(printf '%s' "$1" | md5sum | cut -c1-16)
+        local cached=$TTS_CACHE/$key.wav
+        [ -s "$cached" ] || echo "$1" | piper --model "$VOICE" --output_file "$cached" >/dev/null 2>&1
+        [ "${PREPARE:-0}" = 1 ] && return 0
         N_SAY=$((N_SAY + 1)); local wav=$NARR/say_$(printf %03d $N_SAY).wav
-        echo "$1" | piper --model "$VOICE" --output_file "$wav" >/dev/null 2>&1
+        cp "$cached" "$wav"
         echo "$(python3 -c "import time; print(round(time.time() - $T0, 2))") $wav" >> "$NARR/list.txt"
         dur=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$wav")
     fi
@@ -104,3 +111,14 @@ nano_replace() {   # nano_replace TITLE FILE OLD NEW - edit a file visibly with 
     xdotool type --delay 60 -- "$4"; sleep 0.5; xdotool key Return; sleep 1; xdotool key a; sleep 1.5
     xdotool key ctrl+o; sleep 0.8; xdotool key Return; sleep 1; xdotool key ctrl+x; sleep 1
 }
+wait_for() {   # wait_for TEXT FILE SECONDS - wait until TEXT appears in FILE (e.g. a script's tee log)
+    local i; for i in $(seq 1 "$3"); do grep -q "$1" "$2" 2>/dev/null && return 0; sleep 1; done; return 1; }
+
+# PREPARE=1: walk through the demo script only to synthesise its narration into the cache - no windows, no
+# typing, no waiting, no recording. Then run the script again normally to record it.
+#   PREPARE=1 bash weekNN_demo.sh && bash weekNN_demo.sh /tmp/out.mp4
+if [ "${PREPARE:-0}" = 1 ]; then
+    caption_bar() { :; }; term() { :; }; rec_start() { :; }; rec_stop() { :; }; run() { :; }; keys() { :; }
+    ctrlc() { :; }; place() { :; }; focus() { :; }; nano_replace() { :; }; wait_for() { :; }
+    cap() { say "${3:-$1}"; }; sleep() { :; }; wmctrl() { :; }; xdotool() { :; }
+fi

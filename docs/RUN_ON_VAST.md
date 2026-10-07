@@ -38,7 +38,7 @@ README, for example:
 drone-sim start --world blocks                 # drone image
 python3 ~/labs/examples/airsim/01_hello_airsim.py --show
 
-carla-sim start --town Town03                  # CARLA image
+carla-sim start --town Town04                  # CARLA image
 python3 ~/labs/examples/carla/01_hello_carla.py
 ```
 

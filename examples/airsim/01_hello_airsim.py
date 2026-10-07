@@ -2,11 +2,12 @@
 """AirSim WITHOUT ROS 2 - step 1: talk to the simulator through its Python API.
 
 Start the simulator first:   drone-sim start --world blocks
-Then run:                    python3 ~/labs/examples/airsim/01_hello_airsim.py [--show]
+Then run:                    python3 ~/labs/examples/airsim/01_hello_airsim.py [--show] [--depth]
 
 Prints the drone state the simulator knows (position, attitude, IMU, GPS) and saves one front camera picture and
-one depth picture to ~/airsim_front.png and ~/airsim_depth.png. With --show it opens a live camera window
-(press q to close).
+with --depth one metric depth picture to ~/airsim_front.png and ~/airsim_depth.png. The depth picture takes
+about 5 s in this AirSim version and freezes the simulator meanwhile - do not ask for it while flying. With --show
+it opens a live colour camera window (press q to close).
 
 Pipeline:   your script --(AirSim API, TCP 41451)--> AirSim
 """
@@ -43,18 +44,23 @@ def main():
                                                     imu.linear_acceleration.z_val))
     print('GPS            lat %.6f  lon %.6f  alt %.1f m' % (gps.latitude, gps.longitude, gps.altitude))
 
-    bgr, metres = grab(client)
     home = os.path.expanduser('~')
+    if '--depth' in sys.argv:
+        bgr, metres = grab(client)
+        vis = cv2.applyColorMap(cv2.convertScaleAbs(np.clip(metres, 0, 50), alpha=255 / 50), cv2.COLORMAP_JET)
+        cv2.imwrite(os.path.join(home, 'airsim_depth.png'), vis)
+        print('depth          centre pixel is %.1f m away - saved ~/airsim_depth.png'
+              % metres[metres.shape[0] // 2, metres.shape[1] // 2])
+    else:
+        scene, = client.simGetImages([airsim.ImageRequest('front', airsim.ImageType.Scene, False, False)])
+        bgr = np.frombuffer(scene.image_data_uint8, np.uint8).reshape(scene.height, scene.width, -1)[:, :, :3]
     cv2.imwrite(os.path.join(home, 'airsim_front.png'), bgr)
-    vis = cv2.applyColorMap(cv2.convertScaleAbs(np.clip(metres, 0, 50), alpha=255 / 50), cv2.COLORMAP_JET)
-    cv2.imwrite(os.path.join(home, 'airsim_depth.png'), vis)
-    print('camera         %dx%d, centre pixel is %.1f m away' % (bgr.shape[1], bgr.shape[0],
-                                                                 metres[metres.shape[0] // 2, metres.shape[1] // 2]))
-    print('saved          ~/airsim_front.png  ~/airsim_depth.png')
+    print('camera         %dx%d colour picture - saved ~/airsim_front.png' % (bgr.shape[1], bgr.shape[0]))
 
     if '--show' in sys.argv:
         while True:
-            bgr, metres = grab(client)
+            scene, = client.simGetImages([airsim.ImageRequest('front', airsim.ImageType.Scene, False, False)])
+            bgr = np.frombuffer(scene.image_data_uint8, np.uint8).reshape(scene.height, scene.width, -1)[:, :, :3]
             cv2.imshow('AirSim front camera (q to quit)', bgr)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break

@@ -14,7 +14,7 @@ Interface (ROS conventions, body frame FLU: x forward, y left, z up, yaw rate po
   /drone/px4/odom nav_msgs/Odometry  the AUTOPILOT's own estimate (EKF2), map frame ENU - compare with /drone/odom
   /drone/px4/status std_msgs/String  armed / flight mode / altitude
 
-Pipeline:   your node --(ROS 2)--> this bridge --(MAVSDK, MAVLink UDP 14540)--> PX4 --> AirSim
+Pipeline:   your node --(ROS 2)--> this bridge --(MAVSDK, MAVLink UDP 14550)--> PX4 --> AirSim
             The same bridge works in HIL mode with the real Pixhawk 6C (point 'url' at the Jetson's MAVLink link).
 """
 import asyncio
@@ -24,7 +24,9 @@ import time
 
 import rclpy
 from geometry_msgs.msg import Twist
-from mavsdk import System
+import warnings
+warnings.filterwarnings('ignore', category=FutureWarning)   # mavsdk<4 announces its rename to mavsdk-grpc
+from mavsdk import System  # noqa: E402
 from mavsdk.offboard import OffboardError, VelocityBodyYawspeed
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
@@ -35,7 +37,7 @@ from std_srvs.srv import Trigger
 class Px4Bridge(Node):
     def __init__(self):
         super().__init__('px4_bridge')
-        self.declare_parameter('url', 'udpin://0.0.0.0:14540')
+        self.declare_parameter('url', 'udpin://0.0.0.0:14550')
         self.declare_parameter('altitude', 5.0)
         self.loop = asyncio.new_event_loop()
         threading.Thread(target=self.loop.run_forever, daemon=True).start()
@@ -43,6 +45,7 @@ class Px4Bridge(Node):
         self.cmd = (0.0, 0.0, 0.0, 0.0)
         self.last_cmd = 0.0
         self.offboard = False
+        self.pending = None                          # the set-point still on its way to PX4
         self.status = {'armed': False, 'mode': '?', 'alt': 0.0}
         self.pub_odom = self.create_publisher(Odometry, '/drone/px4/odom', 10)
         self.pub_status = self.create_publisher(String, '/drone/px4/status', 10)
@@ -93,14 +96,15 @@ class Px4Bridge(Node):
 
     async def takeoff(self):
         alt = float(self.get_parameter('altitude').value)
+        t0 = time.time()
         async for h in self.drone.telemetry.health():
-            if h.is_global_position_ok and h.is_home_position_ok:
+            if (h.is_global_position_ok and h.is_home_position_ok) or h.is_armable or time.time() - t0 > 90:
                 break
         await self.drone.action.set_takeoff_altitude(alt)
         await self.drone.action.arm()
         await self.drone.action.takeoff()
         t0 = time.time()
-        while self.status['alt'] < alt - 0.5 and time.time() - t0 < 30:
+        while self.status['alt'] < 0.9 * alt and time.time() - t0 < 40:   # PX4 settles a little low
             await asyncio.sleep(0.2)
         await self.drone.offboard.set_velocity_body(VelocityBodyYawspeed(0.0, 0.0, 0.0, 0.0))
         await self.drone.offboard.start()
@@ -138,9 +142,11 @@ class Px4Bridge(Node):
     def send_setpoint(self):
         if not self.offboard:
             return
+        if self.pending is not None and not self.pending.done():
+            return                                   # never queue set-points: a queue turns into seconds of delay
         f, r, d, y = self.cmd if time.time() - self.last_cmd < 0.5 else (0.0, 0.0, 0.0, 0.0)
-        asyncio.run_coroutine_threadsafe(self.drone.offboard.set_velocity_body(VelocityBodyYawspeed(f, r, d, y)),
-                                         self.loop)
+        self.pending = asyncio.run_coroutine_threadsafe(
+            self.drone.offboard.set_velocity_body(VelocityBodyYawspeed(f, r, d, y)), self.loop)
 
     def publish_status(self):
         s = self.status
