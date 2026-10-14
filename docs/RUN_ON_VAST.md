@@ -1,6 +1,6 @@
 # Run the course simulations on a rented Vast.ai GPU computer
 
-Use this when your own computer has no NVIDIA GPU (drones, Week 11; self-driving car, Week 10), or when you
+Use this when your own computer has no NVIDIA GPU (drones, Weeks 9, 10 and 12; self-driving car, Week 11), or when you
 simply do not want to run simulations on your own machine. You get the same browser desktop as on a laptop.
 A suitable machine costs about **$0.10-0.20 per hour**; a three-hour lab costs well under $1.
 
@@ -27,7 +27,9 @@ A suitable machine costs about **$0.10-0.20 per hour**; a three-hour lab costs w
    machines are often the cheapest anyway.
 3. **Rent**. The first start downloads the image (15-30 GB): allow 10-30 minutes. Status turns *Running*.
    Still *Loading* after 30 minutes? Some machines download slowly (measured 7 Oct 2026: two of three hosts were
-   still loading after 25 minutes). Destroy it and rent a different machine.
+   still loading after 25 minutes), and some are listed although their GPU is already in use – those never start
+   (14 Oct 2026: four cheap hosts in a row never started; for one, `vastai start instance <ID>` answered "Required
+   resources are currently unavailable"). Destroy it and rent a different machine.
 4. Click the instance's **IP / ports** button. Find the line `… -> 80/tcp` and open `http://<IP>:<that port>` in
    your browser. Log in with your password: this is the course desktop. The course code is at `~/labs`.
 

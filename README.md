@@ -20,9 +20,9 @@ GPU computer (Vast.ai). Nothing has to be installed or downloaded besides the co
 
 | Image | Robots | Weeks | Needs |
 |---|---|---|---|
-| `abdulmannan617/tc70045e-ros2:humble` | mobile robot (Gazebo + RViz + ROS 2) | 1-9, 12 | any 64-bit computer, no GPU |
-| `abdulmannan617/tc70045e-carla:latest` | self-driving car (CARLA 0.9.15 + ROS 2 bridge) | 10 | NVIDIA GPU, 8 GB+ |
-| `abdulmannan617/tc70045e-drone:latest` | drone (AirSim 1.8.1 + PX4 1.14 + ROS 2) | 11 | NVIDIA GPU, 6 GB+ |
+| `abdulmannan617/tc70045e-ros2:humble` | mobile robot (Gazebo + RViz + ROS 2) | 1-8 | any 64-bit computer, no GPU |
+| `abdulmannan617/tc70045e-carla:latest` | self-driving car (CARLA 0.9.15 + ROS 2 bridge) | 11 | NVIDIA GPU, 8 GB+ |
+| `abdulmannan617/tc70045e-drone:latest` | drone (AirSim 1.8.1 + PX4 1.14 + ROS 2) | 9, 10, 12 | NVIDIA GPU, 6 GB+ |
 
 **New to Docker? Picture-by-picture guide: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** – install Docker, pull,
 run, open the desktop, run a week's code, update every week.
@@ -85,7 +85,7 @@ A real RealSense D455 can be passed into the container on **Linux** only (see `d
 |---|---|
 | [`tools/validate.sh`](tools/validate.sh) | kit self-test: packages, the simulator's topics and rates, EKF, SLAM and Nav2 start |
 | [`tools/extract_commands.py`](tools/extract_commands.py) | regenerates every `weekNN/commands.md` from the lectures and syntax-checks them |
-| [`tools/cloud_filter.py`](tools/cloud_filter.py), [`tools/fake_cloud.py`](tools/fake_cloud.py) | point-cloud pass-through + voxel filter, and a synthetic cloud to test it (Week 10) |
+| [`tools/cloud_filter.py`](tools/cloud_filter.py), [`tools/fake_cloud.py`](tools/fake_cloud.py) | point-cloud pass-through + voxel filter, and a synthetic cloud to test it (Week 7 extra) |
 
 ## How much of this is actually tested
 

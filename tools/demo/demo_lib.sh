@@ -15,6 +15,7 @@
 # NARRATE=0 switches it off; VOICE=~/piper/en_GB-jenny_dioco-medium.onnx gives the female voice.
 set -u
 export PATH=$HOME/.local/bin:$PATH
+export LC_ALL=C.UTF-8 LANG=C.UTF-8   # no "setlocale" warnings in the recorded terminals
 VOICE=${VOICE:-$HOME/piper/en_GB-alan-medium.onnx}
 NARRATE=${NARRATE:-1}
 NARR=/tmp/demo_narration; N_SAY=0
