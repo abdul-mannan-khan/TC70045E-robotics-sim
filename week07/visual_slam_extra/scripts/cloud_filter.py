@@ -7,7 +7,7 @@ Replaces the pcl_ros filter nodes, which do not exist in the ROS 2 Humble binary
 Publishes XYZ (12 bytes per point) on `output` and logs the reduction every 2 s.
 
 Usage (a cloud on /camera/depth/color/points, e.g. from depth_image_proc)
-  python3 ~/labs/week10/scripts/cloud_filter.py --ros-args -p use_sim_time:=true     -r input:=/camera/depth/color/points -r output:=/cloud_voxel -p z_min:=0.3 -p z_max:=4.0 -p leaf:=0.05
+  python3 ~/labs/week07/visual_slam_extra/scripts/cloud_filter.py --ros-args -p use_sim_time:=true     -r input:=/camera/depth/color/points -r output:=/cloud_voxel -p z_min:=0.3 -p z_max:=4.0 -p leaf:=0.05
 
 Expected output
   [cloud_filter]: in 407040 -> out 3000 points (0.7% kept)     (numbers depend on the view)

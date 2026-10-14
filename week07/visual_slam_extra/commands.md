@@ -19,7 +19,7 @@ ros2 topic info -v /camera/color/image_raw | grep -A2 QoS
 ```
 
 ```bash
-python3 ~/labs/week10/scripts/orb_features.py --ros-args \
+python3 ~/labs/week07/visual_slam_extra/scripts/orb_features.py --ros-args \
   -p use_sim_time:=true -p save:=$HOME/ws/orb_lab.png
 ```
 
@@ -87,13 +87,13 @@ ros2 topic bw /camera/depth/color/points
 ```
 
 ```bash
-python3 ~/labs/week10/scripts/cloud_filter.py --ros-args -p use_sim_time:=true \
+python3 ~/labs/week07/visual_slam_extra/scripts/cloud_filter.py --ros-args -p use_sim_time:=true \
   -r __node:=cloud_pt -r input:=/camera/depth/color/points -r output:=/cloud_pt \
   -p z_min:=0.3 -p z_max:=4.0 -p leaf:=0.001
 ```
 
 ```bash
-python3 ~/labs/week10/scripts/cloud_filter.py --ros-args -p use_sim_time:=true \
+python3 ~/labs/week07/visual_slam_extra/scripts/cloud_filter.py --ros-args -p use_sim_time:=true \
   -r input:=/camera/depth/color/points -r output:=/cloud_voxel \
   -p z_min:=0.3 -p z_max:=4.0 -p leaf:=0.05
 ```
@@ -157,7 +157,7 @@ ros2 launch rtabmap_launch rtabmap.launch.py \
 ```
 
 ```bash
-python3 ~/labs/week10/scripts/rtabmap_stats.py --ros-args -p use_sim_time:=true
+python3 ~/labs/week07/visual_slam_extra/scripts/rtabmap_stats.py --ros-args -p use_sim_time:=true
 ```
 
 ```bash

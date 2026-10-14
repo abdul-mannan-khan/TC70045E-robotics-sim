@@ -8,7 +8,7 @@ and reports the processing time per update and the working-memory size from the 
 Prints each closure as it happens and a summary at Ctrl+C.
 
 Usage (RTAB-Map running with use_sim_time)
-  python3 ~/labs/week10/scripts/rtabmap_stats.py --ros-args -p use_sim_time:=true
+  python3 ~/labs/week07/visual_slam_extra/scripts/rtabmap_stats.py --ros-args -p use_sim_time:=true
 
 Expected output
   node 57: LOOP CLOSURE with node 3

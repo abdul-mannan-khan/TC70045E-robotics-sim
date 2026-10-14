@@ -1,0 +1,37 @@
+# Week 7 - SOLUTION. RTAB-Map with the D455 only: visual registration, visual loop closures, the map from depth.
+/**:                                   # (any node that loads this file: the rtabmap node in the launch)
+  ros__parameters:
+    frame_id: base_footprint          # the robot
+    odom_frame_id: ""                 # odometry comes from the /odom_raw topic (wheel odometry)
+    publish_tf: true                  # RTAB-Map publishes map -> odom
+    approx_sync: true
+    sync_queue_size: 30
+    topic_queue_size: 30              # the camera can lag 1-2 s on a slow computer: keep 30 odometry messages
+    wait_for_transform: 0.2
+    subscribe_rgbd: true              # the D455 colour + depth, paired by rgbd_sync on /rgbd_image
+    subscribe_rgb: false
+    subscribe_depth: false            #  RTAB-Map's default is true, so say false
+    subscribe_scan: false             # SOLUTION 1: camera only - no LiDAR
+
+    # --- how the robot's pose is corrected (all RTAB-Map parameters are strings) ---
+    Reg/Strategy: "0"                 # SOLUTION 2: visual registration (image features + depth); ICP needs a scan
+    Reg/Force3DoF: "true"             # a ground robot: x, y, yaw only
+    RGBD/NeighborLinkRefining: "true" # correct wheel odometry between nodes (with Reg/Strategy)
+    RGBD/ProximityBySpace: "false"    # visual mode: only loop closures from recognised images
+    RGBD/LinearUpdate: "0.1"          # add a node every 0.1 m ...
+    RGBD/AngularUpdate: "0.1"         # ... or every 0.1 rad
+    Vis/MinInliers: "20"              # SOLUTION 3: strict - a loop closure needs 20 matched features ...
+    RGBD/OptimizeMaxError: "1.0"      # ... and is rejected if it bends the graph more than 1x the expected error
+    Vis/MaxFeatures: "800"            # features extracted per image
+    Kp/MaxFeatures: "500"             # visual words per node, for recognising places (loop closures)
+    Mem/NotLinkedNodesKept: "false"
+
+    # --- the occupancy grid (/map), drawn by the depth camera ---
+    Grid/Sensor: "1"                  # 1 = depth camera
+    Grid/3D: "false"
+    Grid/CellSize: "0.05"
+    Grid/RangeMax: "4.0"              # D455 depth is noisy beyond about 4 m
+    Grid/RayTracing: "true"
+    Grid/NormalsSegmentation: "false"
+    Grid/MaxGroundHeight: "0.04"      # points lower than 4 cm are floor ...
+    Grid/MaxObstacleHeight: "0.8"     # ... points between 4 cm and 0.8 m are obstacles

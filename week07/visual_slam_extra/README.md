@@ -1,4 +1,4 @@
-# Week 10 Visual and RGB-D SLAM with the D455
+# Week 07 (optional extra) - Visual and RGB-D SLAM with the D455: ORB features, RTAB-Map statistics, cloud filtering
 
 Everything this week runs in the module's ROS 2 Humble container with the simulated lab robot and its
 D455-style RGB-D camera (same topic names as `realsense2_camera`: `/camera/color/image_raw`,
@@ -24,7 +24,7 @@ Halving the resolution halves f and therefore doubles the simulated depth noise 
 
 ```bash
 ros2 launch tc70045e_sim sim.launch.py gui:=false camera_width:=424 camera_height:=240
-python3 ~/labs/week10/scripts/orb_features.py --ros-args -p use_sim_time:=true -p save:=$HOME/ws/orb_lab.png
+python3 ~/labs/week07/visual_slam_extra/scripts/orb_features.py --ros-args -p use_sim_time:=true -p save:=$HOME/ws/orb_lab.png
 ros2 launch tc70045e_sim sim.launch.py gui:=false world:=range x:=5.81 y:=0 camera_width:=424 camera_height:=240
 ```
 
@@ -37,7 +37,7 @@ median Hamming 9; plain wall at 1 m: **0 keypoints**.
 ros2 run depth_image_proc point_cloud_xyzrgb_node --ros-args -p use_sim_time:=true \
   -r rgb/image_rect_color:=/camera/color/image_raw -r rgb/camera_info:=/camera/color/camera_info \
   -r depth_registered/image_rect:=/camera/aligned_depth_to_color/image_raw -r points:=/camera/depth/color/points
-python3 ~/labs/week10/scripts/cloud_filter.py --ros-args -p use_sim_time:=true \
+python3 ~/labs/week07/visual_slam_extra/scripts/cloud_filter.py --ros-args -p use_sim_time:=true \
   -r input:=/camera/depth/color/points -r output:=/cloud_voxel -p z_min:=0.3 -p z_max:=4.0 -p leaf:=0.05
 ros2 run octomap_server octomap_server_node --ros-args -p use_sim_time:=true \
   -p frame_id:=odom -p resolution:=0.05 -p sensor_model.max_range:=4.0 -r cloud_in:=/cloud_voxel
@@ -55,7 +55,7 @@ ros2 launch rtabmap_launch rtabmap.launch.py rgb_topic:=/camera/color/image_raw 
   depth_topic:=/camera/aligned_depth_to_color/image_raw camera_info_topic:=/camera/color/camera_info \
   frame_id:=base_footprint use_sim_time:=true approx_sync:=true rtabmap_viz:=false rviz:=false \
   args:="-d --Reg/Force3DoF true"
-python3 ~/labs/week10/scripts/rtabmap_stats.py --ros-args -p use_sim_time:=true
+python3 ~/labs/week07/visual_slam_extra/scripts/rtabmap_stats.py --ros-args -p use_sim_time:=true
 python3 ~/labs/week09/scripts/drive_loop.py --ros-args -p use_sim_time:=true \
   -p speed:=0.15 -p turn_rate:=0.3 -p csv:=$HOME/ws/w10_rtab_vo.csv
 ```

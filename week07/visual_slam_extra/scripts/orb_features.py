@@ -7,7 +7,7 @@ matches that agree with one epipolar geometry (fundamental matrix, RANSAC). Prin
 summary at Ctrl+C. Optionally saves one annotated keypoint image.
 
 Usage (simulator running with camera:=true)
-  python3 ~/labs/week10/scripts/orb_features.py --ros-args -p use_sim_time:=true
+  python3 ~/labs/week07/visual_slam_extra/scripts/orb_features.py --ros-args -p use_sim_time:=true
   ... -p nfeatures:=1000 -p ratio:=0.75 -p save:=orb.png
 
 Expected output (lab world, robot still on its start mark, camera_width:=424 camera_height:=240, ~7 Hz)
