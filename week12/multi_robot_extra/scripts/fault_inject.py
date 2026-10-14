@@ -9,7 +9,7 @@ Node /robot1/scan_filter: /robot1/scan -> clip ranges beyond 4 m -> /robot1/scan
   --fault stop      the node dies after 15 s
   --fault random    one of the four, chosen secretly; the answer is written to /tmp/fault_answer.txt
 Start the consumer (scan_consumer.py) in another terminal and find the fault with the ROS 2 instruments.
-Usage:  python3 ~/labs/week12/scripts/fault_inject.py --fault random
+Usage:  python3 ~/labs/week12/multi_robot_extra/scripts/fault_inject.py --fault random
 """
 import argparse
 import random

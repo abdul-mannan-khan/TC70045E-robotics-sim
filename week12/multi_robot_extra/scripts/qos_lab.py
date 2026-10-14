@@ -6,8 +6,8 @@
         (a slow algorithm), prints every 5 s: messages received, sequence gaps (lost or overwritten),
         and the age of the data when processing STARTS (now - header.stamp)
 Two terminals:
-  python3 ~/labs/week12/scripts/qos_lab.py pub --qos reliable
-  python3 ~/labs/week12/scripts/qos_lab.py sub --qos reliable --depth 10 --work 0.1
+  python3 ~/labs/week12/multi_robot_extra/scripts/qos_lab.py pub --qos reliable
+  python3 ~/labs/week12/multi_robot_extra/scripts/qos_lab.py sub --qos reliable --depth 10 --work 0.1
 Try: depth 10 vs depth 1; best_effort vs reliable; pub best_effort + sub reliable (incompatible -> nothing).
 Wall-clock time only; no simulator needed.
 """

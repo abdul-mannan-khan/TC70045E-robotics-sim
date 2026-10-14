@@ -8,9 +8,9 @@ instead: the classic "one node forgot use_sim_time" fault.
 Like a tf2 message filter or a costmap, it waits up to --tolerance (0.2 s) for the transform to arrive.
 Needs a common frame: publish world -> robot1/odom and world -> robot2/odom first (see the lecture).
 Usage:
-  python3 ~/labs/week12/scripts/clock_skew_demo.py --offset 0.0
-  python3 ~/labs/week12/scripts/clock_skew_demo.py --offset 0.2       # 200 ms ahead
-  python3 ~/labs/week12/scripts/clock_skew_demo.py --wall-clock
+  python3 ~/labs/week12/multi_robot_extra/scripts/clock_skew_demo.py --offset 0.0
+  python3 ~/labs/week12/multi_robot_extra/scripts/clock_skew_demo.py --offset 0.2       # 200 ms ahead
+  python3 ~/labs/week12/multi_robot_extra/scripts/clock_skew_demo.py --wall-clock
 Prints every 5 s: lookups OK / failed, and the first TF error text.
 """
 import argparse

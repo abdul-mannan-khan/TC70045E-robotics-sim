@@ -1,7 +1,7 @@
-# Week 12 - Multi-robot systems, integration and UAV outlook
+# Week 12 extra (previous edition) - Multi-robot systems, integration and UAV outlook
 
 Everything here runs in the module's ROS 2 Humble container (browser desktop at http://localhost:6080).
-The repository is mounted at `~/labs`, so the scripts are in `~/labs/week12/scripts`.
+The repository is mounted at `~/labs`, so the scripts are in `~/labs/week12/multi_robot_extra/scripts`.
 
 ```bash
 cd docker && docker compose up -d ros2          # on your laptop; add px4 for Lab C
@@ -22,8 +22,8 @@ ros2 launch tc70045e_sim multi_robot.launch.py gui:=false     # robot1 at (-3.0,
 ## Lab B - fault isolation drill
 
 ```bash
-python3 ~/labs/week12/scripts/scan_consumer.py              # the downstream node: shows the symptom
-python3 ~/labs/week12/scripts/fault_inject.py --fault random # partner: injects frame | qos | simtime | stop
+python3 ~/labs/week12/multi_robot_extra/scripts/scan_consumer.py              # the downstream node: shows the symptom
+python3 ~/labs/week12/multi_robot_extra/scripts/fault_inject.py --fault random # partner: injects frame | qos | simtime | stop
 cat /tmp/fault_answer.txt                                    # only after you have found it
 ```
 

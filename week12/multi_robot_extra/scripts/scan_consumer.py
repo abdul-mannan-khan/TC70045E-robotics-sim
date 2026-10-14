@@ -5,7 +5,7 @@ Node /obstacle_monitor subscribes /robot1/scan_filtered (RELIABLE, depth 5, simu
 each scan's frame into --target at the scan's stamp (as a costmap does) and reports every 2 s:
   messages received, TF lookups OK / failed, nearest obstacle distance - or NO DATA.
 It never says WHY - that is your job (ros2 node list / topic info -v / topic hz / tf2_echo / param get).
-Usage:  python3 ~/labs/week12/scripts/scan_consumer.py
+Usage:  python3 ~/labs/week12/multi_robot_extra/scripts/scan_consumer.py
 """
 import argparse
 import math

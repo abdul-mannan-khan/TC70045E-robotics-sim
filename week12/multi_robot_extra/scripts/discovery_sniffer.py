@@ -6,8 +6,8 @@ Every packet starts with 'RTPS', version, vendor id, and the 12-byte GUID prefix
 participant - so counting distinct prefixes counts the DDS participants (roughly one per ROS 2 process).
 No root rights and no tcpdump needed.
 Usage:
-  python3 ~/labs/week12/scripts/discovery_sniffer.py                 # your $ROS_DOMAIN_ID, 10 s
-  python3 ~/labs/week12/scripts/discovery_sniffer.py --domain 0 --seconds 30
+  python3 ~/labs/week12/multi_robot_extra/scripts/discovery_sniffer.py                 # your $ROS_DOMAIN_ID, 10 s
+  python3 ~/labs/week12/multi_robot_extra/scripts/discovery_sniffer.py --domain 0 --seconds 30
 Prints packets/s, bytes/s and the number of participants heard.
 """
 import argparse

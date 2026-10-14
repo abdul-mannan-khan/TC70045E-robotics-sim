@@ -35,32 +35,32 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/rob
 ```text
 # domains and discovery
 ROS_DOMAIN_ID=$((ROS_DOMAIN_ID + 1)) ros2 node list      # another domain: nothing
-python3 ~/labs/week12/scripts/discovery_sniffer.py --seconds 20
+python3 ~/labs/week12/multi_robot_extra/scripts/discovery_sniffer.py --seconds 20
 
 # QoS and data age (no simulator needed; pub in one terminal, sub in another)
-python3 ~/labs/week12/scripts/qos_lab.py pub
-python3 ~/labs/week12/scripts/qos_lab.py sub --depth 10 --work 0.1
-python3 ~/labs/week12/scripts/qos_lab.py sub --depth 1 --work 0.1
-python3 ~/labs/week12/scripts/qos_lab.py sub --qos best_effort --depth 1 --work 0.1
-python3 ~/labs/week12/scripts/qos_lab.py pub --qos best_effort    # + a RELIABLE sub: incompatible
+python3 ~/labs/week12/multi_robot_extra/scripts/qos_lab.py pub
+python3 ~/labs/week12/multi_robot_extra/scripts/qos_lab.py sub --depth 10 --work 0.1
+python3 ~/labs/week12/multi_robot_extra/scripts/qos_lab.py sub --depth 1 --work 0.1
+python3 ~/labs/week12/multi_robot_extra/scripts/qos_lab.py sub --qos best_effort --depth 1 --work 0.1
+python3 ~/labs/week12/multi_robot_extra/scripts/qos_lab.py pub --qos best_effort    # + a RELIABLE sub: incompatible
 
 # clock offset (the two static transforms must be running)
-python3 ~/labs/week12/scripts/clock_skew_demo.py --offset 0.0
-python3 ~/labs/week12/scripts/clock_skew_demo.py --offset 0.1
-python3 ~/labs/week12/scripts/clock_skew_demo.py --offset 0.5
-python3 ~/labs/week12/scripts/clock_skew_demo.py --offset -0.5
-python3 ~/labs/week12/scripts/clock_skew_demo.py --wall-clock
+python3 ~/labs/week12/multi_robot_extra/scripts/clock_skew_demo.py --offset 0.0
+python3 ~/labs/week12/multi_robot_extra/scripts/clock_skew_demo.py --offset 0.1
+python3 ~/labs/week12/multi_robot_extra/scripts/clock_skew_demo.py --offset 0.5
+python3 ~/labs/week12/multi_robot_extra/scripts/clock_skew_demo.py --offset -0.5
+python3 ~/labs/week12/multi_robot_extra/scripts/clock_skew_demo.py --wall-clock
 ```
 
 ## 2.3 The same method in software: the ROS 2 instruments
 
 ```bash
 # terminal A - the downstream node (shows the symptom, never the cause)
-python3 ~/labs/week12/scripts/scan_consumer.py
+python3 ~/labs/week12/multi_robot_extra/scripts/scan_consumer.py
 
 # terminal B - the stage under test: first healthy, then with a hidden fault
-python3 ~/labs/week12/scripts/fault_inject.py --fault none
-python3 ~/labs/week12/scripts/fault_inject.py --fault random
+python3 ~/labs/week12/multi_robot_extra/scripts/fault_inject.py --fault none
+python3 ~/labs/week12/multi_robot_extra/scripts/fault_inject.py --fault random
 
 # terminal C - the instruments, in bisection order
 ros2 node list | grep robot1
