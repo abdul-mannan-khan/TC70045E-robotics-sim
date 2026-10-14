@@ -22,7 +22,7 @@ ros2 launch slam_toolbox online_async_launch.py \
 ```
 
 ```bash
-python3 ~/labs/week09/scripts/drive_loop.py --ros-args \
+python3 ~/labs/week08/slam_navigation_extra/scripts/drive_loop.py --ros-args \
   -p use_sim_time:=true -p csv:=$HOME/ws/w9_slamtb.csv
 ```
 
@@ -38,7 +38,7 @@ cat ~/ws/maps/lab_slamtb.yaml
 ```
 
 ```bash
-python3 ~/labs/week09/scripts/map_metrics.py ~/ws/maps/lab_slamtb.yaml
+python3 ~/labs/week08/slam_navigation_extra/scripts/map_metrics.py ~/ws/maps/lab_slamtb.yaml
 ```
 
 ```text
@@ -83,7 +83,7 @@ ros2 run cartographer_ros cartographer_occupancy_grid_node \
 ```
 
 ```bash
-python3 ~/labs/week09/scripts/drive_loop.py --ros-args \
+python3 ~/labs/week08/slam_navigation_extra/scripts/drive_loop.py --ros-args \
   -p use_sim_time:=true -p csv:=$HOME/ws/w9_carto.csv
 top -b -d 2 -n 30 -c -w 512 | grep [c]artographer_node
 ```
@@ -96,7 +96,7 @@ rqt_graph
 ```bash
 ros2 run nav2_map_server map_saver_cli -f ~/ws/maps/lab_carto \
   --ros-args -p use_sim_time:=true
-python3 ~/labs/week09/scripts/map_metrics.py ~/ws/maps/lab_carto.yaml
+python3 ~/labs/week08/slam_navigation_extra/scripts/map_metrics.py ~/ws/maps/lab_carto.yaml
 ```
 
 ```text
@@ -132,14 +132,14 @@ ros2 topic echo /amcl_pose --once --field pose.pose.position          # map fram
 ```
 
 ```bash
-python3 ~/labs/week09/scripts/nav_repeat.py --ros-args -p use_sim_time:=true
+python3 ~/labs/week08/slam_navigation_extra/scripts/nav_repeat.py --ros-args -p use_sim_time:=true
 ```
 
 ```bash
 ros2 param get /controller_server general_goal_checker.xy_goal_tolerance
 ros2 param set /controller_server general_goal_checker.xy_goal_tolerance 0.05
 ros2 param set /controller_server general_goal_checker.yaw_goal_tolerance 0.1
-python3 ~/labs/week09/scripts/nav_repeat.py --ros-args \
+python3 ~/labs/week08/slam_navigation_extra/scripts/nav_repeat.py --ros-args \
   -p use_sim_time:=true -p set_initial_pose:=false
 ```
 
@@ -150,7 +150,7 @@ sed -i "s/xy_goal_tolerance: 0.25/xy_goal_tolerance: 0.05/g; s/yaw_goal_toleranc
 grep -n goal_tolerance ~/ws/nav2_tight.yaml
 ros2 launch nav2_bringup bringup_launch.py map:=$HOME/ws/maps/lab_slamtb.yaml \
   params_file:=$HOME/ws/nav2_tight.yaml use_sim_time:=true
-python3 ~/labs/week09/scripts/nav_repeat.py --ros-args -p use_sim_time:=true
+python3 ~/labs/week08/slam_navigation_extra/scripts/nav_repeat.py --ros-args -p use_sim_time:=true
 ```
 
 ```bash

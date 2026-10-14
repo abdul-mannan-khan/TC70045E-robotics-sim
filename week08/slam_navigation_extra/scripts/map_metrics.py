@@ -9,8 +9,8 @@ the inner face, so the outermost occupied cells ARE the inner faces. The script:
 Quantisation: every length carries +-1 cell (+-0.05 m at 0.05 m resolution) of uncertainty.
 
 Usage (no ROS needed, runs in a plain python3):
-  python3 ~/labs/week09/scripts/map_metrics.py ~/maps/lab_slamtb.yaml
-  python3 ~/labs/week09/scripts/map_metrics.py ~/maps/lab_carto.yaml --true 10.0 8.0
+  python3 ~/labs/week08/slam_navigation_extra/scripts/map_metrics.py ~/maps/lab_slamtb.yaml
+  python3 ~/labs/week08/slam_navigation_extra/scripts/map_metrics.py ~/maps/lab_carto.yaml --true 10.0 8.0
 
 Expected output (slam_toolbox, one loop of drive_loop.py)
   resolution 0.050 m, 229 x 187 cells, occupied 2931, free 29172, unknown 10754

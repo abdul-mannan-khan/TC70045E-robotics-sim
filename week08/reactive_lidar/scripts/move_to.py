@@ -5,8 +5,8 @@ It uses the simulator's exact pose, which only exists in simulation (on a real r
 The mecanum base is holonomic, so the robot moves in x and y without turning; yaw is held at 0.
 
 Usage (range world, robot spawned with x:=0 y:=0):
-    python3 ~/labs/week08/scripts/move_to.py 4.81 0.0      # camera 2.0 m from the target wall
-    python3 ~/labs/week08/scripts/move_to.py 0.0 3.3       # in front of the 30 degree target
+    python3 ~/labs/week08/reactive_lidar/scripts/move_to.py 4.81 0.0      # camera 2.0 m from the target wall
+    python3 ~/labs/week08/reactive_lidar/scripts/move_to.py 0.0 3.3       # in front of the 30 degree target
 Expected output:
     reached x=4.806 y=0.000 (target 4.810 0.000) in 16.4 s  -- robot stopped
 

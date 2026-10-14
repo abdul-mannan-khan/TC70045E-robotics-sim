@@ -12,9 +12,9 @@ into [-180, 180) before it is compared, so sectors that straddle +/-180 deg work
 reproduce the latency of a real LiDAR driver in simulation.
 
 Usage:
-    python3 ~/labs/week08/scripts/reactive.py --mode avoid --v 0.2 --d 0.5
-    python3 ~/labs/week08/scripts/reactive.py --mode follow --d 0.8
-    python3 ~/labs/week08/scripts/reactive.py --mode guard --d 1.0
+    python3 ~/labs/week08/reactive_lidar/scripts/reactive.py --mode avoid --v 0.2 --d 0.5
+    python3 ~/labs/week08/reactive_lidar/scripts/reactive.py --mode follow --d 0.8
+    python3 ~/labs/week08/reactive_lidar/scripts/reactive.py --mode guard --d 1.0
 Stop with Ctrl-C: the node then publishes a zero Twist (the simulated base has no command timeout).
 Expected output (once a second):
     [avoid ] nearest front 1.84 m @  -12 deg | cmd v 0.20 w  0.00 | closest so far 0.47 m

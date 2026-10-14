@@ -8,8 +8,8 @@ that is the range noise of the instrument.
 
 Angles: angle 0 = straight ahead of the lab robot (index 360 of 720), +90 = left; the sector may straddle +/-180.
 Usage:
-    python3 ~/labs/week08/scripts/scan_probe.py                       # forward sector, +/-3 deg, 30 scans
-    python3 ~/labs/week08/scripts/scan_probe.py --centre 180 --half 5  # rear sector (wraps around +/-180 deg)
+    python3 ~/labs/week08/reactive_lidar/scripts/scan_probe.py                       # forward sector, +/-3 deg, 30 scans
+    python3 ~/labs/week08/reactive_lidar/scripts/scan_probe.py --centre 180 --half 5  # rear sector (wraps around +/-180 deg)
 Expected output (range world, robot at x = 0, wall 6.93 m ahead of the LiDAR):
     beams  13  valid  13  dropout   0.0 %  perp mean 6.928 m  sd 0.0093 m
     CENTRE BEAM index 360 (0.0 deg): 30 scans  mean 6.9302 m  sd 0.0100 m  valid 30/30

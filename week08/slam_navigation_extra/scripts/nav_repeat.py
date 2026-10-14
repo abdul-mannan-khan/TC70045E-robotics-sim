@@ -10,7 +10,7 @@ then to the goal. When Nav2 reports the goal reached, the script waits 1 s and r
 It finishes with mean, sample standard deviation and RMS of the radial error, and the goal-checker tolerance.
 
 Usage
-  python3 ~/labs/week09/scripts/nav_repeat.py --ros-args -p use_sim_time:=true
+  python3 ~/labs/week08/slam_navigation_extra/scripts/nav_repeat.py --ros-args -p use_sim_time:=true
   ... -p goal_x:=3.0 -p goal_y:=1.0 -p goal_yaw:=1.57 -p runs:=5      (map frame, metres / rad)
   ... -p set_initial_pose:=false          if you already set AMCL with "2D Pose Estimate" in rviz2
 

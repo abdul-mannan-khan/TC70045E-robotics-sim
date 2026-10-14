@@ -12,7 +12,7 @@ Frames: the SLAM map frame starts where the robot started, so  world = map + spa
         (spawn (-3.0, -0.4, 0) in the lab world).
 
 Usage (simulator + a SLAM node already running, everything with sim time):
-  python3 ~/labs/week09/scripts/drive_loop.py --ros-args -p use_sim_time:=true
+  python3 ~/labs/week08/slam_navigation_extra/scripts/drive_loop.py --ros-args -p use_sim_time:=true
   ... -p speed:=0.15 -p turn_rate:=0.3       slower (Week 10, camera at ~7 Hz)
   ... -p drive:=false                        only score: drive yourself with teleop, Ctrl+C to finish
   ... -p csv:=run1.csv                       also save t, truth, slam and odom poses

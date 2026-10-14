@@ -1,4 +1,4 @@
-# Week 09 SLAM and Autonomous Navigation
+# Week 08 (optional extra) - SLAM and navigation, scored: slam_toolbox vs Cartographer, five-run repeatability
 
 Everything this week runs in the module's ROS 2 Humble container on your laptop, with the simulated lab robot
 (`tc70045e_sim`: four-wheel mecanum, 2D LiDAR on `/scan`, wheel odometry on `/odom_raw`, truth on `/ground_truth/odom`).
@@ -24,9 +24,9 @@ Frames: every SLAM map starts where the robot started, so **map = world - spawn 
 ros2 launch tc70045e_sim sim.launch.py gui:=false camera:=false
 ros2 launch slam_toolbox online_async_launch.py \
   slam_params_file:=$(ros2 pkg prefix tc70045e_sim)/share/tc70045e_sim/config/slam_toolbox.yaml use_sim_time:=true
-python3 ~/labs/week09/scripts/drive_loop.py --ros-args -p use_sim_time:=true -p csv:=$HOME/ws/w9_slamtb.csv
+python3 ~/labs/week08/slam_navigation_extra/scripts/drive_loop.py --ros-args -p use_sim_time:=true -p csv:=$HOME/ws/w9_slamtb.csv
 mkdir -p ~/ws/maps && ros2 run nav2_map_server map_saver_cli -f ~/ws/maps/lab_slamtb --ros-args -p use_sim_time:=true
-python3 ~/labs/week09/scripts/map_metrics.py ~/ws/maps/lab_slamtb.yaml
+python3 ~/labs/week08/slam_navigation_extra/scripts/map_metrics.py ~/ws/maps/lab_slamtb.yaml
 ```
 
 Expected (measured 21 Sep 2026, simulated):
@@ -58,10 +58,10 @@ slam_toolbox ~6 % of one core.
 ```bash
 ros2 launch nav2_bringup bringup_launch.py map:=$HOME/ws/maps/lab_slamtb.yaml \
   params_file:=$(ros2 pkg prefix tc70045e_sim)/share/tc70045e_sim/config/nav2_params.yaml use_sim_time:=true
-python3 ~/labs/week09/scripts/nav_repeat.py --ros-args -p use_sim_time:=true
+python3 ~/labs/week08/slam_navigation_extra/scripts/nav_repeat.py --ros-args -p use_sim_time:=true
 ros2 param set /controller_server general_goal_checker.xy_goal_tolerance 0.05
 ros2 param set /controller_server general_goal_checker.yaw_goal_tolerance 0.1
-python3 ~/labs/week09/scripts/nav_repeat.py --ros-args -p use_sim_time:=true -p set_initial_pose:=false
+python3 ~/labs/week08/slam_navigation_extra/scripts/nav_repeat.py --ros-args -p use_sim_time:=true -p set_initial_pose:=false
 ```
 
 Default goal: map (3.0, 1.0) = world (0.0, 0.6). Measured (simulated): default tolerance mean 251 mm, s 10 mm (the error *is*

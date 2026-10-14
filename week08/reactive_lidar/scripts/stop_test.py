@@ -7,8 +7,8 @@ wall (x = 6.95 m) is measured from /ground_truth/odom, together with where the r
 --delay adds an artificial sensor-chain latency, as in reactive.py.
 
 Usage (simulator started with world:=range x:=0 y:=0 camera:=false):
-    python3 ~/labs/week08/scripts/stop_test.py --v 0.3 --d 0.6 --a 1.0 --runs 3
-    python3 ~/labs/week08/scripts/stop_test.py --v 0.5 --d 0.6 --a 1.0 --delay 0.2
+    python3 ~/labs/week08/reactive_lidar/scripts/stop_test.py --v 0.3 --d 0.6 --a 1.0 --runs 3
+    python3 ~/labs/week08/reactive_lidar/scripts/stop_test.py --v 0.5 --d 0.6 --a 1.0 --delay 0.2
 Expected output (one line per run):
     v 0.30  d 0.60  a 1.0  delay 0.00 | read 0.595 m (true 0.614, age 0.000 s) | after decision 0.052 m | clearance 0.431 m
 """

@@ -38,16 +38,16 @@ ros2 topic delay -s /scan
 ```
 
 ```bash
-python3 ~/labs/week08/scripts/scan_probe.py
+python3 ~/labs/week08/reactive_lidar/scripts/scan_probe.py
 ```
 
 ```bash
-python3 ~/labs/week08/scripts/scan_probe.py --centre 180 --half 5 --scans 5
-python3 ~/labs/week08/scripts/scan_probe.py --centre 53 --half 4 --scans 5
+python3 ~/labs/week08/reactive_lidar/scripts/scan_probe.py --centre 180 --half 5 --scans 5
+python3 ~/labs/week08/reactive_lidar/scripts/scan_probe.py --centre 53 --half 4 --scans 5
 ```
 
 ```bash
-cd ~/labs/week08/scripts
+cd ~/labs/week08/reactive_lidar/scripts
 python3 move_to.py 5.93 0.0 && python3 scan_probe.py --scans 40 | tail -1
 python3 move_to.py 3.93 0.0 && python3 scan_probe.py --scans 40 | tail -1
 python3 move_to.py 1.93 0.0 && python3 scan_probe.py --scans 40 | tail -1
@@ -80,7 +80,7 @@ def nearest(s, centre_deg, half_deg):
 ```
 
 ```bash
-cd ~/labs/week08/scripts
+cd ~/labs/week08/reactive_lidar/scripts
 python3 move_to.py 4.93 0.0
 python3 reactive.py --mode follow --d 0.8          # Ctrl-C after about 20 s
 ```
@@ -102,7 +102,7 @@ ros2 topic echo --once /ground_truth/odom --field pose.pose.orientation
 
 ```bash
 ros2 launch tc70045e_sim sim.launch.py gui:=false camera:=false
-python3 ~/labs/week08/scripts/reactive.py --mode avoid --v 0.2 --d 0.5
+python3 ~/labs/week08/reactive_lidar/scripts/reactive.py --mode avoid --v 0.2 --d 0.5
 ```
 
 ```text
@@ -115,7 +115,7 @@ clearance = WALL_X - (node.pose[0] + FRONT_X)      # front edge to wall, from gr
 ```
 
 ```bash
-cd ~/labs/week08/scripts
+cd ~/labs/week08/reactive_lidar/scripts
 python3 stop_test.py --v 0.2 --d 0.6 --a 1.0 --runs 3
 python3 stop_test.py --v 0.3 --d 0.6 --a 1.0 --runs 3
 python3 stop_test.py --v 0.5 --d 0.6 --a 1.0 --runs 3
