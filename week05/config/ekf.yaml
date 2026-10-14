@@ -1,0 +1,54 @@
+# Week 5 - robot_localization EKF settings. YOUR ACTIVITY: three TODOs (the README explains each one).
+# As given, the EKF only re-publishes the wheel odometry - and makes one classic mistake.
+# State order of the 15 booleans in every *_config:  x y z | roll pitch yaw | vx vy vz | vroll vpitch vyaw | ax ay az
+# Started by week05/launch/fusion.launch.py with odom:=ekf (the simulator then leaves odom -> base_footprint to the EKF).
+ekf_filter_node:
+  ros__parameters:
+    use_sim_time: true
+    frequency: 30.0              # Hz: predict + publish /odometry/filtered and TF odom -> base_footprint
+    sensor_timeout: 0.2
+    two_d_mode: false            # TODO 3: the robot drives on a flat floor. What should the filter do with z, roll
+                                 #   and pitch - which no sensor here measures?
+    publish_tf: true
+    map_frame: map               # SLAM owns map -> odom
+    odom_frame: odom
+    base_link_frame: base_footprint
+    world_frame: odom            # this EKF is the continuous, local one (no jumps): odom -> base_footprint
+
+    # --- sensor 1: wheel odometry from the motor board (25 Hz, covariance in the message) ---
+    odom0: /odom_raw
+    odom0_config: [true,  true,  false,     # x y z         TODO 2: is the wheel odometry's POSITION new information?
+                   false, false, true,      # roll pitch yaw   (the same wheels already give the velocities below)
+                   true,  true,  false,     # vx vy vz
+                   false, false, true,      # vroll vpitch vyaw
+                   false, false, false]     # ax ay az
+    odom0_differential: false
+    odom0_queue_size: 10
+
+    # --- sensor 2: the IMU after the Madgwick filter (100 Hz) ---
+    imu0: /imu/data
+    imu0_config: [false, false, false,      # x y z         TODO 1: the gyro measures the yaw RATE directly,
+                  false, false, false,      # roll pitch yaw   without the wheels' slip and track-width error.
+                  false, false, false,      # vx vy vz         Switch on the one entry that is the yaw rate.
+                  false, false, false,      # vroll vpitch vyaw
+                  false, false, false]      # ax ay az
+    imu0_differential: false
+    imu0_remove_gravitational_acceleration: true
+    imu0_queue_size: 20
+
+    # How much the robot's state can change between two predictions (diagonal; every number must be a float)
+    process_noise_covariance: [0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.06, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.06, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.04, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.02, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.015]

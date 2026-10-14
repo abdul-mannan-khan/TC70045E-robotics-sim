@@ -1,0 +1,52 @@
+# Week 5 - SOLUTION. robot_localization EKF: wheel-odometry velocities + the gyro's yaw rate, 2D.
+# State order of the 15 booleans in every *_config:  x y z | roll pitch yaw | vx vy vz | vroll vpitch vyaw | ax ay az
+# Started by week05/launch/fusion.launch.py with odom:=ekf (the simulator then leaves odom -> base_footprint to the EKF).
+ekf_filter_node:
+  ros__parameters:
+    use_sim_time: true
+    frequency: 30.0              # Hz: predict + publish /odometry/filtered and TF odom -> base_footprint
+    sensor_timeout: 0.2
+    two_d_mode: true             # SOLUTION: flat floor - z, roll and pitch are fixed at 0 instead of drifting
+    publish_tf: true
+    map_frame: map               # SLAM owns map -> odom
+    odom_frame: odom
+    base_link_frame: base_footprint
+    world_frame: odom            # this EKF is the continuous, local one (no jumps): odom -> base_footprint
+
+    # --- sensor 1: wheel odometry from the motor board (25 Hz, covariance in the message) ---
+    odom0: /odom_raw
+    odom0_config: [false, false, false,     # x y z         SOLUTION: no - it is the velocities below, integrated.
+                   false, false, false,     # roll pitch yaw   Fusing it too counts the same wheels twice.
+                   true,  true,  false,     # vx vy vz
+                   false, false, true,      # vroll vpitch vyaw
+                   false, false, false]     # ax ay az
+    odom0_differential: false
+    odom0_queue_size: 10
+
+    # --- sensor 2: the IMU after the Madgwick filter (100 Hz) ---
+    imu0: /imu/data
+    imu0_config: [false, false, false,      # x y z
+                  false, false, false,      # roll pitch yaw   (no magnetometer: absolute yaw is not known)
+                  false, false, false,      # vx vy vz
+                  false, false, true,       # vroll vpitch vyaw   SOLUTION: the gyro's yaw rate
+                  false, false, false]      # ax ay az         (accelerations: double integration drifts fast)
+    imu0_differential: false
+    imu0_remove_gravitational_acceleration: true
+    imu0_queue_size: 20
+
+    # How much the robot's state can change between two predictions (diagonal; every number must be a float)
+    process_noise_covariance: [0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.06, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.03, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.06, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.04, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.02, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0,
+                               0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.015]
