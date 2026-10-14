@@ -55,9 +55,9 @@ the simulation to real hardware and to the module's learning outcomes.
 | [1](week01/) | Your robotics workstation: Linux, Docker, ROS 2 and Claude | container | `go_to_goal.py` → drive the turtle to clicked goals | – |
 | [2](week02/) | ROS 2 as Lego: building a robot from bricks | Gazebo + RViz | `my_brick.py` → wall follower | – |
 | [3](week03/) | The navigation brick: from a map to autonomous delivery (Nav2) | Gazebo + RViz | `patrol.py` → security patrol through both rooms | the motors, drivers and encoders behind `cmd_vel`; the electronics of a mobile robot |
-| 4 | Add a sensor, upgrade the SLAM: LiDAR + Intel RealSense D455 | Gazebo + RViz | SLAM launch → RTAB-Map with LiDAR + RGB-D, scored against the true map | how stereo depth works; the D455's interfaces |
-| 5 | Fuse for better localisation: IMU + odometry → EKF feeding SLAM | Gazebo + RViz | `ekf.yaml` → fuse the IMU, less drift | inside a MEMS IMU: front end, ADC, noise, filtering |
-| 6 | See and understand with the D455: depth perception (**A1 due**) | Gazebo + RViz | `box_finder.py` → find the boxes and mark them on the map | – |
+| [4](week04/) | Add a sensor, upgrade the SLAM: LiDAR + Intel RealSense D455 | Gazebo + RViz | SLAM launch → RTAB-Map with LiDAR + RGB-D, scored against the true map | how stereo depth works; the D455's interfaces |
+| [5](week05/) | Fuse for better localisation: IMU + wheel odometry → EKF | Gazebo + RViz | `ekf.yaml` → fuse the gyro, measure the drift against the truth | inside a MEMS IMU: front end, ADC, noise, filtering |
+| [6](week06/) | See and understand with the D455: from pixels to the map (**A1 due**) | Gazebo + RViz | `box_finder.py` → find the boxes and mark them on the map | the pinhole camera; colour in HSV |
 | 7 | D455 RGB-D SLAM and navigation, camera only | Gazebo + RViz | camera-only map, then navigate to three goals | – |
 | 8 | Autonomous exploration | Gazebo + RViz | `explorer.py` → frontier exploration of an unknown building | – |
 | 9 | Drones without ROS 2: AirSim + PX4 (mountains and town) | AirSim + PX4 | `mission.py` → survey pattern | testing with an oscilloscope and a logic analyser (PWM, UART/MAVLink); motors and ESCs |
@@ -65,7 +65,7 @@ the simulation to real hardware and to the module's learning outcomes.
 | 11 | Self-driving car: CARLA without, then with ROS 2 | CARLA | `cruise_control.py` → speed controller (API and ROS 2) | steer-, throttle- and brake-by-wire actuators |
 | 12 | Drone hardware in the loop: AirSim + Jetson Orin Nano Super + Pixhawk 6C (**A2 due**) | AirSim (HIL) | the Week 9 mission on a real autopilot (lecturer demo; students in SITL) | from wiring to a PCB: an interface board; testing a board |
 
-Weeks 1-3 are released. Weeks 4-12 are built one week at a time in the same style; until a week is released its
+Weeks 1-6 are released. Weeks 7-12 are built one week at a time in the same style; until a week is released its
 folder still holds the previous edition's material. The demo videos for the drone and car simulators (with and
 without ROS 2) are already on Blackboard; the examples are in [examples/](examples/).
 
