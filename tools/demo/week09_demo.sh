@@ -30,6 +30,7 @@ place "AirSim front camera" 1250 430 660 500
 say "The IMU's z reads about minus nine point eight, standing still: the push of the ground against gravity, and z points down in N E D." 6
 keys "AirSim front camera" q
 sleep 2
+say "Before the first flight PX4 needs its first GPS fix: about a minute after the start." 25
 cap "A2 (T2): MAVSDK over MAVLink - arm, take off to 5 m, a 5 m square of position set-points, land" 2 "Activity two. Now we fly, through the autopilot. The script sends position set points over MAVLink. PX4 does the flying."
 run T2 "clear; python3 -u $S/02_fly_square_mavsdk.py --side 5 --alt 5 | tee /tmp/w9demo_sq.log" 5
 say "Five metres up is z equals minus five: N E D, z points down." 20

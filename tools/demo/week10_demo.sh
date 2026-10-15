@@ -32,26 +32,34 @@ cap "T4: RViz - the front camera and the map -> base_link transform" 2 "In termi
 run T4 "rviz2 -d $S/airsim.rviz > /dev/null 2>&1 &" 12
 place RViz 0 640 955 440
 run T4 "clear; ros2 topic list | grep drone" 6
+snap w10_airsim_and_rviz_bridges_running
+say "These are all ROS 2 topics now. Before the first flight PX4 needs its first GPS fix, about a minute after the start." 25
 cap "A2 (T4): take off with a ROS 2 service call, fly with /drone/cmd_vel, land" 2 "Activity two. Take off with an ordinary ROS 2 service call."
 run T4 "clear; ros2 service call /drone/takeoff std_srvs/srv/Trigger" 4
 say "The drone arms and climbs to five metres." 15
+snap w10_takeoff_from_ros2_service
 run T4 "clear; ros2 topic pub -r 10 /drone/cmd_vel geometry_msgs/msg/Twist \"{linear: {x: 1.0}}\"" 6
 ctrlc T4 3
 say "When the commands stop, the bridge holds the drone still. A safe default." 3
 run T4 "clear; ros2 service call /drone/land std_srvs/srv/Trigger" 4
 say "And it lands." 15
 cap "Your activity: mission_node.py - rotate into the body frame, a FRESH photo when still, a watchdog" 4 "Your activity: the mission node. Three to do's. Rotate the map frame error into the body frame. Take a fresh photo when the drone is still. And a watchdog that lands when data stops. Here is the solution."
-run T4 "clear; python3 -u $SOL 2>&1 | grep -v INFO | tee /tmp/w10demo_sol.log" 5
+run T4 "clear; python3 -u $SOL 2>&1 | grep --line-buffered -v INFO | tee /tmp/w10demo_sol.log" 5
 cap "A 10 m square, a photo of the middle at each corner (real time)" 30 "A ten metre square. At each corner the drone stops, turns to the middle, and takes a photo. This is real time."
+snap w10_mission_node_flying
 wait_for RESULT /tmp/w10demo_sol.log 240
+snap w10_mission_node_result
 sleep 8
 cap "Watchdog test: start the mission again, then Ctrl+C on the AirSim bridge (T2) in flight" 2 "Now the watchdog test. We start the mission again, and stop the AirSim bridge in flight."
-run T4 "clear; python3 -u $SOL 2>&1 | grep -v INFO | tee /tmp/w10demo_wd.log" 5
+run T4 "clear; python3 -u $SOL 2>&1 | grep --line-buffered -v INFO | tee /tmp/w10demo_wd.log" 5
 wait_for "waypoint 1/" /tmp/w10demo_wd.log 120
 sleep 2
-ctrlc T2 2
-cap "No camera image for 2 s - WATCHDOG - the drone lands instead of hovering blind" 15 "No new camera image for two seconds. The watchdog fires, and the drone lands, instead of hovering blind."
+focus T2
+pkill -INT -f 03_airsim_ros2_bridge   # = Ctrl+C in T2 (typing into a busy terminal is unreliable)
+sleep 2
+cap "The bridge has stopped: no fresh data - WATCHDOG - the drone lands instead of hovering blind" 15 "The bridge has stopped, so no fresh data arrives. The watchdog fires, and the drone lands, instead of hovering blind."
 wait_for RESULT /tmp/w10demo_wd.log 120
+snap w10_watchdog_fired_landing
 sleep 5
 cap "Your turn: week10/README.md - A1-A3, then the three TODOs in mission_node.py. Try first, then compare." 8 "Your turn. Follow the week ten read me, activities one to three, then the three to do's in the mission node. Try first, then compare with the solution."
 rec_stop

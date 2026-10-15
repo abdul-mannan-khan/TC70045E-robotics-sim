@@ -116,6 +116,10 @@ nano_replace() {   # nano_replace TITLE FILE OLD NEW - edit a file visibly with 
     xdotool type --delay 60 -- "$4"; sleep 0.5; xdotool key Return; sleep 1; xdotool key a; sleep 1.5
     xdotool key ctrl+o; sleep 0.8; xdotool key Return; sleep 1; xdotool key ctrl+x; sleep 1
 }
+snap() {   # snap NAME - a full-screen PNG for the lecture slides in ~/screens/NAME.png (not in the video)
+    mkdir -p ~/screens
+    ffmpeg -loglevel error -y -f x11grab -video_size 1920x1080 -i "$DISPLAY" -frames:v 1 ~/screens/"$1".png
+}
 wait_for() {   # wait_for TEXT FILE SECONDS - wait until TEXT appears in FILE (e.g. a script's tee log)
     local i; for i in $(seq 1 "$3"); do grep -q "$1" "$2" 2>/dev/null && return 0; sleep 1; done; return 1; }
 
@@ -124,6 +128,6 @@ wait_for() {   # wait_for TEXT FILE SECONDS - wait until TEXT appears in FILE (e
 #   PREPARE=1 bash weekNN_demo.sh && bash weekNN_demo.sh /tmp/out.mp4
 if [ "${PREPARE:-0}" = 1 ]; then
     caption_bar() { :; }; term() { :; }; rec_start() { :; }; rec_stop() { :; }; run() { :; }; keys() { :; }
-    ctrlc() { :; }; place() { :; }; focus() { :; }; nano_replace() { :; }; wait_for() { :; }
+    ctrlc() { :; }; place() { :; }; snap() { :; }; focus() { :; }; nano_replace() { :; }; wait_for() { :; }
     cap() { say "${3:-$1}"; }; sleep() { :; }; wmctrl() { :; }; xdotool() { :; }
 fi
