@@ -23,6 +23,7 @@ place_views
 say "Gazebo, top left. RViz, below: the map is almost empty. Grey is unknown." 3
 cap "Step 2 (T2): the explorer - frontiers (free cells next to unknown ones), choose big AND near, send to Nav2" 2 "Step two. In terminal two, the explorer: the solution of this week's activity. It finds the frontiers, the free cells next to unknown ones, chooses one that is big and near, and sends it to Nav2 as a goal."
 run T2 "python3 ~/labs/solutions/week08/explorer.py --ros-args -p use_sim_time:=true 2>&1 | grep --line-buffered -v INFO | tee -i /tmp/w8demo_explorer.log" 5
+place_views   # Gazebo sometimes maximises itself once its first frame is drawn
 cap "Watch RViz: every goal pushes the edge of the known map further out" 25 "Watch RViz. Every goal pushes the edge of the known map further out. Nav2 plans through unknown space, because the map is still growing."
 cap "Terminal one prints the explored area every 30 s - the lab is about 80 square metres" 25 "Terminal one prints the explored area every thirty seconds. The whole lab is about eighty square metres."
 cap "A goal already tried is never chosen again - some frontiers can never be resolved" 25 "Every goal that was tried is remembered. Some frontiers can never be resolved, for example unknown space behind an obstacle, and without that memory the robot would be sent there again and again."
