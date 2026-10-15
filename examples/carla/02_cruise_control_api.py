@@ -16,6 +16,7 @@ import os
 
 os.environ.setdefault('SDL_AUDIODRIVER', 'dummy')   # no sound card in the container: keep pygame quiet
 import queue
+import time
 
 import carla
 import numpy as np
@@ -89,8 +90,11 @@ def main():
         font = pygame.font.SysFont('monospace', 24)
     integral, rows = 0.0, []
     try:
+        t_start = time.monotonic()
         for i in range(int(a.seconds / s.fixed_delta_seconds)):
             world.tick()
+            if a.show:   # a window to watch: run no faster than real time
+                time.sleep(max(0.0, t_start + (i + 1) * s.fixed_delta_seconds - time.monotonic()))
             v = car.get_velocity()
             kmh = 3.6 * math.hypot(v.x, v.y)
             err = a.target - kmh

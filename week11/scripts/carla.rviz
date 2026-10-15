@@ -1,0 +1,64 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 10
+      Plane Cell Count: 40
+      Reference Frame: ego_vehicle
+      Value: true
+    - Class: rviz_default_plugins/PointCloud2
+      Name: LiDAR (/carla/ego_vehicle/lidar)
+      Enabled: true
+      Size (m): 0.1
+      Style: Points
+      Color Transformer: Intensity
+      Topic:
+        Value: /carla/ego_vehicle/lidar
+        Depth: 5
+        Reliability Policy: Best Effort
+      Value: true
+    - Class: rviz_default_plugins/Image
+      Name: Front camera (/carla/ego_vehicle/rgb_front/image)
+      Enabled: true
+      Topic:
+        Value: /carla/ego_vehicle/rgb_front/image
+        Depth: 2
+        Reliability Policy: Best Effort
+      Value: true
+    - Class: rviz_default_plugins/Odometry
+      Name: Path (/carla/ego_vehicle/odometry)
+      Enabled: true
+      Keep: 200
+      Shape:
+        Value: Arrow
+      Topic:
+        Value: /carla/ego_vehicle/odometry
+        Depth: 5
+        Reliability Policy: Reliable
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: map
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 40
+      Pitch: 0.7
+      Yaw: 3.14
+      Name: Current View
+      Target Frame: ego_vehicle
+Window Geometry:
+  Height: 900
+  Width: 1500

@@ -15,6 +15,7 @@ import os
 
 os.environ.setdefault('SDL_AUDIODRIVER', 'dummy')   # no sound card in the container: keep pygame quiet
 import queue
+import time
 import random
 
 import carla
@@ -58,8 +59,11 @@ def main():
         pygame.display.set_caption('CARLA chase camera (close the window to stop)')
         font = pygame.font.SysFont('monospace', 22)
     try:
+        t_start = time.monotonic()
         for i in range(int(a.seconds / settings.fixed_delta_seconds)):
             world.tick()
+            if screen is not None:   # a window to watch: run no faster than real time
+                time.sleep(max(0.0, t_start + (i + 1) * settings.fixed_delta_seconds - time.monotonic()))
             img = frames.get(timeout=10)
             rgb = np.frombuffer(img.raw_data, np.uint8).reshape(img.height, img.width, 4)[:, :, 2::-1]
             v = car.get_velocity()
