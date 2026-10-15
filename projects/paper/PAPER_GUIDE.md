@@ -9,10 +9,10 @@ count). Label every simulated result as **simulated**.
 
 | Section | What goes in it | About |
 |---|---|---|
-| Title, name, student number | "P2 – frontier exploration: set-up and baseline" | – |
+| Title, name, student number | "P1 – security patrol robot: set-up and baseline" | – |
 | 1 Introduction | the question of your project in your own words; why it matters for a real robot, drone or car | 250 words |
 | 2 The system | the sensors and actuators and what each measures or does; the software pieces (container, simulator, ROS 2 nodes or Python scripts, autopilot) as a **block diagram you draw yourself** | 500 words |
-| 3 Theory | the one idea your project rests on (EKF, frontiers, camera footprint, waypoint control and watchdogs, PI control and time gap), with its equation, explained in plain words; at least **5 references** (papers, books, official documentation) | 500 words |
+| 3 Theory | the one idea your project rests on (Nav2 planning and costmaps, the depth-camera model and frames, camera footprint and overlap, waypoint control and watchdogs, PI control, time gap and TTC), with its equation, explained in plain words; at least **5 references** (papers, books, official documentation) | 500 words |
 | 4 Set-up | where you ran it (laptop or Vast.ai: GPU, price per hour, total cost), the container image and tag, the commit of the course repository (`cd ~/labs && git log -1` on a clone, or the date of `update-labs`), the exact commands | 250 words |
 | 5 Baseline results | your table of the baseline runs next to the course's numbers; screenshots of **your** running simulator (your desktop, your terminal); one figure made with `plot_results.py`; your first change and what it did | 600 words |
 | 6 Plan for Assessment 2 | the factors you will vary, the values, how many runs, what you expect and why | 250 words |
@@ -38,13 +38,13 @@ module leader.
 
 ## A good results table
 
-| Configuration | Runs | End error [m] mean (min–max) | Heading at end [°] | Notes |
+| Configuration | Runs | Checkpoints reached | Time per checkpoint [s] mean (min–max) | Notes |
 |---|---|---|---|---|
-| wheels only | 3 | 1.25 (1.12–1.34) | −12 (−10 to −15) | – |
-| EKF, gyro yaw rate | 3 | … | … | 1 run restarted: launch failed |
+| course patrol | 3 | … of … | … (… – …) | – |
+| my round, 1 obstacle | 3 | … | … | 1 run restarted: launch failed |
 
 Say how many runs, show the spread, keep failed runs in the count, and say in the caption that the results are
-simulated. The numbers above are an example layout only – use your own.
+simulated. Fill in your own numbers.
 
 ## Figures
 
@@ -62,7 +62,7 @@ AI tools are allowed and taught in this module (Week 1: ask → review → run �
 
 | Tool | Date | What you asked (short) | What you used | How you checked it |
 |---|---|---|---|---|
-| Claude Code | 2026-10-21 | explain `choose()` in explorer.py | the explanation of the score | ran the code with k = 0 and k = 1 and saw the difference |
+| Claude Code | 2026-10-21 | explain `visit()` in patrol.py | the explanation of the time limit | blocked a checkpoint and saw it reported FAILED after the limit |
 
 Every measured number must come from your own runs. Text an AI wrote must be rewritten in your own words and
 checked; references an AI suggests must be found and read by you – invented references are academic misconduct.

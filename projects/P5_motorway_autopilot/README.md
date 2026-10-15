@@ -1,9 +1,12 @@
-# P5 – Radar adaptive cruise control: time gap against safety
+# P5 – Self-driving car: a motorway autopilot with radar cruise control and emergency braking
 
-**Question:** a car with a forward radar follows another car that slows from 50 to 25 km/h and speeds up again. How
-does the time gap the driver chooses, the controller's tuning and the emergency-brake threshold change the smallest
-distance to the car ahead, the comfort of the ride and how well the set speed is held – and what does the radar get
-wrong?
+**The job:** a self-driving car on a motorway in CARLA keeps its lane, holds the speed the driver set, and follows
+the car ahead at a safe distance using its radar. When the car ahead slows down it slows too; if a crash is close it
+brakes hard. You tune the autopilot so that it is safe **and** comfortable, test it on a harsher scenario, and find
+out when the radar is fooled.
+
+**What you will be able to show at the end:** the chase-camera view of your car in CARLA following the car ahead
+through its slow-down without touching it, and plots of speed and distance for a safe and an unsafe setting.
 
 | | |
 |---|---|
@@ -26,7 +29,7 @@ a log file.
 2. Open its desktop, open a terminal, `update-labs`, split it into T1 and T2.
 3. T1: `carla-sim start --town Town04` – wait for `CARLA is up`.
 4. Once per machine: `mkdir -p ~/work/project && cp ~/labs/solutions/week11/acc.py ~/work/project/my_acc.py` and
-   `cp ~/labs/projects/P5_radar_acc/results_template.csv ~/work/project/results.csv`.
+   `cp ~/labs/projects/P5_motorway_autopilot/results_template.csv ~/work/project/results.csv`.
 5. **After every run** copy the log so the next run does not overwrite it: `cp ~/acc.csv ~/work/project/<config>_run<N>.csv`.
 6. **At the end:** download `~/work/project/`, then **Destroy** the machine.
 
@@ -83,8 +86,7 @@ brake` – `radar_gap_m` against `true_gap_m` shows when the radar was wrong.
 
 ## 6. Your paper (Assessment 2)
 
-* **Possible title:** *Time-gap selection and emergency-brake thresholds in radar-based adaptive cruise control: a
-  CARLA simulation study.*
+* **Possible title:** *A radar-based motorway autopilot in CARLA: time gap, emergency braking and radar false targets.*
 * **Contribution:** measured safety margins (smallest gap, smallest TTC) and comfort against the time gap and the
   brake threshold; radar false targets documented with the log.
 * **Figures:** CARLA chase-camera screenshot; speed, lead speed and gap against time for two settings; smallest gap

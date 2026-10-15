@@ -1,8 +1,13 @@
-# P4 – A ROS 2 drone mission: speed, accuracy and a safety watchdog
+# P4 – Drone: a parcel-delivery drone over a town, controlled from ROS 2
 
-**Question:** a quadcopter controlled from ROS 2 flies a square over a town and photographs the middle at every
-corner. How do the cruise speed, the "arrived" radius and the "hover still" threshold trade mission time against
-waypoint accuracy and photo sharpness – and how quickly must a watchdog react when a sensor stream dies?
+**The job:** a delivery drone takes off in a small town, flies to each delivery address on its route, stops, takes a
+**proof-of-delivery photo**, and returns home. If it loses its position data in flight it must not fly on blind: a
+safety watchdog lands it at once. You plan the delivery route, make the photos sharp, make the drone fast but
+accurate, and prove the safety watchdog works.
+
+**What you will be able to show at the end:** the drone flying your delivery route over the town in AirSim, its camera
+and path in RViz, one sharp photo per address, and – when you switch a sensor off in mid-air – the drone landing by
+itself.
 
 | | |
 |---|---|
@@ -27,7 +32,7 @@ and RViz for a flying robot · body frame and map frame · why every wait for se
 4. T2: `python3 ~/labs/week10/scripts/03_airsim_ros2_bridge.py` · T3: `python3 ~/labs/week10/scripts/04_px4_ros2_bridge.py`
    (wait until it reports the connection) · optional: `rviz2 -d ~/labs/week10/scripts/airsim.rviz`
 5. Once per machine: `mkdir -p ~/work/project && cp ~/labs/solutions/week10/mission_node.py ~/work/project/my_mission_node.py`
-   and `cp ~/labs/projects/P4_ros2_drone_mission/results_template.csv ~/work/project/results.csv`.
+   and `cp ~/labs/projects/P4_delivery_drone/results_template.csv ~/work/project/results.csv`.
 6. **At the end:** download `~/work/project/` and `~/mission/`, then **Destroy** the machine.
 
 ## 2. The baseline you reproduce (Assessment 1)
@@ -50,7 +55,7 @@ Open `~/work/project/my_mission_node.py` in VSCodium and Ctrl+F for the text in 
 | cruise speed | `SPEED, TOL, STILL = 2.0, 0.5, 0.2` | first number: `1.0`, `2.0`, `3.0`, `4.0` m/s | faster = shorter mission – overshoot? |
 | arrival radius | same line | second number: `0.25`, `0.5`, `1.0` m | accuracy against time |
 | "still" before a photo | same line | third number: `0.1`, `0.2`, `0.5` m/s | sharper photo against waiting time |
-| a bigger or different route | `WAYPOINTS = [` | e.g. a 20 m square: `[(20.0, 0.0), (20.0, 20.0), (0.0, 20.0), (0.0, 0.0)]` (x east, y north, metres) | stay over the streets at 15 m |
+| **your delivery route** | `WAYPOINTS = [` | your addresses as (x east, y north) in metres from take-off, last one `(0.0, 0.0)` = home; e.g. `[(20.0, 0.0), (20.0, 20.0), (0.0, 20.0), (0.0, 0.0)]` | stay within about 30 m and over the streets at 15 m |
 | watchdog delay (Assessment 2) | `return time.monotonic() - self.t_odom < 1.0` | `1.0` → `0.3`, `0.5`, `2.0`, `5.0` s; then Ctrl+C in T2 during the flight | distance flown blind, and where it lands. (The printed message still says "1 s" – it is fixed text; change it too if you like) |
 | **advanced:** fly on the autopilot's estimate instead of the simulator's truth | `'/drone/odom', self.on_odom` | `'/drone/odom'` → `'/drone/px4/odom'` | a real drone has no "truth": how much worse? **Not tested by the course – agree it with the module leader first** |
 
@@ -82,8 +87,8 @@ python3 ~/labs/projects/tools/plot_results.py ~/work/project/results.csv --metri
 
 ## 6. Your paper (Assessment 2)
 
-* **Possible title:** *Speed, accuracy and data-freshness watchdogs for ROS 2 waypoint missions on a PX4 multirotor:
-  a software-in-the-loop study.*
+* **Possible title:** *A ROS 2 parcel-delivery drone: speed, delivery accuracy, proof-of-delivery photos and a safety
+  watchdog in a PX4–AirSim simulation.*
 * **Contribution:** measured trade-off curves (time against miss distance and photo sharpness) and a justified choice
   of watchdog delay, with the risk of each setting explained.
 * **Figures:** AirSim + RViz screenshot; miss distance against speed; sharpness against the "still" threshold; a

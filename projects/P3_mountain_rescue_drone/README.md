@@ -1,9 +1,14 @@
-# P3 – Plan a drone photo survey: height, overlap and accuracy
+# P3 – Drone: a mountain-rescue search drone
 
-**Question:** a quadcopter photographs a 100 × 100 m patch of a mountain valley in a lawn-mower pattern. How do the
-flight height, the overlap between photo strips and the "arrived" tolerance change the number of photos, the flight
-time, the distance flown and the ground detail in each photo – and does a simple flight-time model predict the real
-flight?
+**The job:** a walker is missing in a mountain valley. A rescue team launches a quadcopter that searches a
+100 × 100 m area by itself in a lawn-mower pattern and photographs every part of it, so the team can look for the
+walker in the pictures. Before it takes off it checks its GPS, its radio link and whether the battery is enough – and
+refuses to fly if not. You plan the search, make it cover the area properly, and measure the trade-off between
+detail, coverage and flight time.
+
+**What you will be able to show at the end:** the drone taking off over the valley in AirSim, flying the search
+pattern you planned, landing at its start, and the set of photos that covers the area – plus the pre-flight check
+saying GO, or NO-GO for a search too big for the battery.
 
 | | |
 |---|---|
@@ -26,7 +31,7 @@ measuring a mission.
 2. Open its desktop in your browser, open a terminal, run `update-labs`, split it into T1, T2, T3.
 3. T1: `drone-sim start --world mountains` – wait for `PX4 SITL is ready for take-off` (about a minute).
 4. Once per machine: `mkdir -p ~/work/project && cp ~/labs/solutions/week09/mission.py ~/work/project/my_mission.py`
-   and `cp ~/labs/projects/P3_drone_survey/results_template.csv ~/work/project/results.csv`.
+   and `cp ~/labs/projects/P3_mountain_rescue_drone/results_template.csv ~/work/project/results.csv`.
 5. **At the end:** download `~/work/project/` and `~/survey/` (Firefox → OneDrive, or `git push`), then **Destroy**.
 
 ## 2. The baseline you reproduce (Assessment 1)
@@ -80,8 +85,8 @@ python3 ~/labs/projects/tools/plot_results.py ~/work/project/results.csv --metri
 
 ## 6. Your paper (Assessment 2)
 
-* **Possible title:** *Flight height and image overlap in small-UAV photographic surveys: a software-in-the-loop study
-  with PX4 and AirSim.*
+* **Possible title:** *Planning a search-and-rescue photo survey with a small multirotor: flight height, image overlap
+  and battery reserve in a PX4–AirSim simulation.*
 * **Contribution:** measured curves of time, distance and ground detail against height and overlap; how well a simple
   flight-time model predicts the real flight; a recommendation for this field.
 * **Figures:** AirSim screenshot over the valley; one photo per height side by side; flight time against overlap for

@@ -2,8 +2,9 @@
 
 Your two assessments (50 % each) are built on **one project**, chosen from the five below. Each project starts from
 a lab of this course that already works and has been measured. **You do not have to write a program from nothing.**
-You start the simulator, reproduce the course result, change something on purpose (a number, a setting, a few lines
-of Python), measure what happens over several runs, and explain why. That is exactly what a short research paper does.
+You give a robot a job – patrol a building, take stock, search a valley, deliver parcels, drive on a motorway –
+get it working in the simulator, change it on purpose (a route, a number, a few lines of Python), measure how well it
+does over several runs, and explain why. That is exactly what a short research paper does.
 
 | Assessment | Weight | Due | What you hand in |
 |---|---|---|---|
@@ -15,17 +16,19 @@ practical part: what to run, where to edit and how.
 
 ## The five projects (one student per project)
 
-| # | Project | Sensors → actuators | Simulator | Container (Docker image) | Needs a GPU? | Starts from |
+Each project is a **job for a robot** – two for the mobile robot, two for the drone, one for the self-driving car.
+
+| # | Project – the robot's job | Robot | Simulator | Container (Docker image) | Needs a GPU? | Starts from |
 |---|---|---|---|---|---|---|
-| **P1** | [How much does a gyroscope help? IMU + wheel-odometry fusion with an EKF](P1_imu_ekf_fusion/README.md) | wheel encoders, MEMS IMU → wheel motors | Gazebo + RViz | `abdulmannan617/tc70045e-ros2:humble` | no – your laptop is fine | Week 5 |
-| **P2** | [Explore faster: frontier selection for autonomous mapping](P2_frontier_exploration/README.md) | 2-D LiDAR → wheel motors (Nav2) | Gazebo + RViz | `abdulmannan617/tc70045e-ros2:humble` | no – your laptop is fine | Week 8 |
-| **P3** | [Plan a drone photo survey: height, overlap and accuracy](P3_drone_survey/README.md) | GPS, IMU, down camera → 4 motors (PX4) | AirSim + PX4 (mountain valley) | `abdulmannan617/tc70045e-drone:latest` | **yes** – rent one on Vast.ai | Week 9 |
-| **P4** | [A ROS 2 drone mission: speed, accuracy and a safety watchdog](P4_ros2_drone_mission/README.md) | odometry, camera → 4 motors (PX4) via ROS 2 | AirSim + PX4 + ROS 2 (town) | `abdulmannan617/tc70045e-drone:latest` | **yes** – rent one on Vast.ai | Week 10 |
-| **P5** | [Radar adaptive cruise control: time gap against safety](P5_radar_acc/README.md) | radar, speedometer → throttle and brake | CARLA (Town04) | `abdulmannan617/tc70045e-carla:latest` | **yes** – rent one on Vast.ai | Week 11 |
+| **P1** | [Night-security patrol robot](P1_security_patrol_robot/README.md): patrols a building by itself, reports blocked checkpoints, drives round obstacles | mobile robot (LiDAR) | Gazebo + RViz, Nav2 | `abdulmannan617/tc70045e-ros2:humble` | no – your laptop is fine | Week 3 |
+| **P2** | [Warehouse stock-taking robot](P2_stocktaking_robot/README.md): finds parcels with its depth camera and puts them on the map | mobile robot (Intel RealSense D455) | Gazebo + RViz | `abdulmannan617/tc70045e-ros2:humble` | no – your laptop is fine | Week 6 |
+| **P3** | [Mountain-rescue search drone](P3_mountain_rescue_drone/README.md): photographs a search area in a valley, with a pre-flight GO / NO-GO check | quadcopter (GPS, camera) | AirSim + PX4, mountains | `abdulmannan617/tc70045e-drone:latest` | **yes** – rent one on Vast.ai | Week 9 (+ 12) |
+| **P4** | [Parcel-delivery drone](P4_delivery_drone/README.md): flies a delivery route over a town from ROS 2, proof-of-delivery photos, lands safely if a sensor fails | quadcopter (camera, odometry) | AirSim + PX4 + ROS 2, town | `abdulmannan617/tc70045e-drone:latest` | **yes** – rent one on Vast.ai | Week 10 |
+| **P5** | [Motorway autopilot](P5_motorway_autopilot/README.md): keeps the lane and the speed, follows the car ahead with radar, brakes in an emergency | self-driving car (radar) | CARLA, Town04 | `abdulmannan617/tc70045e-carla:latest` | **yes** – rent one on Vast.ai | Week 11 |
 
 **Choosing:** tell the module leader your first and second choice by the end of the **Week 2** session; projects are
-given first come, first served, one student each. P3, P4 and P5 start before their lecture (Weeks 9–11): you work
-from the project README, the week's lab README and its **demo video**, which are all ready now.
+given first come, first served, one student each. P2–P5 start before their lecture (Weeks 6–11): you work from the
+project README, the week's lab README and its **demo video**, which are all ready now.
 
 ## The code: one GitHub repository
 
@@ -63,7 +66,7 @@ charges for the disk. A machine still "Loading" after 30 minutes will not start:
 You will only change small, marked places. The safest way:
 
 1. Open the file in **VSCodium** (desktop icon) – *File → Open File…* – or in a terminal: `nano ~/work/project/<file>`.
-2. Press **Ctrl+F** and search for the text your project README gives (for example `distance_weight` or `SPEED, TOL`).
+2. Press **Ctrl+F** and search for the text your project README gives (for example `WAYPOINTS = [` or `MAX_RANGE`).
 3. Change only the number or the line the README tells you. Keep the spaces at the start of the line exactly as they
    are – in Python they matter.
 4. Save (**Ctrl+S**), run again, and write the result into your results file **with the change in the `config` column**.
@@ -74,9 +77,9 @@ You will only change small, marked places. The safest way:
 
 Use it the way Week 1 taught: **ask → review → run → verify → declare**. Good questions for your project:
 
-* "Explain `~/labs/week08/scripts/explorer.py` to someone who has never programmed, function by function."
+* "Explain `~/labs/solutions/week03/patrol.py` to someone who has never programmed, function by function."
 * "Which line in my copy decides how far the drone must be from a waypoint to count it as reached?"
-* "I want the explorer to prefer frontiers in front of the robot. Show me the smallest change, and explain it."
+* "I want my patrol to visit the checkpoints in a random order every lap. Show me the smallest change, and explain it."
 * "Here are my 12 RESULT lines. Put them in the CSV format of `results_template.csv`." (then check every number)
 
 Claude may explain and draft. **You** run every experiment, **every number in your report comes from your own
@@ -90,7 +93,7 @@ in any course container, or on your laptop with Python:
 
 ```bash
 # one bar per configuration: the average of all runs, with a line from the smallest to the largest run
-python3 ~/labs/projects/tools/plot_results.py ~/work/project/results.csv --metric end_error_m --out ~/work/project/fig1.png
+python3 ~/labs/projects/tools/plot_results.py ~/work/project/results.csv --metric mean_s_per_checkpoint --out ~/work/project/fig1.png
 
 # a time series, e.g. the ACC log ~/acc.csv: speed and gap against time
 python3 ~/labs/projects/tools/plot_timeseries.py ~/acc.csv --columns speed_kmh,lead_kmh,true_gap_m --out ~/work/project/fig2.png
