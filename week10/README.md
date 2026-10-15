@@ -23,6 +23,12 @@ below, with the AirSim window and RViz side by side.
 Exactly as in Week 9 ([week09/README.md](../week09/README.md#step-0--start-the-drone-container-once-per-session)):
 `docker start tc70045e-drone` (or a rented GPU, [docs/RUN_ON_VAST.md](../docs/RUN_ON_VAST.md)), open the desktop,
 `update-labs`, split the terminal into three (T1, T2, T3) – this week you need a fourth (T4) too.
+
+> **Drone and CARLA images:** they have no `update-labs` yet. The first time on a new machine, paste this line instead – it installs `update-labs` from GitHub and runs it:
+> ```bash
+> command -v update-labs >/dev/null || curl -fsSL https://raw.githubusercontent.com/abdul-mannan-khan/TC70045E-robotics-sim/main/docker/update-labs | sudo tee /usr/local/bin/update-labs >/dev/null && sudo chmod 755 /usr/local/bin/update-labs; update-labs
+> ```
+
 Check: `ls ~/labs/week10/scripts` lists `03_airsim_ros2_bridge.py  04_px4_ros2_bridge.py  05_fly_square_ros2.py  airsim.rviz  mission_node.py`.
 
 ## The bricks this week

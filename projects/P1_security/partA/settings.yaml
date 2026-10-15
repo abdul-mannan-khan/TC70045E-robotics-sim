@@ -1,0 +1,22 @@
+# P1 Security - Part A: the patrol robot.   The ONLY file you change.
+# After each change: save (Ctrl+S), then run again:   python3 ~/labs/projects/P1_security/partA/run.py
+# Rules: keep the spaces at the start of the lines and the space after each colon.
+
+label: as given              # a short name for this run - it becomes a row of your results table
+
+locked_door: no              # no  = the normal round of the checkpoints below.
+                             # yes = a store room behind a LOCKED door is added to the round (beyond the east
+                             #       wall): the robot cannot get in, reports it FAILED and carries on - an alarm
+
+time_limit: 90               # seconds the robot tries to reach a checkpoint before it gives up (try 30, 60, 90)
+
+safety_margin: 0.35          # metres the planned path keeps from walls and furniture (try 0.15, 0.35, 0.8)
+
+laps: 1                      # how many rounds of the building
+
+checkpoints:                 # name, x, y (metres on the map), heading (degrees). Keep 0.5 m away from walls.
+  - [doorway, 4.0, -1.0, 0]
+  - [room 2 upper, 5.0, 3.0, 90]
+  - [room 2 lower, 4.8, -2.8, -90]
+  - [room 1 upper, 2.5, 3.0, 180]
+  - [start, 0.0, 0.0, 180]

@@ -33,6 +33,12 @@ The drone simulator needs an **NVIDIA GPU** (6 GB or more). It is a different co
   *Loading* after 30 minutes? Destroy it and rent a different machine. **Destroy** it when you finish.
 
 In the desktop open a terminal, run `update-labs`, and split it into three (T1, T2, T3).
+
+> **Drone and CARLA images:** they have no `update-labs` yet. The first time on a new machine, paste this line instead – it installs `update-labs` from GitHub and runs it:
+> ```bash
+> command -v update-labs >/dev/null || curl -fsSL https://raw.githubusercontent.com/abdul-mannan-khan/TC70045E-robotics-sim/main/docker/update-labs | sudo tee /usr/local/bin/update-labs >/dev/null && sudo chmod 755 /usr/local/bin/update-labs; update-labs
+> ```
+
 Check: `ls ~/labs/week09/scripts` lists `01_hello_airsim.py  02_fly_square_mavsdk.py  mission.py`.
 
 **Start the simulator (T1):**

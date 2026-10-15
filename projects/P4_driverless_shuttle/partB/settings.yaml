@@ -1,0 +1,11 @@
+# P4 Driverless shuttle - Part B: the road shuttle (CARLA).   The ONLY file you change.
+# After each change: save (Ctrl+S), then run again:   python3 ~/labs/projects/P4_driverless_shuttle/partB/run.py
+# Rules: keep the spaces at the start of the lines and the space after each colon.
+
+label: course tuning         # a short name for this run - it becomes a row of your results table
+
+kp: 0.15                     # the speed controller's P gain: throttle per km/h of speed error (try 0.05, 0.15, 0.30)
+
+ki: 0.02                     # the I gain: removes the steady speed error (try 0, 0.02, 0.05)
+
+use_course_example: false    # true = use the course's example timetable instead of yours (only if Part A failed)

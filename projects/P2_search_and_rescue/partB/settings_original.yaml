@@ -1,0 +1,14 @@
+# P2 Search and rescue - Part B: the search drone.   The ONLY file you change.
+# After each change: save (Ctrl+S), then run again:   python3 ~/labs/projects/P2_search_and_rescue/partB/run.py
+# Rules: keep the spaces at the start of the lines and the space after each colon.
+
+label: search 40 m           # a short name for this run - it becomes a row of your results table
+
+scale: 10                    # the search area is your building's size times this (10: a 10 x 8 m building -> 100 x 80 m)
+                             # try 10, and once 100: the pre-flight check should then say NO-GO (battery)
+
+height: 40                   # flight height in metres - 40 or more in this valley (ridges!). Try 40, 50, 60
+
+overlap: 0.2                 # how much neighbouring photo strips overlap (0.2 = 20 %). Try 0.2, 0.4, 0.6
+
+use_course_example: false    # true = use the course's example building size instead of yours (only if Part A failed)

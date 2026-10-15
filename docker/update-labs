@@ -36,7 +36,8 @@ def files_under(root):
 def main():
     if not os.path.isdir(BASE):                                    # first run: the image's version is the base
         os.makedirs(os.path.dirname(BASE), exist_ok=True)
-        shutil.copytree(RELEASE, BASE, symlinks=True)
+        # the drone and CARLA images carry no release copy: then the course files already in ~/labs are the base
+        shutil.copytree(RELEASE if os.path.isdir(RELEASE) else LABS, BASE, symlinks=True)
     os.makedirs(LABS, exist_ok=True)
     print('Downloading the latest course files from GitHub ...')
     with tempfile.TemporaryDirectory() as tmp:

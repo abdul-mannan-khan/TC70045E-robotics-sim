@@ -1,0 +1,12 @@
+# P2 Search and rescue - Part A: the mapping robot.   The ONLY file you change.
+# After each change: save (Ctrl+S), then run again:   python3 ~/labs/projects/P2_search_and_rescue/partA/run.py
+# Rules: keep the spaces at the start of the lines and the space after each colon.
+
+label: LiDAR only            # a short name for this run - it becomes a row of your results table
+
+sensors: lidar               # lidar            = the 2-D laser scanner only (slam_toolbox)
+                             # lidar_and_camera = laser + the D455 depth camera (RTAB-Map)
+
+# The two lines below are used only with  sensors: lidar_and_camera
+camera_draws_map: 1          # 1 = the camera draws the obstacles on the map, 2 = laser and camera both draw
+floor_height: 0.04           # metres: camera points lower than this count as floor (try 0.02, 0.04, 0.06)

@@ -1,0 +1,16 @@
+# P4 Driverless shuttle - Part A: the robot shuttle.   The ONLY file you change.
+# After each change: save (Ctrl+S), then run again:   python3 ~/labs/projects/P4_driverless_shuttle/partA/run.py
+# Rules: keep the spaces at the start of the lines and the space after each colon.
+
+label: wheels only           # a short name for this run - it becomes a row of your results table
+
+position_from: wheels        # how the shuttle works out where it is:
+                             #   wheels       = counting wheel turns only (odometry)
+                             #   ekf_as_given = the EKF with the course's starting settings
+                             #   ekf          = the EKF fusing wheels + gyroscope (the course solution)
+
+gyro_calibration: yes        # yes = measure the gyroscope's offset before driving, no = trust it as it is
+
+turn_speed: 0.3              # how fast the shuttle turns at corners, rad/s (try 0.3, 0.6)
+
+stop_seconds: 10             # how long the road shuttle in Part B will wait at its stop (goes into the timetable)

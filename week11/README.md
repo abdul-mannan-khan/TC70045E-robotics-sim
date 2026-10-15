@@ -31,6 +31,12 @@ CARLA needs an **NVIDIA GPU with 8 GB or more**. It is a third container:
   80 GB disk; 12 GB of GPU memory is comfortable). **Destroy** it when you finish.
 
 In the desktop open a terminal, run `update-labs`, and split it into three (T1, T2, T3).
+
+> **Drone and CARLA images:** they have no `update-labs` yet. The first time on a new machine, paste this line instead – it installs `update-labs` from GitHub and runs it:
+> ```bash
+> command -v update-labs >/dev/null || curl -fsSL https://raw.githubusercontent.com/abdul-mannan-khan/TC70045E-robotics-sim/main/docker/update-labs | sudo tee /usr/local/bin/update-labs >/dev/null && sudo chmod 755 /usr/local/bin/update-labs; update-labs
+> ```
+
 Check: `ls ~/labs/week11/scripts` lists `01_hello_carla.py  02_cruise_control_api.py  03_cruise_control_ros2.py  acc.py  carla.rviz`.
 
 **Start the simulator (T1):** `carla-sim start --town Town04`, then `carla-sim status`. The CARLA server has no

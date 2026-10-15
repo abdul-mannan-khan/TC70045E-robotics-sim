@@ -35,8 +35,15 @@ A suitable machine costs about **$0.10-0.20 per hour**; a three-hour lab costs w
 
 ## 3. In the desktop
 
-Open a terminal (*Applications → System Tools → Terminator*, or the icon on the desktop) and follow the week's
-README, for example:
+Open a terminal (*Applications → System Tools → Terminator*, or the icon on the desktop). The first time on a new
+machine, get the newest course code – this line also installs `update-labs`, which the drone and CARLA images do
+not have yet:
+
+```bash
+command -v update-labs >/dev/null || curl -fsSL https://raw.githubusercontent.com/abdul-mannan-khan/TC70045E-robotics-sim/main/docker/update-labs | sudo tee /usr/local/bin/update-labs >/dev/null && sudo chmod 755 /usr/local/bin/update-labs; update-labs
+```
+
+Then follow the week's README, for example:
 
 ```bash
 drone-sim start --world neighborhood           # drone image (Week 9 survey and Week 12: --world mountains)

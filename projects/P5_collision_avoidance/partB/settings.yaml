@@ -1,0 +1,15 @@
+# P5 Collision avoidance - Part B: the car that cannot crash (CARLA).   The ONLY file you change.
+# After each change: save (Ctrl+S), then run again:   python3 ~/labs/projects/P5_collision_avoidance/partB/run.py
+# Rules: keep the spaces at the start of the lines and the space after each colon.
+
+label: course rule           # a short name for this run - it becomes a row of your results table
+
+use_my_rule: no              # no  = the course's emergency brake (time-to-collision below 1.5 s, or closer than 5 m)
+                             # yes = add YOUR robot's reaction time (Part A): brake when closer than
+                             #       5 m + speed x your reaction time
+
+time_gap: 2.0                # seconds the car keeps behind the car ahead (the Highway Code's rule is 2). Try 1.0, 2.0, 3.0
+
+car_ahead_slows_to: 25       # km/h the car ahead slows to at 25 s (try 25, and 10 for a much harder test)
+
+use_course_example: false    # true = use the course's example safety rule instead of yours (only if Part A failed)

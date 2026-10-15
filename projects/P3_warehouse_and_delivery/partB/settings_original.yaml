@@ -1,0 +1,14 @@
+# P3 Warehouse and delivery - Part B: the delivery drone.   The ONLY file you change.
+# After each change: save (Ctrl+S), then run again:   python3 ~/labs/projects/P3_warehouse_and_delivery/partB/run.py
+# Rules: keep the spaces at the start of the lines and the space after each colon.
+
+label: delivery              # a short name for this run - it becomes a row of your results table
+
+gps_fault: no                # no  = a healthy drone.
+                             # yes = the GPS is switched off before take-off: the pre-flight check must say NO-GO
+
+speed: 2.0                   # cruise speed of the drone in m/s (try 1.0, 2.0, 3.0)
+
+scale: 3.0                   # the store room's map is this many times bigger outside (3 = 10 m becomes 30 m)
+
+use_course_example: false    # true = use the course's example stock list instead of yours (only if Part A failed)

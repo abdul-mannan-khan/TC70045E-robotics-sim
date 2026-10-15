@@ -1,0 +1,12 @@
+# P3 Warehouse and delivery - Part A: the stock-taking robot.   The ONLY file you change.
+# After each change: save (Ctrl+S), then run again:   python3 ~/labs/projects/P3_warehouse_and_delivery/partA/run.py
+# Rules: keep the spaces at the start of the lines and the space after each colon.
+
+label: as given              # a short name for this run - it becomes a row of your results table
+
+camera_range: 3.5            # metres: parcels farther away than this are ignored (try 2.0, 3.5, 5.0)
+                             # (the depth camera's error grows with the square of the distance)
+
+smallest_blob: 80            # pixels: smaller coloured spots are ignored as noise (try 20, 80, 300)
+
+turn_speed: 0.3              # how fast the robot turns on its tour, rad/s (try 0.3, 0.6, 1.0)
