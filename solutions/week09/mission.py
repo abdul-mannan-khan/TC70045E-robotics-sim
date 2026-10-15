@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """mission.py - a survey ("lawn-mower") flight with photographs, without ROS 2 (Week 9, SOLUTION).
 
-Start the simulator first:   drone-sim start --world blocks        (or neighborhood, mountains - fly higher there)
-                             The survey has NO obstacle avoidance: fly above the tallest obstacle (blocks: 40 m).
+Start the simulator first:   drone-sim start --world mountains     (the survey flies over the mountain valley)
+                             The survey has NO obstacle avoidance: fly above the tallest obstacle (mountains: 40 m).
 Then run:                    python3 ~/labs/week09/scripts/mission.py --alt 40 --length 100 --width 100
 
 What it does

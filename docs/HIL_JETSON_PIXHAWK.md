@@ -55,7 +55,7 @@ docker pull abdulmannan617/tc70045e-companion:latest       # arm64 image, ROS 2 
 **A. GPU computer** (lab PC or Vast.ai, see [RUN_ON_VAST.md](RUN_ON_VAST.md)), in the drone desktop terminal:
 
 ```bash
-drone-sim start --world blocks --mode hil            # AirSim in HIL mode; waits for the Jetson on TCP 4570
+drone-sim start --world mountains --mode hil         # AirSim in HIL mode; waits for the Jetson on TCP 4570
 ```
 
 If the Pixhawk is plugged **directly into the lab PC** instead (no Jetson relay), start the container with

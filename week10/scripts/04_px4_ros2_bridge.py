@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """AirSim WITH ROS 2 - the control bridge: drive the PX4 autopilot with ordinary ROS 2 messages.
 
-Start the simulator first:   drone-sim start --world blocks
+Start the simulator first:   drone-sim start --world neighborhood
 Then run:                    python3 ~/labs/examples/airsim/04_px4_ros2_bridge.py
 Try it:                      ros2 service call /drone/takeoff std_srvs/srv/Trigger
                              ros2 topic pub -r 10 /drone/cmd_vel geometry_msgs/msg/Twist "{linear: {x: 1.0}}"
                              ros2 service call /drone/land std_srvs/srv/Trigger
 
 Interface (ROS conventions, body frame FLU: x forward, y left, z up, yaw rate positive = turn left):
-  /drone/takeoff  std_srvs/Trigger   arm, climb to 'altitude' (parameter, default 5 m), hold position (offboard)
+  /drone/takeoff  std_srvs/Trigger   arm, climb to 'altitude' (parameter, default 15 m: above the houses and trees), hold position (offboard)
   /drone/land     std_srvs/Trigger   leave offboard and land
   /drone/cmd_vel  geometry_msgs/Twist velocity command; if nothing arrives for 0.5 s the drone holds still
   /drone/px4/odom nav_msgs/Odometry  the AUTOPILOT's own estimate (EKF2), map frame ENU - compare with /drone/odom
@@ -38,7 +38,7 @@ class Px4Bridge(Node):
     def __init__(self):
         super().__init__('px4_bridge')
         self.declare_parameter('url', 'udpin://0.0.0.0:14550')
-        self.declare_parameter('altitude', 5.0)
+        self.declare_parameter('altitude', 15.0)
         self.loop = asyncio.new_event_loop()
         threading.Thread(target=self.loop.run_forever, daemon=True).start()
         self.drone = System()

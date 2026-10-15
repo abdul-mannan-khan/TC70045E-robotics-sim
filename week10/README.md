@@ -29,7 +29,7 @@ Check: `ls ~/labs/week10/scripts` lists `03_airsim_ros2_bridge.py  04_px4_ros2_b
 
 | Brick | What it does |
 |---|---|
-| `drone-sim start --world blocks` | AirSim + PX4, as in Week 9 |
+| `drone-sim start --world neighborhood` | AirSim + PX4 in the town world, as in Week 9 A1 and A2 |
 | [`scripts/03_airsim_ros2_bridge.py`](scripts/03_airsim_ros2_bridge.py) | AirSim → ROS 2: `/drone/front/image_raw`, `/drone/odom` (the simulator's truth), `/drone/imu`, `/drone/gps/fix`, TF `map → base_link`. Converts NED → ENU |
 | [`scripts/04_px4_ros2_bridge.py`](scripts/04_px4_ros2_bridge.py) | ROS 2 → PX4: services `/drone/takeoff`, `/drone/land`, topic `/drone/cmd_vel` (body frame: x forward, y left); publishes `/drone/px4/odom` (the autopilot's own estimate) |
 | [`scripts/05_fly_square_ros2.py`](scripts/05_fly_square_ros2.py) | a square flown with ROS 2 only |
@@ -44,7 +44,7 @@ Check: `ls ~/labs/week10/scripts` lists `03_airsim_ros2_bridge.py  04_px4_ros2_b
 
 | | |
 |---|---|
-| T1 | `drone-sim start --world blocks` (wait until `drone-sim status` reports AirSim and PX4 running) |
+| T1 | `drone-sim start --world neighborhood` (wait until `drone-sim status` reports AirSim and PX4 running) |
 | T2 | `python3 ~/labs/week10/scripts/03_airsim_ros2_bridge.py` – AirSim → ROS 2 |
 | T3 | `python3 ~/labs/week10/scripts/04_px4_ros2_bridge.py` – ROS 2 → PX4 (wait until it reports the connection) |
 | T4 | `rviz2 -d ~/labs/week10/scripts/airsim.rviz`, then in a fifth tab `ros2 topic list` and `ros2 topic hz /drone/front/image_raw` |
@@ -64,7 +64,8 @@ Check: `ls ~/labs/week10/scripts` lists `03_airsim_ros2_bridge.py  04_px4_ros2_b
 | T4 | `ros2 service call /drone/land std_srvs/srv/Trigger` |
 | T4 | `python3 ~/labs/week10/scripts/05_fly_square_ros2.py --side 5` |
 
-**You should see:** the drone climbs to 5 m, flies forward while the command is published and holds still within
+**You should see:** the drone climbs to 15 m – above the houses, the trees and the power lines (the PX4 bridge's
+`altitude` parameter) – flies forward while the command is published and holds still within
 0.5 s of Ctrl+C (the PX4 bridge stops it when commands stop). `05_fly_square_ros2.py` flies a 5 m square and prints
 `RESULT finished … m (horizontal) from the start of the square`. **Check:** `cmd_vel` x is "forward". Turn the drone
 (`angular: {z: 0.5}`) and publish x again – which way does it fly now?
@@ -115,21 +116,22 @@ lands on its own when its data stops.
 `self.vel > STILL`, set `self.img = None`, spin until a new image or 2 s; TODO 3
 `return time.monotonic() - self.t_odom < 1.0`.
 
-Measured 14 Oct 2026 (simulated, blocks world, one run each):
+Measured 15 Oct 2026 (simulated, *neighborhood* world, take-off to 15 m):
 
 | Mission node | waypoints | photos | worst miss | at the end |
 |---|---|---|---|---|
-| as given | 0 of 4 – waypoint 1 not reached in 60 s (22.3 m away) | 0 | – | landed 20.9 m from the start |
-| + TODO 1 | 4 of 4 in 32 s, 38.7 m flown | 4, at 0.11 – 0.16 m/s | 0.45 m | 0.23 m from the start |
-| **all three (solution)** | 4 of 4 in 33 s, 38.4 m flown | 4, at 0.10 – 0.16 m/s | 0.46 m | 0.34 m from the start |
-| AirSim bridge stopped at 25 s, no 2 s limit on the image wait | 1, then waits for an image | 1 | – | **hangs** until the test's 600 s limit |
-| AirSim bridge stopped at 25 s, solution | 1, then `WATCHDOG: no camera image for 2 s - landing now` | 1 | 0.47 m | lands at once (30 s, 14.3 m from the start) |
+| as given | 0 of 4 – waypoint 1 not reached in 60 s (11.7 m away) | 0 | – | landed 17.2 m from the start |
+| + TODO 1 | 4 of 4 in 33 s, 39.0 m flown | 4, at 0.16 – 0.17 m/s | 0.49 m | 0.13 m from the start |
+| **all three (solution)**, two runs | 4 of 4 in 34 s, 39.1 m flown | 4, at 0.16 – 0.18 m/s | 0.42 – 0.47 m | 0.10 – 0.19 m from the start |
+| AirSim bridge stopped in flight, TODOs 1 + 2 (no watchdog) | 3, then flies on stale odometry until the 60 s waypoint timeout | 3 | 0.31 m | lands after 86 s, 2.8 m from the start |
+| AirSim bridge stopped in flight, solution | 3, then `WATCHDOG: no odometry for 1 s - landing now` | 3 | 0.48 m | lands at once (30 s), 1.4 m from the start |
 
 What the numbers say:
 * **One rotation decides everything:** without TODO 1 the drone never reaches the first waypoint; with it every
   waypoint is reached within 0.5 m.
-* **Fresh data or land:** the bridge test found that our first solution, which watched only the odometry, waited for
-  ever for a camera image. Every wait for sensor data needs a time limit.
+* **Fresh data or land:** with the AirSim bridge stopped, the node without a watchdog kept steering on the last
+  position it had received – for a whole minute, until the waypoint timeout. The watchdog landed it after 1 s.
+  Every wait for sensor data needs a time limit: the photo wait (TODO 2) has one too, 2 s for a new image.
 
 ---
 

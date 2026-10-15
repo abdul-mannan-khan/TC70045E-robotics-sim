@@ -8,25 +8,33 @@ OUT=${1:-/tmp/week11_demo.mp4}
 S=~/labs/week11/scripts
 SOL=~/labs/solutions/week11/acc.py
 carla-sim stop >/dev/null 2>&1
-pkill -f carla_ros_bridge; pkill -f carla_manual_control; pkill -f carla_spawn_objects
+pkill -f carla_ros_bridge; pkill -f carla_manual_control; pkill -f carla_spawn_objects; pkill -f "demo/carla_vie[w]"
 rm -f /tmp/w11demo_*.log
 
 caption_bar
 term T1 960 90 960 240
 term T2 960 340 960 240
 term T3 960 590 960 490
+# CARLA starts before the recording (the first start takes up to a minute of blank screen); the command stays visible
+# in T1. carla_view.py keeps a view of the world on the left for the whole video - the script windows open on top.
+run T1 "carla-sim start --town Town04 | tee /tmp/w11demo_cs.log" 3
+wait_for "CARLA is up" /tmp/w11demo_cs.log 300
+[ "${PREPARE:-0}" = 1 ] || python3 "$(dirname "$0")/carla_view.py" --width 955 --height 930 > /tmp/w11demo_view.log 2>&1 &
+sleep 8
+place "CARLA view" 0 90 955 930
 rec_start "$OUT"
 
 cap "Week 11 demo - the self-driving car: CARLA, a radar and adaptive cruise control" 5 "Week eleven demo. The third robot in the module: a car. CARLA simulates the town, the traffic, the car's physics and its sensors."
-cap "Step 0 (T1): start the CARLA server in Town04 - it has no window; we look through our scripts' cameras" 2 "Step zero. In terminal one we start the CARLA server, in town four. The server has no window of its own: we look through the camera windows our scripts open."
-run T1 "carla-sim start --town Town04 | tee /tmp/w11demo_cs.log" 3
-say "The first start takes up to a minute." 10
-wait_for "CARLA is up" /tmp/w11demo_cs.log 300
+cap "Step 0 (T1): the CARLA server runs Town04 - it has no window; the view on the left follows our car" 12 "Step zero. In terminal one we started the CARLA server, in town four. The server has no window of its own. The view on the left looks at the motorway, and follows our car once one is spawned. Our scripts also open their own camera windows."
 cap "A1 (T2): a car on CARLA's autopilot, seen through a chase camera" 2 "Activity one. A car on CARLA's own autopilot, seen through a chase camera."
 run T2 "python3 -u $S/01_hello_carla.py --seconds 25 | tee /tmp/w11demo_a1.log" 8
 place "CARLA chase camera" 0 90 955 540
 say "The simulation runs in synchronous mode: our script advances the world in steps of fifty milliseconds, so every run is the same." 15
 snap w11_carla_chase_camera_autopilot
+place "CARLA chase camera" 960 540 955 540   # pygame windows have a fixed size: move it aside to show the CARLA view
+sleep 2
+snap w11_carla_world_ego_car_chase_camera
+place "CARLA chase camera" 0 90 955 540
 wait_for "t= 24" /tmp/w11demo_a1.log 120
 sleep 4
 cap "A2 (T2): YOUR cruise control through the CARLA API - a PI controller sets throttle and brake" 2 "Activity two. Our own cruise control, through the CARLA programming interface. A P I controller sets the throttle and the brake to hold fifty kilometres an hour."
@@ -71,5 +79,6 @@ sleep 4
 cap "Measured: smallest gap 18.2 m, smallest time gap 2.04 s - and no emergency brake needed" 6 "The result line: the smallest gap was eighteen metres, the smallest time gap two point zero four seconds, and the emergency brake was never needed. Numbers for your report."
 cap "Your turn: week11/README.md - A1-A3, then the three TODOs in acc.py. Try first, then compare." 8 "Your turn. Follow the week eleven read me, activities one to three, then the three to do's in the adaptive cruise control. Try first, then compare with the solution."
 rec_stop
+pkill -f "demo/carla_vie[w]"
 run T1 "carla-sim stop" 3
 echo "saved $OUT"

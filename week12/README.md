@@ -57,11 +57,11 @@ only its MAVLink address changes:
 
 | | |
 |---|---|
-| T1 | `drone-sim start --world blocks` – then wait about a minute for PX4's first GPS fix |
+| T1 | `drone-sim start --world mountains` – the valley of the Week 9 survey; then wait about a minute for PX4's first GPS fix |
 | T2 | `python3 ~/labs/week09/scripts/mission.py` (your Week 9 survey: 40 m, 100 × 100 m) |
 
-**You should see:** the same survey as in Week 9. Measured with the Week 9 solution: 6 waypoints reached, worst miss
-1.00 m, 89 s, 6 photos, landed. This is the set-up of the lecturer's HIL demo – with the PX4 program in place of the
+**You should see:** the same survey over the mountain valley as in Week 9. Measured with the Week 9 solution:
+6 waypoints reached, worst miss 0.99 – 1.00 m, 89 s, 535 m, 6 photos, landed. This is the set-up of the lecturer's HIL demo – with the PX4 program in place of the
 Pixhawk 6C.
 
 ---
@@ -70,7 +70,7 @@ Pixhawk 6C.
 
 **What you build:** a go / no-go check that stops the mission when something is wrong.
 
-1. **Run it as given:** `python3 ~/labs/week12/scripts/preflight.py` (default survey: 20 m, 60 × 60 m). It says GO –
+1. **Run it as given:** `python3 ~/labs/week12/scripts/preflight.py` (default survey: the Week 9 one, 40 m, 100 × 100 m). It says GO –
    but look at the link line: `0.0 per s (need 5)  PASS`, and the battery needs `0 %`. As given, three of the four
    checks pass anything; only the autopilot's own health flags are real.
 2. **Three TODOs in `preflight.py`:**
@@ -81,10 +81,10 @@ Pixhawk 6C.
    * **TODO 3 – link:** position messages per second (`seen['positions']` in `--seconds`), at least `--min-rate` (5). A
      wrong baud rate or a loose cable shows here first.
 3. **Test it:** `python3 ~/labs/week12/scripts/preflight.py`, then
-   `python3 ~/labs/week12/scripts/preflight.py --length 600 --width 600`.
+   `python3 ~/labs/week12/scripts/preflight.py --length 1000 --width 1000`.
 4. **Done when** – all three are true:
    * GO for the small survey, with a measured value on every line (link about 50 per s);
-   * NO-GO for the 600 × 600 m survey, failed on the battery line;
+   * NO-GO for the 1 × 1 km survey, failed on the battery line;
    * your table: as given / your solution × (link, GPS, battery needed, verdict).
 
 ## A3 – Break the GPS, then try to fly (10 min)
@@ -94,7 +94,7 @@ Pixhawk 6C.
 | | |
 |---|---|
 | T2 | `python3 ~/labs/week12/scripts/inject_fault.py --sensor gps --type off` – wait about 15 s |
-| T2 | `python3 ~/labs/week12/scripts/preflight.py && python3 ~/labs/week09/scripts/mission.py --alt 20 --length 60 --width 60` |
+| T2 | `python3 ~/labs/week12/scripts/preflight.py && python3 ~/labs/week09/scripts/mission.py` |
 | T2 | `python3 ~/labs/week12/scripts/inject_fault.py --sensor gps --type ok` – wait about 20 s, run `preflight.py` again |
 
 **You should see:** NO-GO with the GPS off – the GPS line shows `NO_GPS` – and, because of `&&`, the mission never
@@ -110,16 +110,16 @@ to fly.**
 `good_fix = g is not None and g.fix_type in (FIX_3D, FIX_DGPS, RTK_FLOAT, RTK_FIXED)`, pass if
 `good_fix and sats >= a.min_sats` · `need = survey_minutes(a.length, a.width, a.alt, a.overlap) * USE_PER_MIN + a.reserve`.
 
-Measured 14 Oct 2026 (simulated, PX4 SITL, blocks world):
+Measured 15 Oct 2026 (simulated, PX4 SITL, *mountains* world, the Week 9 survey: 40 m, 100 × 100 m):
 
 | Run | Link | GPS | Battery needed | Verdict |
 |---|---|---|---|---|
 | as given, healthy | 0.0 per s – PASS | FIX_3D, 15 satellites – PASS | 0 % – PASS | GO |
-| **solution, healthy** | 50.0 per s – PASS | FIX_3D, 15 satellites – PASS | 35 % (1.9 min survey + 30 %) – PASS | **GO** |
-| solution, 600 × 600 m survey | 50.0 per s – PASS | FIX_3D, 15 satellites – PASS | **144 %** (45.7 min survey + 30 %) – FAIL | **NO-GO** |
+| **solution, healthy** | 50.0 per s – PASS | FIX_3D, 15 satellites – PASS | 37 % (3.0 min survey + 30 %) – PASS | **GO** |
+| solution, 1 × 1 km survey | 50.0 per s – PASS | FIX_3D, 15 satellites – PASS | **195 %** (65.9 min survey + 30 %) – FAIL | **NO-GO** |
 | as given, GPS off | 0.0 per s – PASS | NO_GPS, 255 satellites – **PASS** | 0 % – PASS | NO-GO (health flags only) |
-| **solution, GPS off** | 0.0 per s – FAIL | NO_GPS – FAIL | 35 % – PASS | **NO-GO**, mission not started |
-| solution, GPS back | 50.0 per s – PASS | FIX_3D, 15 satellites – PASS | 35 % – PASS | GO |
+| **solution, GPS off** | 0.0 per s – FAIL | NO_GPS – FAIL | 37 % – PASS | **NO-GO**, exit code 1, mission not started |
+| solution, GPS back | 50.0 per s – PASS | FIX_3D, 15 satellites – PASS | 37 % – PASS | GO |
 
 What the numbers say:
 * **As given, the check would have let a broken drone fly** – but for PX4's own health flags. No position messages,
@@ -135,8 +135,9 @@ What the numbers say:
 
 | Problem | Fix |
 |---|---|
-| `preflight.py` waits at "waiting for the autopilot" | PX4 is not running: `drone-sim status`; `drone-sim stop`, `drone-sim start --world blocks` |
+| `preflight.py` waits at "waiting for the autopilot" | PX4 is not running: `drone-sim status`; `drone-sim stop`, `drone-sim start --world mountains` |
 | `sensors: autopilot health  FAIL  not ok: global_position_ok, home_position_ok` straight after the start | PX4 needs about a minute for its first GPS fix: wait and run again |
+| `inject_fault.py`: `setting SYS_FAILURE_EN failed (TIMEOUT)` | PX4 missed the parameter request (we saw it in 2 of 5 runs). The script tries 5 times; if it still fails, run it again – a later run worked every time |
 | After A3 nothing passes any more | the fault is still injected: `drone-sim stop` and start again |
 
 Optional extra from the previous course: [`multi_robot_extra/`](multi_robot_extra/) (two robots on one network,

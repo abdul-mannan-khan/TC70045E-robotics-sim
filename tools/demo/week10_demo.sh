@@ -8,7 +8,8 @@ S=~/labs/week10/scripts
 SOL=~/labs/solutions/week10/mission_node.py
 drone-sim stop >/dev/null 2>&1
 rm -f /tmp/w10demo_*.log
-place_sim() { for i in 1 2 3; do place Blocks 0 90 955 540; sleep 1; done; }
+place_sim() { for i in 1 2 3; do place AirSimNH 0 90 955 540; sleep 1; done; }
+pkill -9 -f bin/rqt_graph; pkill -f rviz2
 
 caption_bar
 term T1 960 90 960 240
@@ -18,8 +19,8 @@ term T4 960 840 960 240
 rec_start "$OUT"
 
 cap "Week 10 demo - drones WITH ROS 2: two bridges make AirSim and PX4 ordinary ROS 2 topics and services" 5 "Week ten demo. Drones with ROS 2. Two bridge nodes turn the simulator and the autopilot into ordinary ROS 2 topics and services. After that, a mission is just a ROS 2 node."
-cap "A1 (T1): start the blocks world" 2 "Activity one. In terminal one we start the blocks world."
-run T1 "drone-sim start --world blocks | tee /tmp/w10demo_sim.log" 3
+cap "A1 (T1): start the neighborhood world (a town)" 2 "Activity one. In terminal one we start the neighborhood world, a small town."
+run T1 "drone-sim start --world neighborhood | tee /tmp/w10demo_sim.log" 3
 say "AirSim and PX4 start together. This takes about a minute." 30
 wait_for "ready for take-off" /tmp/w10demo_sim.log 240
 place_sim
@@ -36,7 +37,7 @@ snap w10_airsim_and_rviz_bridges_running
 say "These are all ROS 2 topics now. Before the first flight PX4 needs its first GPS fix, about a minute after the start." 25
 cap "A2 (T4): take off with a ROS 2 service call, fly with /drone/cmd_vel, land" 2 "Activity two. Take off with an ordinary ROS 2 service call."
 run T4 "clear; ros2 service call /drone/takeoff std_srvs/srv/Trigger" 4
-say "The drone arms and climbs to five metres." 15
+say "The drone arms and climbs to fifteen metres, above the houses and the trees." 18
 snap w10_takeoff_from_ros2_service
 run T4 "clear; ros2 topic pub -r 10 /drone/cmd_vel geometry_msgs/msg/Twist \"{linear: {x: 1.0}}\"" 6
 ctrlc T4 3
@@ -52,7 +53,7 @@ snap w10_mission_node_result
 sleep 8
 cap "Watchdog test: start the mission again, then Ctrl+C on the AirSim bridge (T2) in flight" 2 "Now the watchdog test. We start the mission again, and stop the AirSim bridge in flight."
 run T4 "clear; python3 -u $SOL 2>&1 | grep --line-buffered -v INFO | tee /tmp/w10demo_wd.log" 5
-wait_for "waypoint 1/" /tmp/w10demo_wd.log 120
+wait_for "waypoint 3/" /tmp/w10demo_wd.log 180
 sleep 2
 focus T2
 pkill -INT -f 03_airsim_ros2_bridge   # = Ctrl+C in T2 (typing into a busy terminal is unreliable)

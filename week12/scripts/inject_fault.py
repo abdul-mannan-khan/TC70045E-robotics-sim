@@ -4,7 +4,7 @@
 PX4 can simulate sensor failures for testing (it must be allowed first: parameter SYS_FAILURE_EN = 1).
 Use it only in simulation - never on a drone that is going to fly.
 
-Start the simulator first:   drone-sim start --world blocks
+Start the simulator first:   drone-sim start --world mountains
 Then run:                    python3 ~/labs/week12/scripts/inject_fault.py --sensor gps --type off
 Undo:                        python3 ~/labs/week12/scripts/inject_fault.py --sensor gps --type ok     (or restart the simulator)
 """
@@ -23,21 +23,31 @@ TYPES = {'ok': FailureType.OK, 'off': FailureType.OFF, 'stuck': FailureType.STUC
          'wrong': FailureType.WRONG}
 
 
+async def failure_injection_enabled(drone):
+    """True if PX4's failure injection (parameter SYS_FAILURE_EN) is already on - then no parameter write is needed."""
+    try:
+        return await drone.param.get_param_int('SYS_FAILURE_EN') == 1
+    except ParamError:
+        return False
+
+
 async def run(a):
     drone = System()
     await drone.connect(system_address=a.url)
     async for s in drone.core.connection_state():
         if s.is_connected:
             break
-    for attempt in range(1, 4):           # a busy simulator sometimes misses the first parameter request
-        try:
-            await drone.param.set_param_int('SYS_FAILURE_EN', 1)
-            break
-        except ParamError as e:
-            print('setting SYS_FAILURE_EN failed (%s), attempt %d of 3' % (e._result.result, attempt), flush=True)
-            await asyncio.sleep(2)
-    else:
-        raise SystemExit('could not enable failure injection - is PX4 running? (drone-sim status)')
+    if not await failure_injection_enabled(drone):
+        for attempt in range(1, 6):       # a busy simulator sometimes misses parameter requests: try again
+            try:
+                await drone.param.set_param_int('SYS_FAILURE_EN', 1)
+                break
+            except ParamError as e:
+                print('setting SYS_FAILURE_EN failed (%s), attempt %d of 5' % (e._result.result, attempt), flush=True)
+                await asyncio.sleep(3)
+        else:
+            raise SystemExit('could not enable failure injection - run this script again; is PX4 running? '
+                             '(drone-sim status)')
     await drone.failure.inject(SENSORS[a.sensor], TYPES[a.type], 0)
     print('injected: %s %s (PX4 failure injection, simulation only)' % (a.sensor, a.type), flush=True)
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """AirSim WITH ROS 2 - the sensor bridge: AirSim's cameras and sensors as ROS 2 topics.
 
-Start the simulator first:   drone-sim start --world blocks
+Start the simulator first:   drone-sim start --world neighborhood
 Then run:                    python3 ~/labs/examples/airsim/03_airsim_ros2_bridge.py
 Look at it:                  rviz2 -d ~/labs/examples/airsim/airsim.rviz
 

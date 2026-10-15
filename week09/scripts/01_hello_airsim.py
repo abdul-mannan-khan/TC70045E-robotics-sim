@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """AirSim WITHOUT ROS 2 - step 1: talk to the simulator through its Python API.
 
-Start the simulator first:   drone-sim start --world blocks
+Start the simulator first:   drone-sim start --world neighborhood
 Then run:                    python3 ~/labs/examples/airsim/01_hello_airsim.py [--show] [--depth]
 
 Prints the drone state the simulator knows (position, attitude, IMU, GPS) and saves one front camera picture and

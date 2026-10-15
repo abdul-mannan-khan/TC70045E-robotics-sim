@@ -4,13 +4,13 @@
 Three TODOs (search for TODO); the README explains each one.
 
 Needs the simulator and BOTH bridges (three terminals):
-   drone-sim start --world blocks
+   drone-sim start --world neighborhood
    python3 ~/labs/week10/scripts/03_airsim_ros2_bridge.py       (AirSim sensors -> ROS 2 topics)
    python3 ~/labs/week10/scripts/04_px4_ros2_bridge.py          (ROS 2 commands -> PX4 autopilot)
 Then:      python3 ~/labs/week10/scripts/mission_node.py
 
 What it does
-  1. take off           service /drone/takeoff (the PX4 bridge climbs to 5 m)
+  1. take off           service /drone/takeoff (the PX4 bridge climbs to 15 m)
   2. fly                to each waypoint with a velocity command on /drone/cmd_vel: the error is in the map frame
                         (ENU), the command in the body frame (FLU) - rotate it by the drone's yaw          (TODO 1)
   3. face + photo       turn the camera towards the middle of the square (so the drone's yaw changes - which is

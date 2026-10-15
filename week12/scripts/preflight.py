@@ -6,8 +6,8 @@ Three TODOs (search for TODO); the README explains each one. As given every chec
 The same script checks the simulated autopilot (SITL, in the drone container) and the real Pixhawk 6C (HIL, from the
 Jetson): only the MAVLink address changes.
 
-Start the simulator first:   drone-sim start --world blocks
-Then run:                    python3 ~/labs/week12/scripts/preflight.py --alt 20 --length 60 --width 60
+Start the simulator first:   drone-sim start --world mountains
+Then run:                    python3 ~/labs/week12/scripts/preflight.py              (checks the Week 9 survey: 40 m, 100 x 100 m)
 On the Jetson (HIL):         python3 preflight.py --url serial:///dev/ttyTHS0:921600 ...
 
 What it checks (for --seconds, default 10 s of telemetry)
@@ -120,9 +120,9 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--url', default='udpin://0.0.0.0:14550', help='MAVLink address of the autopilot')
     ap.add_argument('--seconds', type=float, default=10.0, help='how long to listen')
-    ap.add_argument('--alt', type=float, default=20.0)
-    ap.add_argument('--length', type=float, default=60.0)
-    ap.add_argument('--width', type=float, default=60.0)
+    ap.add_argument('--alt', type=float, default=40.0)
+    ap.add_argument('--length', type=float, default=100.0)
+    ap.add_argument('--width', type=float, default=100.0)
     ap.add_argument('--overlap', type=float, default=0.2)
     ap.add_argument('--min-rate', type=float, default=5.0, help='position messages per second')
     ap.add_argument('--min-sats', type=int, default=8)

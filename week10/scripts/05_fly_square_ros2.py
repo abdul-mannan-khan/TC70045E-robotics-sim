@@ -2,7 +2,7 @@
 """AirSim WITH ROS 2 - a mission written as an ordinary ROS 2 node (no MAVSDK, no AirSim API in this file).
 
 Needs the simulator and BOTH bridges running:
-   drone-sim start --world blocks
+   drone-sim start --world neighborhood
    python3 ~/labs/examples/airsim/03_airsim_ros2_bridge.py     (sensors -> ROS 2)
    python3 ~/labs/examples/airsim/04_px4_ros2_bridge.py        (ROS 2 -> autopilot)
 Then run:  python3 ~/labs/examples/airsim/05_fly_square_ros2.py [--side 5]

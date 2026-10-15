@@ -39,7 +39,7 @@ Open a terminal (*Applications → System Tools → Terminator*, or the icon on 
 README, for example:
 
 ```bash
-drone-sim start --world blocks                 # drone image
+drone-sim start --world neighborhood           # drone image (Week 9 survey and Week 12: --world mountains)
 python3 ~/labs/examples/airsim/01_hello_airsim.py --show
 
 carla-sim start --town Town04                  # CARLA image

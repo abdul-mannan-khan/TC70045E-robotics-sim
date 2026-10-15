@@ -38,11 +38,12 @@ Check: `ls ~/labs/week09/scripts` lists `01_hello_airsim.py  02_fly_square_mavsd
 **Start the simulator (T1):**
 
 ```bash
-drone-sim start --world blocks        # blocks: light; also neighborhood (a town), mountains (fly higher there)
+drone-sim start --world neighborhood  # A1 and A2: a small town (fly at 15 m or more: trees, power lines)
 drone-sim status                      # AirSim running, PX4 running, API port answering, GPU visible
 ```
 
-`drone-sim start` prints `PX4 SITL is ready for take-off` when it is ready (about a minute). **Before every new
+`drone-sim start` prints `PX4 SITL is ready for take-off` when it is ready (about a minute). For A3 and your survey
+you change to the mountain valley: `drone-sim stop`, then `drone-sim start --world mountains`. **Before every new
 start:** `drone-sim stop`. A script that hangs at "waiting for the autopilot": `drone-sim stop`, `drone-sim start` again.
 
 ## The scripts this week
@@ -63,13 +64,13 @@ Frames: AirSim and PX4 use **NED** – x north, y east, z **down**, from the tak
 
 | | |
 |---|---|
-| T1 | `drone-sim start --world blocks` – wait for `PX4 SITL is ready for take-off` |
+| T1 | `drone-sim start --world neighborhood` – wait for `PX4 SITL is ready for take-off` |
 | T2 | `python3 ~/labs/week09/scripts/01_hello_airsim.py --show` |
 
 **You should see:** `Connected!`, then the drone's position, attitude, IMU and GPS, and the front camera picture
-(saved as `~/airsim_front.png`). Measured on the ground: `position NED x -0.00 y 0.00 z -0.07 m`,
-`IMU accel 0.05 0.01 -9.87 m/s^2`, `GPS lat 47.641468 lon -122.140165`, a 640 × 480 colour picture. **Check:** why is
-the IMU's z about −9.87 m/s² when the drone is standing still? (It measures the push of the ground against gravity –
+(saved as `~/airsim_front.png`): the street in front of the drone. Measured on the ground in the town:
+`position NED x 0.00 y 0.00 z -0.72 m`, `IMU accel 0.03 0.05 -9.83 m/s^2`, `GPS lat 47.641468 lon -122.140165`, a
+640 × 480 colour picture. **Check:** why is the IMU's z about −9.83 m/s² when the drone is standing still? (It measures the push of the ground against gravity –
 and z points **down** in NED.)
 
 ## A2 – Fly a square through the autopilot (15 min)
@@ -78,11 +79,12 @@ and z points **down** in NED.)
 
 | | |
 |---|---|
-| T2 | `python3 ~/labs/week09/scripts/02_fly_square_mavsdk.py --side 5 --alt 5` |
+| T2 | `python3 ~/labs/week09/scripts/02_fly_square_mavsdk.py --side 5 --alt 15` |
 
-**You should see:** in T2 `connected`, `taking off to 5.0 m`, `airborne at 4.5 m`, four `-> corner …` lines,
-`square done - landing`, `landed`; in the AirSim window the drone flies a 5 m square at 5 m. **Check:** the script
-asks for a corner at `north 5.0 m, east 0.0 m` – what z does it send for 5 m up? (−5: NED.)
+**You should see:** in T2 `connected`, `taking off to 15.0 m`, `airborne at 13.5 m`, four `-> corner …` lines,
+`square done - landing`, `landed`; in the AirSim window the drone flies a 5 m square at 15 m, above the trees and
+the power lines (measured: no collision). **Check:** the script asks for a corner at `north 5.0 m, east 0.0 m` –
+what z does it send for 15 m up? (−15: NED.)
 
 ## A3 – The survey as given (17 min)
 
@@ -90,14 +92,15 @@ asks for a corner at `north 5.0 m, east 0.0 m` – what z does it send for 5 m u
 
 | | |
 |---|---|
+| T1 | `drone-sim stop`, then `drone-sim start --world mountains` – a valley with ridges on both sides |
 | T2 | `python3 ~/labs/week09/scripts/mission.py --alt 40 --length 100 --width 100` |
 | T3 | `ls ~/survey` – one photo per waypoint |
 
 **You should see:** `plan: footprint 10.0 m, row spacing 10.0 m, 22 waypoints`, 22 photos – but every waypoint after
-the first `MISSED`, and the RESULT line: `complete: 39 s, 5 m flown, 22 photos, worst waypoint miss 136.86 m`
+the first `MISSED`, and the RESULT line: `complete: 48 s, 24 m flown, 22 photos, worst waypoint miss 119.64 m`
 (measured). Open the photos: they all show the take-off point. **Check:** which two things are wrong? (The plan:
-10 m strips from 40 m up; and the drone never waits to arrive.) Fly at 40 m: the *blocks* world has no obstacle
-avoidance, and at 20 m our test drone hit a block on the third row.
+10 m strips from 40 m up; and the drone never waits to arrive.) Fly at 40 m: the survey has no obstacle avoidance,
+and 40 m above the start clears the valley floor and the ridges of this 100 × 100 m field (measured: no collision).
 
 ---
 
@@ -129,23 +132,23 @@ time to fly home.
 `footprint = 2.0 * alt * math.tan(math.radians(CAMERA_FOV_DEG / 2.0))`, `spacing = footprint * (1.0 - overlap)`;
 `if d < tol or time.monotonic() - t0 > timeout:`; `if time.monotonic() - start > a.max_time:`.
 
-Measured 14 Oct 2026 (simulated, *blocks* world, 40 m, 100 × 100 m field):
+Measured 15 Oct 2026 (simulated, *mountains* world, 40 m, 100 × 100 m field of the valley):
 
 | Code | waypoints | flown | photos | worst waypoint miss | time |
 |---|---|---|---|---|---|
-| as given | 22 | 5 m | 22 | 136.86 m | 39 s |
-| TODO 1 – the plan | 6 | 0 m | 6 | 141.27 m | 38 s |
+| as given | 22 | 24 m | 22 | 119.64 m | 48 s |
+| TODO 1 – the plan | 6 | 2 m | 6 | 140.44 m | 39 s |
 | TODO 1 + 2 – arrival | 6 | 535 m | 6 | 0.98 m | 89 s |
-| **solution**, four runs | 6 | 535 m | 6 | 0.98 – 1.00 m | 89 s |
-| solution, `--max-time 20` (15 Oct) | 4 of 6, then `time limit 20 s reached` | 324 m | 4 | 0.99 m | 69 – 71 s, `ABORTED (time limit)`, landed at the start |
+| **solution**, two runs | 6 | 535 m | 6 | 0.99 – 1.00 m | 89 s |
+| solution, `--max-time 20` | 4 of 6, then `time limit 20 s reached` | 324 m | 4 | 0.96 m | 69 s, `ABORTED (time limit)`, landed at the start |
 
 What the numbers say:
 * **TODO 1 cuts 22 waypoints to 6:** from 40 m a 90° camera sees an 80 m strip, so rows 64 m apart still overlap by
   20 %. Wrong geometry means four times the flying for the same field.
-* **TODO 2 makes the drone actually fly the plan:** without it the photos are all taken within a few metres of the
+* **TODO 2 makes the drone actually fly the plan:** without it the photos are all taken within 25 m of the
   start; with it every waypoint is reached within 1 m and the six photos cover the field.
 * **TODO 3 is checked before each waypoint:** with `--max-time 20` the drone finished waypoint 4 (the check came
-  after it), then flew home and landed – twice, 69 and 71 s. With `40` or `90` it did not fire: the drone had already
+  after it), then flew home and landed after 69 s. With `40` or `90` it did not fire: the drone had already
   started the last row, and the 89 s include flying home and landing.
 
 ---
@@ -154,7 +157,7 @@ What the numbers say:
 
 | Problem | Fix |
 |---|---|
-| `waiting for the autopilot on udpin://0.0.0.0:14550` for more than a minute | PX4 is not running or not ready: `drone-sim status`; if needed `drone-sim stop`, `drone-sim start --world blocks` |
+| `waiting for the autopilot on udpin://0.0.0.0:14550` for more than a minute | PX4 is not running or not ready: `drone-sim status`; if needed `drone-sim stop`, `drone-sim start --world mountains` (or `neighborhood` for A1, A2) |
 | `offboard failed: …` | the drone was not airborne yet or PX4 rejected the mode: land (`drone-sim stop` / `start`) and run again |
 | `drone-sim start`: "waiting for the previous simulation to release port 4560" | normal after a stop: it waits up to 90 s |
 | The simulator window is black / very slow | no GPU in the container: `nvidia-smi` must list the GPU (`--gpus all`) |

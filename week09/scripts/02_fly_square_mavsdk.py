@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """AirSim WITHOUT ROS 2 - step 2: fly the drone through its autopilot (PX4) with MAVSDK.
 
-Start the simulator first:   drone-sim start --world blocks          (SITL: PX4 runs in the container)
-Then run:                    python3 ~/labs/examples/airsim/02_fly_square_mavsdk.py [--side 5] [--alt 5]
+Start the simulator first:   drone-sim start --world neighborhood    (SITL: PX4 runs in the container)
+Then run:                    python3 ~/labs/examples/airsim/02_fly_square_mavsdk.py [--side 5] [--alt 15]
 
 Arms, takes off, flies a square in offboard mode (position set-points), returns and lands.
 
@@ -75,7 +75,7 @@ async def run(side, alt, url):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--side', type=float, default=5.0, help='side of the square in metres')
-    ap.add_argument('--alt', type=float, default=5.0, help='flight altitude in metres')
+    ap.add_argument('--alt', type=float, default=15.0, help='flight altitude in metres: above the trees')
     ap.add_argument('--url', default='udpin://0.0.0.0:14550', help='MAVLink address of the autopilot')
     a = ap.parse_args()
     asyncio.run(run(a.side, a.alt, a.url))
