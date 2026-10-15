@@ -16,6 +16,11 @@ GPU computer (Vast.ai). Nothing has to be installed or downloaded besides the co
    what to do and how you know you are done.
 5. **Solution** - a worked, tested solution in [`solutions/weekNN/`](solutions/). Try first, then compare.
 
+## Assessment: your project
+
+Both assessments (50 % each, Weeks 6 and 12) are built on one simulation project, chosen from five:
+**[projects/README.md](projects/README.md)** – what to run, where to edit and how, and how to write it up.
+
 ## The containers
 
 | Image | Robots | Weeks | Needs |
