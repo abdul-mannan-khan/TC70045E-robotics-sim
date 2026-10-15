@@ -137,14 +137,16 @@ Measured 14 Oct 2026 (simulated, *blocks* world, 40 m, 100 × 100 m field):
 | TODO 1 – the plan | 6 | 0 m | 6 | 141.27 m | 38 s |
 | TODO 1 + 2 – arrival | 6 | 535 m | 6 | 0.98 m | 89 s |
 | **solution**, four runs | 6 | 535 m | 6 | 0.98 – 1.00 m | 89 s |
+| solution, `--max-time 20` (15 Oct) | 4 of 6, then `time limit 20 s reached` | 324 m | 4 | 0.99 m | 69 – 71 s, `ABORTED (time limit)`, landed at the start |
 
 What the numbers say:
 * **TODO 1 cuts 22 waypoints to 6:** from 40 m a 90° camera sees an 80 m strip, so rows 64 m apart still overlap by
   20 %. Wrong geometry means four times the flying for the same field.
 * **TODO 2 makes the drone actually fly the plan:** without it the photos are all taken within a few metres of the
   start; with it every waypoint is reached within 1 m and the six photos cover the field.
-* **TODO 3 did not fire with `--max-time 40` or `90`** in our runs: the drone had already started the last row, and the
-  89 s include flying home and landing. Use a smaller limit to see it stop the survey.
+* **TODO 3 is checked before each waypoint:** with `--max-time 20` the drone finished waypoint 4 (the check came
+  after it), then flew home and landed – twice, 69 and 71 s. With `40` or `90` it did not fire: the drone had already
+  started the last row, and the 89 s include flying home and landing.
 
 ---
 

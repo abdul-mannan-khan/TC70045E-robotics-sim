@@ -98,7 +98,9 @@ Pixhawk 6C.
 | T2 | `python3 ~/labs/week12/scripts/inject_fault.py --sensor gps --type ok` – wait about 20 s, run `preflight.py` again |
 
 **You should see:** NO-GO with the GPS off – the GPS line shows `NO_GPS` – and, because of `&&`, the mission never
-takes off. After `--type ok`: GO again. **Failure injection is for the simulator only – never on a drone that is going
+takes off. After `--type ok`: GO again – but `drone-sim stop` and start again before the next flight: in our
+test a survey started straight after the GPS came back missed three of six waypoints by 140 – 191 m, because PX4's
+position estimate had not settled. The pre-flight check said GO; it can only test what it measures. **Failure injection is for the simulator only – never on a drone that is going
 to fly.**
 
 ### Solution (compare after you have tried)
@@ -124,6 +126,8 @@ What the numbers say:
   no GPS (255 satellites means "unknown") and no battery budget all said PASS.
 * **The solution fails each fault on its own line**, so the log says *why* the drone stayed on the ground.
 * **The battery check is only as good as `USE_PER_MIN`.** SITL drains slowly; measure it for your own drone.
+* **A check must also finish.** Our first version printed NO-GO with the GPS off and then hung (MAVSDK kept waiting);
+  re-tested 15 Oct 2026, every NO-GO now ends at once with exit code 1, so `&&` keeps the mission on the ground.
 
 ---
 

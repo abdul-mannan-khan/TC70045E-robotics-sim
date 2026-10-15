@@ -15,6 +15,7 @@ import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
 from mavsdk import System  # noqa: E402
 from mavsdk.failure import FailureType, FailureUnit  # noqa: E402
+from mavsdk.param import ParamError  # noqa: E402
 
 SENSORS = {'gps': FailureUnit.SENSOR_GPS, 'gyro': FailureUnit.SENSOR_GYRO, 'accel': FailureUnit.SENSOR_ACCEL,
            'mag': FailureUnit.SENSOR_MAG, 'baro': FailureUnit.SENSOR_BARO, 'battery': FailureUnit.SYSTEM_BATTERY}
@@ -28,7 +29,15 @@ async def run(a):
     async for s in drone.core.connection_state():
         if s.is_connected:
             break
-    await drone.param.set_param_int('SYS_FAILURE_EN', 1)
+    for attempt in range(1, 4):           # a busy simulator sometimes misses the first parameter request
+        try:
+            await drone.param.set_param_int('SYS_FAILURE_EN', 1)
+            break
+        except ParamError as e:
+            print('setting SYS_FAILURE_EN failed (%s), attempt %d of 3' % (e._result.result, attempt), flush=True)
+            await asyncio.sleep(2)
+    else:
+        raise SystemExit('could not enable failure injection - is PX4 running? (drone-sim status)')
     await drone.failure.inject(SENSORS[a.sensor], TYPES[a.type], 0)
     print('injected: %s %s (PX4 failure injection, simulation only)' % (a.sensor, a.type), flush=True)
 
