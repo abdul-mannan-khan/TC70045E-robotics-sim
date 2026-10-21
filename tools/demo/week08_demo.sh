@@ -9,9 +9,9 @@ OUT=${1:-/tmp/week08_demo.mp4}
 W=~/labs/week08
 # A3: where to click in RViz (screen pixels, RViz at 0,590 955x490): the "2D Goal Pose" button, then a grey cell just
 # past a frontier, dragged a little to set the heading. Measured on a test screenshot of this layout.
-GOAL_BTN=${GOAL_BTN:-360 600}
-GOAL_AT=${GOAL_AT:-560 800}
-stop_sim() { ctrlc T1 8; for p in gzserver gzclient; do pgrep -x $p >/dev/null && kill $(pgrep -x $p); done; sleep 4
+GOAL_BTN=${GOAL_BTN:-497 600}
+GOAL_AT=${GOAL_AT:-560 700}
+stop_sim() { ctrlc T1 8; for p in gzserver gzclient; do pgrep -x $p >/dev/null && kill $(pgrep -x $p); done; sleep 4; kill_ros
     cls T2; cls T3; }   # stop the simulator, and start the next activity with empty T2 and T3
 cls() { focus "$1"; xdotool key ctrl+l; sleep 0.3; }   # clear a terminal BEFORE typing, so the command stays on screen
 view() { [ "${PREPARE:-0}" = 1 ] && return 0; timeout 10 python3 "$(dirname "$0")/gzview.py" "$@" >/dev/null 2>&1; }
@@ -61,7 +61,8 @@ wait_simtime 625
 sleep 2
 fast_off
 cap "A1: the RESULT line after 600 s - area known, distance driven. Is the robot finished? It cannot tell." 8 "After six hundred seconds terminal one prints the result: the area known and the distance driven. The robot is still driving. It does not know whether the map is finished."
-cls T2; run T2 "ros2 run nav2_map_server map_saver_cli -f ~/maps/w8_wander --ros-args -p use_sim_time:=true" 10
+cls T2; run T2 "ros2 run nav2_map_server map_saver_cli -f ~/maps/w8_wander --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0" 4
+wait_file $HOME/maps/w8_wander.yaml 40; sleep 2
 cls T2; run T2 "python3 ~/labs/week04/scripts/map_metrics.py ~/maps/w8_wander.yaml" 6
 stop_sim
 
@@ -95,7 +96,8 @@ wait_proc solutions/week08/explorer.py 700
 sleep 2
 fast_off
 cap "Solution (T2): 'no frontier left' - the robot KNOWS the map is complete, and stops" 8 "Finished. No frontier left: the robot knows the map is complete, and it stops. The wandering robot never knew that."
-cls T2; run T2 "ros2 run nav2_map_server map_saver_cli -f ~/maps/w8_explorer --ros-args -p use_sim_time:=true" 10
+cls T2; run T2 "ros2 run nav2_map_server map_saver_cli -f ~/maps/w8_explorer --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0" 4
+wait_file $HOME/maps/w8_explorer.yaml 40; sleep 2
 cls T2; run T2 "python3 ~/labs/week04/scripts/map_metrics.py ~/maps/w8_explorer.yaml" 6
 cap "For your report: wander / k = 0 / k = 1 x (time to 70 m2, finished after, driven, known area, scale error)" 8 "For your report: a table, wander, k zero and k one, against the time to seventy square metres, when it finished, the distance driven, the area known and the scale error. Label all results as simulated."
 rec_stop

@@ -51,7 +51,7 @@ run T1 "clear; ros2 launch ~/labs/week02/launch/lego.launch.py gui:=true slam:=t
 place_views
 cap "Exploring... (real time - nothing sped up)" 50 "Exploring. This is real time, nothing is sped up. The wander brick drives forward and turns away from walls, the safety brick checks every command, and the mapping brick draws the map."
 cap "Step 7 (T2): save the map it drew" 2 "Step seven. We save the map it drew to a file."
-run T2 "clear; ros2 run nav2_map_server map_saver_cli -f ~/explorer_map --ros-args -p use_sim_time:=true" 6
+run T2 "clear; ros2 run nav2_map_server map_saver_cli -f ~/explorer_map --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0" 6
 cap "Your turn: Activities A1-A5 in the lecture. Open the bricks in ~/labs/week02/scripts and read them." 8 "Your turn. Do activities one to five in the lecture, and open the bricks in the week two scripts folder to read how they work."
 rec_stop
 ctrlc T1 6; pkill -f gzserver

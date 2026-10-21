@@ -47,7 +47,7 @@ The lab is about 80 m² inside its walls; with the wall cells a complete map is 
 | | |
 |---|---|
 | T1 | `ros2 launch ~/labs/week08/launch/explore.launch.py brain:=wander` |
-| T2 (when T1 prints the RESULT line, after 600 s) | `ros2 run nav2_map_server map_saver_cli -f ~/maps/w8_wander --ros-args -p use_sim_time:=true` |
+| T2 (when T1 prints the RESULT line, after 600 s) | `ros2 run nav2_map_server map_saver_cli -f ~/maps/w8_wander --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0` |
 | T2 | `python3 ~/labs/week04/scripts/map_metrics.py ~/maps/w8_wander.yaml` |
 
 `brain:=wander` is exactly the Week 2 wander + safety bricks; `coverage.py` prints the explored area and the distance

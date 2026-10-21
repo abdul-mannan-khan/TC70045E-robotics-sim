@@ -7,7 +7,7 @@
 source "$(dirname "$0")/demo_lib.sh"
 OUT=${1:-/tmp/week05_demo.mp4}
 W=~/labs/week05
-stop_sim() { ctrlc T1 8; for p in gzserver gzclient; do pgrep -x $p >/dev/null && kill $(pgrep -x $p); done; sleep 4
+stop_sim() { ctrlc T1 8; for p in gzserver gzclient; do pgrep -x $p >/dev/null && kill $(pgrep -x $p); done; sleep 4; kill_ros
     cls T2; cls T3; }   # stop the simulator, and start the next activity with empty T2 and T3
 cls() { focus "$1"; xdotool key ctrl+l; sleep 0.3; }   # clear a terminal BEFORE typing, so the command stays on screen
 view() { [ "${PREPARE:-0}" = 1 ] && return 0; timeout 10 python3 "$(dirname "$0")/gzview.py" "$@" >/dev/null 2>&1; }

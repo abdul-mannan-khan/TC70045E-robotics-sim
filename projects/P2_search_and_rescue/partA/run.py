@@ -48,7 +48,7 @@ def main():
 
     P.step(2, 4, 'save the map')
     mp = os.path.join(rd, 'map')
-    P.run('ros2 run nav2_map_server map_saver_cli -f %s --ros-args -p use_sim_time:=true' % mp,
+    P.run('ros2 run nav2_map_server map_saver_cli -f %s --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0' % mp,
           os.path.join(rd, 'map_saver.log'), timeout=120)
     P.clean_robot_sim()
     if not os.path.exists(mp + '.yaml'):

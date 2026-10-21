@@ -8,7 +8,7 @@ source "$(dirname "$0")/demo_lib.sh"
 OUT=${1:-/tmp/week04_demo.mp4}
 W=~/labs/week04
 STRAFE_S=${STRAFE_S:-5.0}           # A1: seconds of strafing left (0.5 m/s) until the yellow step is in view
-stop_sim() { ctrlc T1 8; for p in gzserver gzclient; do pgrep -x $p >/dev/null && kill $(pgrep -x $p); done; sleep 4
+stop_sim() { ctrlc T1 8; for p in gzserver gzclient; do pgrep -x $p >/dev/null && kill $(pgrep -x $p); done; sleep 4; kill_ros
     cls T2; cls T3; }   # stop the simulator, and start the next activity with empty T2 and T3
 view() { [ "${PREPARE:-0}" = 1 ] && return 0; timeout 10 python3 "$(dirname "$0")/gzview.py" "$@" >/dev/null 2>&1; }   # Gazebo camera: eye -> target
 close_up() { view -4.1 -1.3 0.7 -2.8 -0.35 0.1; }      # the lab robot at its start position
@@ -71,9 +71,12 @@ sleep 2
 fast_off
 cap "A2: the end of the circuit - SLAM error against the truth (T1)" 6 "The circuit is finished. Terminal one prints the error against the true position: SLAM is within a few centimetres, wheel odometry alone is more than a metre off."
 cap "A2 (T2): save the map, then score it against the true world" 2 "In terminal two, save the map, and score it against the true world."
-cls T2; run T2 "ros2 run nav2_map_server map_saver_cli -f ~/maps/w4_toolbox --ros-args -p use_sim_time:=true" 10
+cls T2; run T2 "ros2 run nav2_map_server map_saver_cli -f ~/maps/w4_toolbox --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0" 4
+wait_file $HOME/maps/w4_toolbox.yaml 40; sleep 2
+tall T2
 cls T2; run T2 "python3 ~/labs/week04/scripts/map_check.py ~/maps/w4_toolbox.yaml" 6
 cap "A2: low step and table top MISSED; everything the laser slice cuts is SEEN" 7 "The low step and the table top are missed. The table's thin legs are seen, and everything the laser slice cuts is seen."
+short T2
 stop_sim
 
 # ---------------- A3 + A4 ----------------
@@ -88,9 +91,12 @@ wait_drive 420
 sleep 2
 fast_off
 cap "A3 (T2): save the map and compare it with the slam_toolbox map" 2 "The circuit is finished. Save the RTAB-Map map, and score both maps."
-cls T2; run T2 "ros2 run nav2_map_server map_saver_cli -f ~/maps/w4_lidar --ros-args -p use_sim_time:=true" 10
+cls T2; run T2 "ros2 run nav2_map_server map_saver_cli -f ~/maps/w4_lidar --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0" 4
+wait_file $HOME/maps/w4_lidar.yaml 40; sleep 2
+tall T2
 cls T2; run T2 "python3 ~/labs/week04/scripts/map_check.py ~/maps/w4_toolbox.yaml ~/maps/w4_lidar.yaml" 6
 cap "A3: the same two objects MISSED - the algorithm changed, the sensor did not" 7 "The same two objects are missed. The algorithm changed. The sensor did not."
+short T2
 cap "A4 (T2): read the RTAB-Map graph - loop closures and topics" 2 "Activity four, with RTAB-Map still running: read its graph."
 cls T2; run T2 "ros2 topic echo --once /rtabmap/info --field loop_closure_id" 6
 run T2 "ros2 topic list | grep rtabmap" 5
@@ -121,9 +127,12 @@ wait_drive 480
 sleep 2
 fast_off
 cap "Solution (T2): save the third map, then score all three" 2 "Save the third map, and score all three maps."
-cls T2; run T2 "ros2 run nav2_map_server map_saver_cli -f ~/maps/w4_lidar_d455 --ros-args -p use_sim_time:=true" 10
+cls T2; run T2 "ros2 run nav2_map_server map_saver_cli -f ~/maps/w4_lidar_d455 --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0" 4
+wait_file $HOME/maps/w4_lidar_d455.yaml 40; sleep 2
+tall T2
 cls T2; run T2 "python3 ~/labs/week04/scripts/map_check.py ~/maps/w4_toolbox.yaml ~/maps/w4_lidar.yaml ~/maps/w4_lidar_d455.yaml" 6
 cap "Low step and table top: MISSED by both LiDAR maps, SEEN with the D455" 8 "The low step and the table top are missed by both LiDAR maps, and seen only in the map that uses the D455."
+short T2
 cls T3; run T3 "python3 ~/labs/week04/scripts/map_metrics.py ~/maps/w4_lidar_d455.yaml" 6
 cap "The cost: about ten times the CPU and memory of slam_toolbox, slightly thicker walls, gaps outside the camera's 87 degree view" 7 "The camera has a cost: about ten times the processing and memory of slam toolbox, slightly thicker walls because depth noise grows with distance squared, and gaps where the camera never looked."
 cap "For your report: the three-map table, an RViz screenshot, your TODO 3 value and why. Label results as simulated." 7 "For your report: the three map table, a screenshot of RViz with the step and the table in the map, your to do three value and why. Label all results as simulated."

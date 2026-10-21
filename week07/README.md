@@ -51,7 +51,7 @@ The map is kept in an RTAB-Map **database**, `~/maps/w7_camera.db`: `mode:=mappi
 | | |
 |---|---|
 | T1 | `ros2 launch ~/labs/week07/launch/rgbd_nav.launch.py mode:=mapping drive:=true config:=$HOME/labs/solutions/week07/rtabmap_camera.yaml` |
-| T2 (when T1 prints `loop finished`) | `ros2 run nav2_map_server map_saver_cli -f ~/maps/w7_camera --ros-args -p use_sim_time:=true` |
+| T2 (when T1 prints `loop finished`) | `ros2 run nav2_map_server map_saver_cli -f ~/maps/w7_camera --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0` |
 | T2 | `python3 ~/labs/week04/scripts/map_check.py ~/maps/w7_camera.yaml` and `python3 ~/labs/week04/scripts/map_metrics.py ~/maps/w7_camera.yaml` |
 
 This uses the **solution** settings, so you see the goal first; in your activity you build them yourself.

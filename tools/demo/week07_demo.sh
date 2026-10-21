@@ -7,7 +7,7 @@
 source "$(dirname "$0")/demo_lib.sh"
 OUT=${1:-/tmp/week07_demo.mp4}
 W=~/labs/week07
-stop_sim() { ctrlc T1 8; for p in gzserver gzclient; do pgrep -x $p >/dev/null && kill $(pgrep -x $p); done; sleep 4
+stop_sim() { ctrlc T1 8; for p in gzserver gzclient; do pgrep -x $p >/dev/null && kill $(pgrep -x $p); done; sleep 4; kill_ros
     cls T2; cls T3; }   # stop the simulator, and start the next activity with empty T2 and T3
 cls() { focus "$1"; xdotool key ctrl+l; sleep 0.3; }   # clear a terminal BEFORE typing, so the command stays on screen
 view() { [ "${PREPARE:-0}" = 1 ] && return 0; timeout 10 python3 "$(dirname "$0")/gzview.py" "$@" >/dev/null 2>&1; }
@@ -46,10 +46,13 @@ sleep 2
 fast_off
 cap "A1: small error at the END (a loop closure), but tens of cm DURING the drive - LiDAR: 2 cm" 9 "The circuit is finished. The error at the end is small: the loop closure at the start pulls the graph straight. But the R M S error during the drive is tens of centimetres. With the LiDAR it was two."
 cap "A1 (T2): save the map, score it, measure the room" 2 "Save the map, score it against the true world, and measure the room."
-cls T2; run T2 "ros2 run nav2_map_server map_saver_cli -f ~/maps/w7_camera --ros-args -p use_sim_time:=true" 10
+cls T2; run T2 "ros2 run nav2_map_server map_saver_cli -f ~/maps/w7_camera --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0" 4
+wait_file $HOME/maps/w7_camera.yaml 40; sleep 2
+tall T2
 cls T2; run T2 "python3 ~/labs/week04/scripts/map_check.py ~/maps/w7_camera.yaml" 6
 run T2 "python3 ~/labs/week04/scripts/map_metrics.py ~/maps/w7_camera.yaml" 6
 cap "A1: step and table top SEEN - but more phantom cells, and the room measures too big" 8 "The step and the table top are seen. The price: hundreds of phantom cells, and the room measures a few percent too big. Compare with your week four table."
+short T2
 stop_sim
 
 # ---------------- A2 ----------------

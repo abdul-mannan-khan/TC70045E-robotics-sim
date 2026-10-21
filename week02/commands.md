@@ -25,7 +25,7 @@ ros2 launch ~/labs/week02/launch/lego.launch.py slam:=true
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 # when the map looks good:
 ros2 run nav2_map_server map_saver_cli \
-  -f ~/labs/week02/my_map --ros-args -p use_sim_time:=true
+  -f ~/labs/week02/my_map --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0
 ```
 
 ```python

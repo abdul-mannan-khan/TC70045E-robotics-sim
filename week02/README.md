@@ -107,7 +107,7 @@ keeps the last command until you press `k`.
 |---|---|
 | T1 | `ros2 launch ~/labs/week02/launch/lego.launch.py gui:=true slam:=true` |
 | T2 | `ros2 run teleop_twist_keyboard teleop_twist_keyboard` – press `x` five times (0.3 m/s), then drive slowly through both rooms |
-| T3 | `ros2 run nav2_map_server map_saver_cli -f ~/labs/week02/my_map --ros-args -p use_sim_time:=true` |
+| T3 | `ros2 run nav2_map_server map_saver_cli -f ~/labs/week02/my_map --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0` |
 
 **You should see:** the grey map grow in RViz as you drive; T3 ends with `Map saved successfully` and
 `~/labs/week02/my_map.pgm` + `my_map.yaml` exist (`ls ~/labs/week02`).

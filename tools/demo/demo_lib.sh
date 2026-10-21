@@ -151,6 +151,16 @@ snap() {   # snap NAME - a full-screen PNG for the lecture slides in ~/screens/N
     mkdir -p ~/screens
     ffmpeg -loglevel error -y -f x11grab -video_size 1920x1080 -i "$DISPLAY" -frames:v 1 ~/screens/"$1".png
 }
+kill_ros() {   # stop every ROS 2 node and course script still running (leftover Nav2 nodes break the next launch)
+    [ "${PREPARE:-0}" = 1 ] && return 0
+    local pat="tc70045e_ws/install|ros/humble/lib|labs/week[0-9]+/scripts|labs/solutions/" p
+    for p in $(pgrep -f "$pat"); do kill "$p" 2>/dev/null; done; sleep 3
+    for p in $(pgrep -f "$pat"); do kill -9 "$p" 2>/dev/null; done; sleep 1; }
+tall() {   # tall T2 - make a terminal tall for a long output (it covers the terminal below it); short T2 restores it
+    [ "${PREPARE:-0}" = 1 ] && return 0; wmctrl -r "$1" -e 0,960,400,960,680; sleep 0.5; }
+short() { [ "${PREPARE:-0}" = 1 ] && return 0; wmctrl -r "$1" -e 0,960,400,960,330; sleep 0.5; }
+wait_file() {  # wait_file FILE SECONDS - wait until a file exists (e.g. the .yaml that map_saver_cli writes)
+    local i; for i in $(seq 1 "$2"); do [ -s "$1" ] && return 0; sleep 1; done; return 1; }
 wait_for() {   # wait_for TEXT FILE SECONDS - wait until TEXT appears in FILE (e.g. a script's tee log)
     local i; for i in $(seq 1 "$3"); do grep -q "$1" "$2" 2>/dev/null && return 0; sleep 1; done; return 1; }
 
@@ -159,6 +169,6 @@ wait_for() {   # wait_for TEXT FILE SECONDS - wait until TEXT appears in FILE (e
 #   PREPARE=1 bash weekNN_demo.sh && bash weekNN_demo.sh /tmp/out.mp4
 if [ "${PREPARE:-0}" = 1 ]; then
     caption_bar() { :; }; term() { :; }; rec_start() { :; }; rec_stop() { :; }; run() { :; }; keys() { :; }
-    ctrlc() { :; }; place() { :; }; snap() { :; }; focus() { :; }; nano_replace() { :; }; wait_for() { :; }
+    ctrlc() { :; }; place() { :; }; snap() { :; }; focus() { :; }; nano_replace() { :; }; wait_for() { :; }; wait_file() { :; }
     cap() { say "${3:-$1}"; }; sleep() { :; }; wmctrl() { :; }; xdotool() { :; }
 fi

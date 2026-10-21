@@ -80,13 +80,13 @@ depth points on the far wall are visibly noisier – that is the stereo error σ
 | | |
 |---|---|
 | T1 | Ctrl+C, then `ros2 launch ~/labs/week04/launch/slam.launch.py slam:=toolbox drive:=true` |
-| T2 (when T1 prints `loop finished`) | `ros2 run nav2_map_server map_saver_cli -f ~/maps/w4_toolbox --ros-args -p use_sim_time:=true` |
+| T2 (when T1 prints `loop finished`) | `ros2 run nav2_map_server map_saver_cli -f ~/maps/w4_toolbox --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0` |
 | T2 | `python3 ~/labs/week04/scripts/map_check.py ~/maps/w4_toolbox.yaml` |
 
 `drive:=true` starts `drive_loop.py` 20 s after the launch: the robot drives the same 24 m circuit every time
 (210 s) and then prints its score. **Do not drive the robot yourself** while it runs.
 
-**You should see:** in T1 at the end, e.g. `error at the end [m]   SLAM 0.025   odometry 1.317` – SLAM is far
+**You should see:** in T1 at the end, e.g. `error at the end [m]   SLAM 0.002   odometry 1.064` – SLAM is far
 better than wheel odometry alone. `map_check.py` prints one line per object; the **low step** and the **table top**
 are `MISSED` (measured: 0 % and 5 % of their outline), while the table's thin legs are `SEEN`. Everything the laser
 slice cuts is `SEEN`, and there are 0 phantom cells.
@@ -98,7 +98,7 @@ slice cuts is `SEEN`, and there are 0 phantom cells.
 | | |
 |---|---|
 | T1 | Ctrl+C, then `ros2 launch ~/labs/week04/launch/slam.launch.py slam:=rtabmap drive:=true` |
-| T2 (after `loop finished`) | `ros2 run nav2_map_server map_saver_cli -f ~/maps/w4_lidar --ros-args -p use_sim_time:=true` |
+| T2 (after `loop finished`) | `ros2 run nav2_map_server map_saver_cli -f ~/maps/w4_lidar --ros-args -p use_sim_time:=true -p save_map_timeout:=10.0` |
 | T2 | `python3 ~/labs/week04/scripts/map_check.py ~/maps/w4_toolbox.yaml ~/maps/w4_lidar.yaml` |
 
 Open [`config/rtabmap.yaml`](config/rtabmap.yaml) while it drives and read the comments: RTAB-Map takes wheel odometry
@@ -149,7 +149,7 @@ table that shows – with numbers – what the camera added and what it cost.
 5. **Done when** – all four are true:
    * RViz shows the low step and the table top as black (occupied) cells in the map;
    * `map_check.py` reports `low_step` and `table_top` as `SEEN` in your map and `MISSED` in the two LiDAR-only maps;
-   * your map has fewer than about 50 phantom cells (if you have hundreds or thousands, TODO 3 is wrong – the floor
+   * your map has fewer than about 100 phantom cells (if you have hundreds or thousands, TODO 3 is wrong – the floor
      became an obstacle. Try it on purpose with `"0.0"` and look at RViz);
    * you have a table: three maps × (end error, low step, table top, phantom cells, room size, CPU of the SLAM node –
      `top` in T3, line `rtabmap` or `async_slam_tool`).
@@ -159,14 +159,17 @@ table that shows – with numbers – what the camera added and what it cost.
 [`../solutions/week04/rtabmap.yaml`](../solutions/week04/rtabmap.yaml) – run it with
 `ros2 launch ~/labs/week04/launch/slam.launch.py slam:=rtabmap drive:=true config:=$HOME/labs/solutions/week04/rtabmap.yaml`.
 
-Measured 7 Oct 2026 (simulated):
+Measured 7 Oct 2026 (simulated). Re-measured 21 Oct 2026 with the lab robot's real body (LiDAR scan 18 cm, camera 11 cm
+above the floor): slam_toolbox 0.2 – 1.4 cm off at the end (odometry 1.06 – 1.36 m), low step and table top MISSED by
+both LiDAR maps and SEEN with the D455 (35 % and 60 % of their outline), 48 – 98 phantom cells, room 10.15 × 8.20 m.
+
 
 | Map | End error / RMS | low step | table top | phantom cells | room width × depth | CPU, memory (SLAM) |
 |---|---|---|---|---|---|---|
 | slam_toolbox, LiDAR | 0.025 / 0.020 m | MISSED | MISSED | 0 | 10.00 × 8.05 m | 6 %, 48 MB |
 | RTAB-Map, LiDAR | 0.010 / 0.046 m | MISSED | MISSED | 0 | 10.00 × 8.05 m | 51 %, 358 MB |
 | RTAB-Map, LiDAR + D455, both draw (`Grid/Sensor "2"`) | 0.007 / 0.040 m | MISSED | MISSED | 1 | 10.15 × 8.21 m | 53 %, 518 MB |
-| **RTAB-Map, LiDAR + D455, camera draws (`"1"`, solution)** | 0.002-0.005 / 0.041-0.045 m | **SEEN** | **SEEN** | 23-42 (two runs) | 10.15 × 8.20 m | 53 % + 4 % rgbd_sync, 518 MB |
+| **RTAB-Map, LiDAR + D455, camera draws (`"1"`, solution)** | 0.002-0.005 / 0.041-0.045 m | **SEEN** | **SEEN** | 23-42 (7 Oct), 48-98 (21 Oct) | 10.15 × 8.20 m | 53 % + 4 % rgbd_sync, 518 MB |
 
 CPU is % of one core of the 1-core test instance. What the numbers say: the camera did not make the *pose* better
 (LiDAR SLAM is already within centimetres); it made the *map* better – it is the only sensor that sees the step and
