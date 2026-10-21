@@ -66,8 +66,39 @@ say() {   # say "text" [minimum seconds] - speak it, and wait at least until it 
     fi
     sleep "$(python3 -c "print(max($dur + 0.4, $min))")"
 }
+fast_on() {   # fast_on [factor] - from here the video plays faster (e.g. while the robot drives a long circuit)
+    [ "${PREPARE:-0}" = 1 ] && return 0
+    echo "on $(python3 -c "import time; print(round(time.time() - $T0, 2))") ${1:-8}" >> "$NARR/fast.txt"; }
+fast_off() {  # back to normal speed (no narration between fast_on and fast_off)
+    [ "${PREPARE:-0}" = 1 ] && return 0
+    echo "off $(python3 -c "import time; print(round(time.time() - $T0, 2))")" >> "$NARR/fast.txt"; }
+speed_up() {  # apply the fast_on/fast_off marks to silent.mp4 and shift the narration times to match
+    python3 - "$NARR" <<'PYEOF'
+import os, subprocess, sys
+d = sys.argv[1]
+marks, segs = [l.split() for l in open(d + '/fast.txt')], []
+for i in range(0, len(marks) - 1, 2):
+    segs.append((float(marks[i][1]), float(marks[i + 1][1]), float(marks[i][2])))
+dur = float(subprocess.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0',
+                                     d + '/silent.mp4']))
+parts, t = [], 0.0
+for a, b, f in segs:
+    parts += [(t, a, 1.0), (a, b, f)]; t = b
+parts.append((t, dur, 1.0))
+filt = ''.join('[0:v]trim=%.2f:%.2f,setpts=(PTS-STARTPTS)/%g[v%d];' % (a, b, f, i) for i, (a, b, f) in enumerate(parts))
+filt += ''.join('[v%d]' % i for i in range(len(parts))) + 'concat=n=%d:v=1:a=0[out]' % len(parts)
+subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-i', d + '/silent.mp4', '-filter_complex', filt, '-map', '[out]',
+                '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '30', '-pix_fmt', 'yuv420p', d + '/fast.mp4'], check=True)
+def shift(x):   # time in the original recording -> time in the faster video
+    return x - sum((min(x, b) - a) * (1 - 1 / f) for a, b, f in segs if x > a)
+lines = [l.split() for l in open(d + '/list.txt')] if os.path.exists(d + '/list.txt') else []
+open(d + '/list.txt', 'w').write(''.join('%.2f %s\n' % (shift(float(t)), w) for t, w in lines))
+PYEOF
+    mv "$NARR/fast.mp4" "$NARR/silent.mp4"
+}
 rec_stop() {   # stop the screen recording, then lay the narration under it
     kill -INT "$REC_PID"; wait "$REC_PID" 2>/dev/null
+    [ -s "$NARR/fast.txt" ] && speed_up
     if [ ! -s "$NARR/list.txt" ]; then cp "$NARR/silent.mp4" "$REC_OUT"; return; fi
     local inputs=() filt='' mix='' i=1
     while read -r t wav; do

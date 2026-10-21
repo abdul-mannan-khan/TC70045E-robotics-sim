@@ -1,0 +1,11 @@
+# TC70045E lab robot materials
+
+newmtl Wheel_Carbon
+Ns 50
+Ka 0.0659 0.0776 0.0729
+Kd 0.109804 0.129412 0.121569
+Ks 0.2 0.2 0.2
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2

@@ -1,0 +1,11 @@
+# TC70045E lab robot materials
+
+newmtl Camera_Black
+Ns 50
+Ka 0.0612 0.0729 0.0659
+Kd 0.101961 0.121569 0.109804
+Ks 0.2 0.2 0.2
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2

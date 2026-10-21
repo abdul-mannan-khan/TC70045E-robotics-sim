@@ -28,6 +28,11 @@
       <real_time_factor>1</real_time_factor>
       <real_time_update_rate>1000</real_time_update_rate>
     </physics>
+    <gui fullscreen="0">
+      <camera name="user_camera">
+        <pose>0 -7.2 7.8 0 0.8117 1.5708</pose>   <!-- both rooms from above the south wall -->
+      </camera>
+    </gui>
     <scene><shadows>false</shadows><ambient>0.6 0.6 0.6 1</ambient><background>0.7 0.8 0.9 1</background></scene>
     <model name="wall_north"><static>true</static><pose>0 4.05 0.6 0 0 0.0</pose>
       <link name="l"><collision name="c"><geometry><box><size>10.2 0.1 1.2</size></box></geometry></collision>

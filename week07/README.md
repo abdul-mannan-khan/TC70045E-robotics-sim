@@ -5,6 +5,8 @@ LiDAR is switched **off**. RTAB-Map builds the map and keeps track of the robot 
 features between images – and then Nav2 drives on that map, with the depth camera as its only obstacle sensor.
 Many cheap robots, drones and phones have a camera but no LiDAR. You will **measure** what that costs.
 
+**Assessment 1 (50 %) is due this week** – submit it on Blackboard by the deadline shown there.
+
 **Watch the demo video first:** `TC70045E_Week07_demo.mp4` in the Week 7 folder on Blackboard. It shows every step
 below, with Gazebo (the simulated world) and RViz (what the robot knows) side by side.
 

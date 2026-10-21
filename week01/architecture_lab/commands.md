@@ -136,7 +136,7 @@ rqt_graph
 
 ```text
 At time 0.0
-- Translation: [0.020, 0.000, 0.142]
+- Translation: [0.043, 0.000, 0.181]
 - Rotation: in Quaternion (xyzw) [0.000, 0.000, 0.000, 1.000]
 ```
 

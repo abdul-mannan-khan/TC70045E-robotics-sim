@@ -1,4 +1,4 @@
-# Week 06 – See and Understand with the D455: from Pixels to the Map (Assessment 1 due)
+# Week 06 – See and Understand with the D455: from Pixels to the Map (Assessment 1 work time)
 
 In Week 4 the D455 depth camera improved the **map**. This week it does what a camera is really for: it
 **recognises** things. Two painted boxes stand in the lab, one red and one green. Your brick, `box_finder.py`, finds
@@ -8,7 +8,7 @@ puts it on the SLAM map – where you can check it against the true position.
 **Watch the demo video first:** `TC70045E_Week06_demo.mp4` in the Week 6 folder on Blackboard. It shows every step
 below, with Gazebo (the simulated world) and RViz (what the robot knows) side by side.
 
-**Assessment 1 is due this week.** The last 35 minutes of the session are protected for finishing and submitting it.
+**Assessment 1 (50 %) is due in Week 7.** The last 35 minutes of this session are protected for working on it.
 
 | Time in class | Part |
 |---|---|
@@ -16,7 +16,7 @@ below, with Gazebo (the simulated world) and RViz (what the robot knows) side by
 | 10 min | Step 0 – start the container |
 | 45 min | Activities A1–A3 |
 | 50 min | Your activity (the TODO) – finish `box_finder.py` |
-| 35 min | Assessment 1: finish and submit |
+| 35 min | Assessment 1: work time (due Week 7) |
 
 ---
 

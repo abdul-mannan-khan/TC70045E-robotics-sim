@@ -1,7 +1,7 @@
 # Week 04 – Add a Sensor, Upgrade the SLAM: LiDAR + D455 Camera
 
 In Week 2 the robot built a map with **one** sensor, a 2D LiDAR, and **slam_toolbox**. A 2D LiDAR sees one thin
-horizontal slice of the world, about 14 cm above the floor. Anything below that slice (a step, a cable, a pallet) or
+horizontal slice of the world, about 18 cm above the floor. Anything below that slice (a step, a cable, a pallet) or
 above it (a table top) is not in the map – and Nav2 (Week 3) will happily drive into it.
 
 This week you add a second sensor, the **Intel RealSense D455** depth camera (simulated, same topics as the real
