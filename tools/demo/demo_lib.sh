@@ -45,7 +45,7 @@ EOF
 rec_start() {
     REC_OUT=$1; rm -rf "$NARR"; mkdir -p "$NARR"
     ffmpeg -loglevel error -y -f x11grab -framerate 10 -video_size 1920x1080 -i "$DISPLAY" \
-        -c:v libx264 -preset veryfast -crf 30 -pix_fmt yuv420p "$NARR/silent.mp4" &
+        -c:v libx264 -preset veryfast -crf 30 -threads 4 -pix_fmt yuv420p "$NARR/silent.mp4" &
     REC_PID=$!
     T0=$(date +%s.%N)
     sleep 1
